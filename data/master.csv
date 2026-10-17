@@ -165,6 +165,7 @@ SSP,System Security Plans,
 SSPM,SaaS Security Posture Management,"A security approach and category of tools that continuously monitors SaaS applications for security risks, misconfigurations, excessive permissions, and compliance issues."
 STIG,Security Technical Implementation Guide,
 SWA,Secure Web Access,"A security web gateway that controls, inspects, and protects users’ access to websites and internet applications."
+TCP,Transmission Control Protocol,
 TDR,Threat Detection and Response,"The continuous process of detecting, investigating, containing, and remediating cyber threats to minimize their organizational impact."
 TP,Transformation Procedure,An authorized procedure in the Clark-Wilson integrity model that operates on CDIs or converts approved UDI into valid CDI.
 UDI,Unconstrained Data Item,"Represents data that has not been validated against the Clark–Wilson integrity model’s constraints, such as arbitrary user input."
