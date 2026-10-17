@@ -1,5 +1,6 @@
 import csv
 import ctypes
+import shutil
 from ctypes import wintypes
 
 from mez_common import (BUILTIN_DECKS, csv_path, clear_screen, print_mode_banner, print_wrapped,
@@ -7,6 +8,7 @@ from mez_common import (BUILTIN_DECKS, csv_path, clear_screen, print_mode_banner
                         load_all_builtin)
 
 MASTER_FILE = "master.csv"
+BACKUP_FILE = "master.bak"
 FIELDS = ["acronym", "full_name", "description"]
 
 # 1a. read_rows
@@ -70,8 +72,13 @@ def read_rows(filename):
 
 # 1b. Sort rows by acronym and save them back to the file
 def write_sorted(filename, rows):
-    """Sort rows by acronym (ignoring capitals), then write the file with its header."""
+    """
+    Sort rows by acronym (ignoring capitals), then write the file with its header.
+    Before master.csv is written, copy it to master.bak (one step of undo).
+    """
     rows.sort(key=lambda row: row["acronym"].casefold())
+    if filename == MASTER_FILE:
+        shutil.copy2(csv_path(MASTER_FILE), csv_path(BACKUP_FILE))      # back up master first
     with open(csv_path(filename), mode="w", encoding="utf-8", newline="") as file:
         writer = csv.DictWriter(file, fieldnames=FIELDS, lineterminator="\n")
         writer.writeheader()
