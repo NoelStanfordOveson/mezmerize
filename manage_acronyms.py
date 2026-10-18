@@ -429,37 +429,39 @@ def wrap_choices(lead, choices):
             lines[-1] += "   " + choice                                 # fits: add it to this line
     return "\n".join(lines)
 
-# 4e. Decide which card to edit and which decks the edit will be saved to
-def choose_edit_scope(matches):
+# 4e. Decide which card to edit or delete, and which decks it applies to
+def choose_edit_scope(matches, verb="Edit"):
     """
-    Return (card, decks): the card to edit, plus the (label, filename) decks
-    the edit will be saved to. Return None for ESC.
+    Return (card, decks): the card to edit or delete, plus the (label, filename) decks
+    the change applies to. verb ("Edit" or "Delete") is used in the prompts.
+    Return None for ESC.
     """
     editable = [(number, card) for number, card in enumerate(matches, start=1)
                 if deck_file_for(card["deck"])]
     if len(editable) > 1:
-        return pick_from_matches(editable)                              # screen 1
+        return pick_from_matches(editable, verb)                        # screen 1
 
     card = editable[0][1]
     decks = decks_with_version(card)
     if len(decks) <= 1:
         return card, [(card["deck"], deck_file_for(card["deck"]))]      # one deck only: no question
-    return ask_only_or_sync(card, decks)                                # screen 2
+    return ask_only_or_sync(card, decks, verb)                          # screen 2
 
-# 4f. Screen 1: several matches on screen; pick one deck, or S to sync them all
-def pick_from_matches(editable):
-    """Ask which match to edit, or S to sync identical matches. Return (card, decks) or None."""
+# 4f. Screen 1: several matches on screen; pick one deck, or S for all of them
+def pick_from_matches(editable, verb="Edit"):
+    """Ask which match to edit or delete, or S for all identical matches. Return (card, decks) or None."""
+    sync = "sync " if verb == "Edit" else ""                            # edit says "sync all", delete just "all"
     choices = [f"{number} = {card['deck']}" for number, card in editable]
 
     keys = [str(number) for number, card in editable]
     extras = []
     first = editable[0][1]
     if all(version_of(card) == version_of(first) for number, card in editable):
-        extras.append("S = sync all (identical)")
+        extras.append(f"S = {sync}all (identical)")
         keys.append("s")
     extras.append("ESC = cancel")
 
-    lead = "Edit which?  "
+    lead = f"{verb} which?  "
     print("\n\n" + wrap_choices(lead, choices))
     print(wrap_choices(" " * len(lead), extras), end="", flush=True)
     choice = read_key(keys + ["esc"])
@@ -472,12 +474,13 @@ def pick_from_matches(editable):
             return card, [(card["deck"], deck_file_for(card["deck"]))]
 
 # 4g. Screen 2: one match on screen, identical copies in other decks
-def ask_only_or_sync(card, decks):
-    """Say where else this exact card lives; ask O (only this deck) or S (sync all). Return (card, decks) or None."""
+def ask_only_or_sync(card, decks, verb="Edit"):
+    """Say where else this exact card lives; ask O (only this deck) or S (all decks). Return (card, decks) or None."""
+    sync = "sync " if verb == "Edit" else ""                            # edit says "sync all", delete just "all"
     others = ", ".join(label for label, filename in decks if label != card["deck"])
     print(f"\n\n{card['acronym']} is also in: {others}")
-    lead = "Edit  "
-    print(wrap_choices(lead, ["O = only this deck", f"S = sync all decks ({len(decks)})"]))
+    lead = f"{verb}  "
+    print(wrap_choices(lead, ["O = only this deck", f"S = {sync}all decks ({len(decks)})"]))
     print(wrap_choices(" " * len(lead), ["ESC = cancel"]), end="", flush=True)
 
     choice = read_key(("o", "s", "esc"))
