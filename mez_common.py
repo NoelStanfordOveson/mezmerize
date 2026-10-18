@@ -56,7 +56,7 @@ def print_wrapped(label, text, width=CARD_WIDTH):
 # 1b. Clear the terminal screen
 def clear_screen(margin=True):
     """Erase the terminal, then leave a little space at the top."""
-    os.system('cls' if os.name == 'nt' else 'clear')    
+    os.system('cls' if os.name == 'nt' else 'clear')
     if margin:
         print("\n" * TOP_MARGIN)                                    # leave a little space at the top of the screen
 
@@ -88,7 +88,7 @@ def program_folder():
 # 1g. Open CSVs from the data folder
 def csv_path(filename):
     """
-    Return the full path to a CSV file. 
+    Return the full path to a CSV file.
     A plain name means a file in the data folder; a full path comes back unchanged.
     """
     if os.path.isabs(filename):
@@ -231,6 +231,6 @@ def say_goodbye():
     """Print the exit message."""
     print()
     print()
-    print("Thank you for using the Acronym Finder Flashcards program! Goodbye! 👋")
-    print("Made with 💭 by TristanTango73")
+    print("Thank you for using Mezmerize Acronym Finder! Goodbye! 👋".center(CARD_WIDTH))
+    print("Made with 💭 by TristanTango73".center(CARD_WIDTH))
     print("\n\n")
