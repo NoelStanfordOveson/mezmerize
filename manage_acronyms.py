@@ -324,6 +324,7 @@ def add_acronyms():
         if add_to_deck(label, filename) == "quit":
             return "quit"                                               # anything else means ESC: loop back to the deck list
 
+# 4. Lookup
 # 4a. Show a full single flashcard without options
 def show_full_card(card, title=None):
     """Show every field at once. An optional title is centered in the top rule."""
@@ -367,17 +368,19 @@ def lookup_acronym(flashcards, deck_name):
                 show_full_card(card, title=f"Match {number} of {len(matches)}")
 
         keys = ["enter", "esc", "q"]
-        prompt = "ENTER = look up another   ESC = menu   Q = quit"
+        actions = []
         if not matches:
             keys.append("a")
-            prompt = "A = add it   " + prompt
+            actions.append("A = add it")
 
         if any(deck_file_for(card["deck"]) for card in matches):
-            keys.append("e")
-            prompt = "E = edit   " + prompt
+            keys += ["e", "d"]
+            actions += ["E = edit", "D = delete"]
 
         print()
-        print(prompt, end="", flush=True)
+        if actions:
+            print("   ".join(actions))
+        print("ENTER = look up another   ESC = menu   Q = quit", end="", flush=True)
 
         action = read_key(keys)
         if action == "a":
@@ -399,6 +402,19 @@ def lookup_acronym(flashcards, deck_name):
                         if shown["deck"] in labels and version_of(shown) == version_of(card):
                             flashcards[position] = {**updated, "deck": shown["deck"]}
                     flashcards.sort(key=lambda card: card["acronym"].casefold())
+                print()
+                print("ENTER = back to lookup     Q = quit", end="", flush=True)
+                if read_key(("enter", "esc", "q")) == "q":
+                    return "quit"
+        elif action == "d":
+            scope = choose_edit_scope(matches, "Delete")
+            if scope is not None:
+                card, decks = scope
+                if delete_card(card, decks):
+                    labels = [label for label, filename in decks]
+                    for shown in flashcards[:]:                         # loop over a copy, so removing is safe
+                        if shown["deck"] in labels and version_of(shown) == version_of(card):
+                            flashcards.remove(shown)
                 print()
                 print("ENTER = back to lookup     Q = quit", end="", flush=True)
                 if read_key(("enter", "esc", "q")) == "q":
@@ -483,7 +499,7 @@ def ask_this_or_all(card, decks, verb="Edit"):
     print(f"\n\n{card['acronym']} is also in: {others}")
     print()
     lead = f"{verb}  "
-    print(wrap_choices(lead, ["D = this deck only", f"A = all decks ({len(decks)})"]))
+    print(wrap_choices(lead, ["D = from this deck only", f"A = in all decks ({len(decks)})"]))
     print(wrap_choices(" " * len(lead), ["ESC = cancel"]), end="", flush=True)
 
     choice = read_key(("d", "a", "esc"))
