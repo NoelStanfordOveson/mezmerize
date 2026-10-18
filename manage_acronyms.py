@@ -40,7 +40,11 @@ FIELDS = ["acronym", "full_name", "description"]
 # 5f. confirm_edits
 # 5g. update_master
 # 5h. edit_card
-# 6. Main program loop
+# 6a. confirm_delete
+# 6b. type_to_confirm
+# 6c. confirm_removal_in_master
+# 6d. delete_card
+# 7. Main program loop
 
 
 # 1. File helpers
@@ -618,8 +622,138 @@ def edit_card(card, decks):
         print(f"     {filename}")
     return new_entry
 
+# 6. Delete
+# 6a. Show the card, and the deck files that will be deleted from; ask before deleting
+def confirm_delete(card, filenames):
+    """Show the card and the CAUTION block. Return True for ENTER, False for ESC."""
+    clear_screen()
+    print_mode_banner("DELETE AN ACRONYM")
+    print()
+    show_full_card(card, title="DELETING")
+    print()
 
-# 6. Main program loop
+    print(" ⚠️  CAUTION  ⚠️ ".center(CARD_WIDTH, "*"))
+    print(f"DELETING FROM:  {filenames[0]}")
+    for filename in filenames[1:]:
+        print(f"                {filename}")
+    print("*" * CARD_WIDTH)
+
+    print("\nFiles will be modified and overwritten. Do you really want to proceed?\n")
+    return overwrite_line("ENTER = delete it     ESC = forget it") == "enter"
+
+# 6b. Have the acronym typed exactly; give a friendly hint and ask again until it matches
+def type_to_confirm(acronym):
+    """
+    Keep asking until the acronym is typed exactly, letter case included.
+    Return True when it matches, False for ESC.
+    """
+    prompt = f"Type {acronym} exactly, matching case (ESC = cancel): "
+    while True:
+        typed = input_or_esc(prompt, required=True)
+        if typed is None:
+            return False                                                # ESC: cancel the whole delete
+        typed = typed.strip()
+        if typed == acronym:
+            return True
+
+        if typed.casefold() == acronym.casefold():
+            hint = f"Close! But the capital letters don't match. Type {acronym} exactly as shown."
+        elif len(typed) != len(acronym):
+            chars = "character" if len(typed) == 1 else "characters"
+            hint = f"That's {len(typed)} {chars}; {acronym} has {len(acronym)}. Try again."
+        else:
+            hint = f"Same length, but the letters aren't the same as {acronym}. Check typing and try again."
+        print_wrapped("", hint)
+        print()
+
+# 6c. Last deck copy: ask whether to remove it from master.csv too, or keep it there as backlog
+def confirm_removal_in_master(card):
+    """
+    Show the master.csv CAUTION screen.
+    Return 'remove' (R, then the acronym typed exactly), 'keep' (K), or None for ESC
+    """
+    clear_screen()
+    print_mode_banner("DELETE AN ACRONYM - MASTER")
+    print()
+    print_wrapped("", f"{card['acronym']} is not in any other deck. Remove it from "
+                        f"{MASTER_FILE} too, or keep it there as backlog?")
+    print()
+
+    print(" ⚠️  CAUTION  ⚠️ ".center(CARD_WIDTH, "*"))
+    print(f"ACRONYM:     {card['acronym']}")
+    print_wrapped("FULL NAME:   ", card["full_name"] or "(blank)")
+    print_wrapped("DESCRIPTION: ", card["description"] or "(blank)")
+    print(f"\nWRITING TO:  {MASTER_FILE}  (backed up to {BACKUP_FILE} first)")
+    print("*" * CARD_WIDTH)
+    print()
+
+    print(wrap_choices("", ["R = remove from master", "K = keep in master (backlog)",
+                            "ESC = cancel"]), end="", flush=True)
+    choice = read_key(("r", "k", "esc"))
+    if choice == "esc":
+        return None
+    if choice == "k":
+        return "keep"
+    print()
+    print()
+    if type_to_confirm(card["acronym"]):
+        return "remove"
+    return None
+
+# 6d. Delete one card from every deck in the scope; then remove it from master.csv if asked
+def delete_card(card, decks):
+    """
+    Delete a card from each built-in deck in decks, a list of (label, filename) pairs.
+    If that was the last deck copy, ask whether to remove it from master.csv as well.
+    Nothing is written until every question is answered.
+    Return True if the card was deleted, False if nothing changed.
+    """
+    loaded = []
+    for label, filename in decks:
+        rows = read_rows(filename)
+        position = find_row(rows, card)
+        if position is None:                                            # file changed since lookup
+            print(f"\nRESULT:  Can't delete. {card['acronym']} ({card['full_name']}) "
+                  f"wasn't found in {filename}.")
+            print("     Nothing was changed. Check deck health to help find the mismatch.")
+            return False
+        loaded.append((filename, rows, position))
+
+    filenames = [filename for label, filename in decks]
+    if not confirm_delete(card, filenames):
+        print("\nRESULT:  Not deleted. No files were changed.")
+        return False
+
+    remaining = [deck for deck in decks_with_version(card) if deck not in decks]
+    master_rows = read_rows(MASTER_FILE)
+    master_position = find_row(master_rows, card)
+
+    master_choice = "keep"
+    if not remaining and master_position is not None:                   # last deck copy, and master has it
+        master_choice = confirm_removal_in_master(card)
+        if master_choice is None:
+            print("\nRESULT:  Not deleted. No files were changed.")
+            return False
+
+    for filename, rows, position in loaded:
+        rows.pop(position)
+        write_sorted(filename, rows)
+    if master_choice == "remove":
+        master_rows.pop(master_position)
+        write_sorted(MASTER_FILE, master_rows)
+        filenames.append(MASTER_FILE)
+
+    print(f"\nRESULT:  Deleted. {card['acronym']} was removed from:")
+    for filename in filenames:
+        print(f"     {filename}")
+    if remaining:
+        print(f"     Still in: {', '.join(label for label, filename in remaining)}")
+    elif master_choice == "keep" and master_position is not None:
+        print(f"     It stays in {MASTER_FILE} as backlog.")
+    return True
+
+
+# 7. Main program loop
 def main():
     """Show the manage-acronyms menu. Return 'back' (ESC) or 'quit' (Q)."""
     while True:
