@@ -21,11 +21,15 @@ py check_decks.py        # audit data/master.csv against the decks
 
 - `mez_common.py` (bottom): shared constants (CARD_WIDTH = 60, DATA_FOLDER, BUILTIN_DECKS)
   and helpers used by more than one program (screen, keys, input, CSV paths, loading decks).
-- `manage_acronyms.py`: lookup, add, edit, and delete. Reads and writes the CSVs (read_rows, write_sorted).
+- `mez_cards.py` (middle): card logic, no screens. Reads and writes the CSVs (read_rows,
+  write_sorted), identifies cards and finds them in decks (version_of, find_row,
+  decks_with_version, decks_with_acronym), and keeps master.csv current (update_master).
+- `manage_acronyms.py`: the screens for lookup, add, edit, and delete.
 - `flashcards.py` and `check_decks.py`: flashcards imports lookup_acronym from manage_acronyms.
 - `mezmerize.py` (top): the menu that calls each program's main().
 - Two-test rule for mez_common: code goes there only if (1) more than one program needs it
   and (2) it depends on nothing else of ours.
+- Code that reads, writes, or compares cards without printing a screen goes in mez_cards.
 
 ## Data rules
 
@@ -46,17 +50,27 @@ py check_decks.py        # audit data/master.csv against the decks
 - Every write to master.csv first copies it to data/master.bak (one step of undo;
   *.bak is in .gitignore).
 - Lookup matches on acronym only.
+- Single-deck lookup (as in flashcards) also checks the other built-in decks, by acronym.
+  Found here: `Also in:` the other decks, then `(N total)` counting this deck, plus
+  `, N identical` when one card was found and other decks hold that exact version.
+  Not found here: `Found in:` the other decks, then `(N total)`.
+  All-decks lookup skips this.
 - Data changes and code changes go in separate commits.
 
 ## UI conventions
 
 - Nothing wider than CARD_WIDTH. Choice prompts wrap between choices (wrap_choices),
   never splitting a key from its name.
+- Key bars sit flush left with 5 spaces between choices (3 when a line is tight).
+  Exception: the D / A scope prompt ("You chose Delete.") is indented 5 on purpose.
+- Deck labels in a wrapped list use non-breaking spaces ("\u00a0") so a name never
+  splits across lines.
 - Q quits completely; ESC goes back one level.
 - Result lines start `RESULT:` followed by two spaces.
-- Before saving, show a CAUTION block listing every file that will be written.
+- Before saving or deleting, show a CAUTION block listing every file that will be affected.
 - Lookup's key line is two lines: actions (A = add it / E = edit / D = delete), then a fixed
   navigation line (ENTER / ESC / Q). Navigation keys are written in capitals.
+- Printed prompts don't say "sync"; code names can.
 - Use `...` in examples to stand for other text that's on the screen.
 
 ## How to work with me
@@ -64,15 +78,24 @@ py check_decks.py        # audit data/master.csv against the decks
 - I'm learning Python and type every change myself. Don't edit code files directly.
 - For a big new or contiguous block, show the whole block first, then break it into
   snippets, outermost bracket first, each with a short explanation.
-- Break replies into chunks and pause for questions.
+- When pointing at code, give the function name, index number, line number, and a
+  search phrase.
+- Break replies into small chunks. End each with a pause for my questions or comments,
+  shown as `ENTER = continue`. ENTER (or a single `.` if the app won't send an empty
+  message) means go on: no "tell me when you're ready" or "ok, done" back-and-forth.
 - Before anything needing approval, say first whether it is new or a change.
 - After I type a change, check the file: compile it, read it, and run it on a scratch
   copy of the data before moving on.
 - Test plans: a two-column table, Step | Expected result.
 - Tell me when to commit, with a GitHub Desktop summary and description.
   One commit = one thing. I commit and push in GitHub Desktop.
+- Each new feature gets its own branch: branch, build, test, then merge into main.
 - Each file has a numbered index at the top; keep it matching the section headers.
+- No blank line after a module docstring.
+- Imports in three groups with a blank line between: standard library, third-party, ours.
 - Two blank lines before main() (and after the imports and constants at the top);
   one blank line between other functions.
 - Cosmetic changes (spacing, wording) get their own commit.
+- Git on Windows converts line endings (autocrlf). CRLF/LF differences seen from Claude's
+  side aren't real changes; check with `GIT_OPTIONAL_LOCKS=0` and `-c core.autocrlf=true`.
 - The someday list (in priority order) is kept in Claude's memory, not here.
