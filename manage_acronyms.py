@@ -324,7 +324,7 @@ def lookup_acronym(flashcards, deck_name):
         if not matches:
             if elsewhere:
                 print(f'\nNo card found for "{query}" in this deck.')
-                print_wrapped("Found in: ", ", ".join(elsewhere))
+                print_wrapped("Found in: ", ", ".join(label.replace(" ", "\u00a0") for label in elsewhere)) # replace space with non-breaking one
                 print(f"          ({len(elsewhere)} total)")
             else:
                 print(f'\nNo card found for "{query}".')
@@ -342,7 +342,7 @@ def lookup_acronym(flashcards, deck_name):
                     identical = len(decks_with_version(matches[0]))
                     if identical > 1:
                         counts += f", {identical} identical"
-                print_wrapped("Also in: ", ", ".join(elsewhere))
+                print_wrapped("Also in: ", ", ".join(label.replace(" ", "\u00a0") for label in elsewhere))
                 print(f"         ({counts})")
             print()
             for number, card in enumerate(matches, start=1):
