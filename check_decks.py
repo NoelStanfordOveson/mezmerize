@@ -9,7 +9,6 @@ Put this file next to flashcards.py (the CSV decks live in the data folder), the
 Expected CSV columns (same as flashcards.py):
     acronym, full_name, description
 """
-
 import argparse
 import csv
 import os
