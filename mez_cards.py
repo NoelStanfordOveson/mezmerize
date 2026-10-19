@@ -5,7 +5,6 @@ This is the middle floor. It reads, compares, and writes cards; it has no menus,
 prompts, or keypresses. It imports only Python's own modules and mez_common
 (the floor below), so nothing can import in a circle.
 """
-
 import csv
 import shutil
 
@@ -21,6 +20,7 @@ FIELDS = ["acronym", "full_name", "description"]
 # 2b. version_of
 # 2c. find_row
 # 2d. decks_with_version
+# 2e. decks_with_acronym
 # 3. update_master
 
 
@@ -94,6 +94,16 @@ def decks_with_version(card):
     for label, filename in BUILTIN_DECKS:
         if find_row(read_rows(filename), card) is not None:
             found.append((label, filename))
+    return found
+
+# 2e. Find every built-in deck that has a card with this acronym (any version)
+def decks_with_acronym(acronym):
+    """Return the labels of the built-in decks that have at least one card with this acronym."""
+    wanted = acronym.strip().casefold()
+    found = []
+    for label, filename in BUILTIN_DECKS:
+        if any(row["acronym"].casefold() == wanted for row in read_rows(filename)):
+            found.append(label)
     return found
 
 # 3. Update master.csv: add the new version, drop the old one only if no deck still uses it

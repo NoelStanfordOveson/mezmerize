@@ -1,5 +1,4 @@
 """mezmerize: one menu that runs the mezmerize acronym tools."""
-
 import flashcards
 import manage_acronyms
 import check_decks
@@ -10,7 +9,7 @@ from mez_common import clear_screen, print_mode_banner, read_key, say_goodbye
 # Menu label and the function that runs that program
 PROGRAMS = [
     ("Study flashcards", flashcards.main),
-    ("Look up, add or edit acronyms", manage_acronyms.main),
+    ("Look up or add/edit/delete acronyms", manage_acronyms.main),
     ("Check deck health", check_decks.main),
 ]
 
@@ -22,7 +21,7 @@ def choose_program():
     clear_screen()
     print_mode_banner("MEZMERIZE")
     print("\nWhat would you like to do?\n")
-    
+
     for number, (label, run) in enumerate(PROGRAMS, start=1):
         print(f"{number}. {label}")
     print()

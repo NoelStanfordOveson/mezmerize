@@ -4,7 +4,6 @@ manage_acronyms: look up, add, edit, and delete acronyms.
 A program floor: the screens, prompts, and keys for managing cards. The card
 logic itself (reading, comparing, writing) lives in mez_cards, one floor down.
 """
-
 import ctypes
 from ctypes import wintypes
 
@@ -12,7 +11,7 @@ from mez_common import (BUILTIN_DECKS, clear_screen, print_mode_banner, print_wr
                         CARD_WIDTH, overwrite_line, read_key, input_or_esc, say_goodbye,
                         load_all_builtin)
 from mez_cards import (MASTER_FILE, BACKUP_FILE, FIELDS, read_rows, write_sorted, deck_file_for,
-                       version_of, find_row, decks_with_version, update_master)
+                       version_of, find_row, decks_with_acronym, decks_with_version, update_master)
 
 # 1a. Windows keystroke records (classes)
 # 1b. prefill
@@ -318,10 +317,34 @@ def lookup_acronym(flashcards, deck_name):
             if card["acronym"].strip().upper() == query_upper
         ]
 
+        elsewhere = []
+        if deck_name != "ALL DECKS":
+            elsewhere = [label for label in decks_with_acronym(query) if label != deck_name]
+
         if not matches:
-            print(f'\nNo card found for "{query}".')
+            if elsewhere:
+                print(f'\nNo card found for "{query}" in this deck.')
+                print_wrapped("Found in: ", ", ".join(elsewhere))
+                print(f"          ({len(elsewhere)} total)")
+            else:
+                print(f'\nNo card found for "{query}".')
         else:
-            print(f"\nFound {len(matches)} card(s) for {query_upper}.\n")
+            if deck_name == "ALL DECKS":
+                print(f"\nFound {len(matches)} card(s) for {query_upper}.")
+            elif len(matches) == 1:
+                print(f"\nFound {query_upper}.")
+            else:
+                print(f"\nFound {len(matches)} cards for {query_upper}.")
+
+            if elsewhere:
+                counts = f"{len(elsewhere) + 1} total"
+                if len(matches) == 1:
+                    identical = len(decks_with_version(matches[0]))
+                    if identical > 1:
+                        counts += f", {identical} identical"
+                print_wrapped("Also in: ", ", ".join(elsewhere))
+                print(f"         ({counts})")
+            print()
             for number, card in enumerate(matches, start=1):
                 show_full_card(card, title=f"Match {number} of {len(matches)}")
 
@@ -441,6 +464,7 @@ def pick_from_matches(editable, verb="Edit"):
     lead = f"{verb} which?  "
     print("\n\n" + wrap_choices(lead, choices))
     print(wrap_choices(" " * len(lead), extras), end="", flush=True)
+
     choice = read_key(keys + ["esc"])
     if choice == "esc":
         return None
@@ -452,13 +476,12 @@ def pick_from_matches(editable, verb="Edit"):
 
 # 4g. Screen 2: one match on screen, copies elsewhere; D for this deck, or A for all of them
 def ask_this_or_all(card, decks, verb="Edit"):
-    """Say where else this exact card lives; ask D (this deck only) or A (all decks). Return (card, decks) or None."""
-    others = ", ".join(label for label, filename in decks if label != card["deck"])
-    print(f"\n\n{card['acronym']} is also in: {others}")
+    """Confirm the choice; ask D (this deck only) or A (every deck with this identical card). Return (card, decks) or None"""
+    print(f"\n\nYou chose {verb}.")
     print()
-    lead = f"{verb}  "
-    print(wrap_choices(lead, ["D = from this deck only", f"A = in all decks ({len(decks)})"]))
-    print(wrap_choices(" " * len(lead), ["ESC = cancel"]), end="", flush=True)
+    lead = "     "
+    print(wrap_choices(lead, ["D = in this deck only", f"A = in all decks ({len(decks)} identical)"]))
+    print(wrap_choices(lead, ["ESC = cancel"]), end="", flush=True)
 
     choice = read_key(("d", "a", "esc"))
     if choice == "esc":
@@ -686,7 +709,7 @@ def main():
         clear_screen()
         print_mode_banner("MANAGE ACRONYMS")
         print("\nWhat would you like to do?\n")
-        print("1. Look up or edit an acronym (all decks)")
+        print("1. Look up or edit/delete an acronym (all decks)")
         print("2. Add acronyms to a deck")
         print()
         print("ESC = back     Q = quit")
