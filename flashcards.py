@@ -6,7 +6,6 @@ from mez_common import (BUILTIN_DECKS, CARD_WIDTH, DATA_FOLDER, clear_screen, cs
                         print_mode_banner, print_wrapped, read_key, say_goodbye)
 from manage_acronyms import lookup_acronym
 
-
 # 1. show_card
 # 2. resolve_csv_path
 # 3. choose_deck
@@ -62,7 +61,7 @@ def choose_deck():
         print("C. My own CSV file")
         print()
         print("ESC = back     Q = quit")
-            
+
         choice = read_key(deck_keys + ["a", "c", "esc", "q"])
 
         if choice == "esc":
@@ -143,7 +142,7 @@ def main():
                 for number, card in enumerate(flashcards, start=1):
                     if show_card(card, number=number, total=total) == "esc":
                         break
-                        
+
             elif choice == "2":
                 clear_screen(margin=False)
                 print_mode_banner("QUIZ")

@@ -9,6 +9,7 @@ Put this file next to flashcards.py (the CSV decks live in the data folder), the
 Expected CSV columns (same as flashcards.py):
     acronym, full_name, description
 """
+
 import argparse
 import csv
 import os
@@ -20,7 +21,7 @@ from mez_common import BUILTIN_DECKS, clear_screen, csv_path, print_mode_banner,
 
 REQUIRED_COLUMNS = ("acronym", "full_name", "description")
 DECK_CHECK_WIDTH = 96                                       # widest the report gets, even in a big window
-ACRONYM_COLUMN = 8                                          # width of the acronym column in the report 
+ACRONYM_COLUMN = 8                                          # width of the acronym column in the report
 
 
 def report_width():
