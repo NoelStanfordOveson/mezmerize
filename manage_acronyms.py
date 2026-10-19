@@ -180,9 +180,10 @@ def confirm_add(entry, label, filename):
     print(f"ACRONYM:     {entry['acronym']}")
     print_wrapped("FULL NAME:   ", entry['full_name'] or '(blank)')
     print_wrapped("DESCRIPTION: ", entry['description'] or '(blank)')
-    print(f"\nWRITING TO:  {filename} & {MASTER_FILE}")
+    print(f"\nWRITING TO:  {filename}")
+    print(f"             {MASTER_FILE}")
     print("*" * CARD_WIDTH)
-    print("\nFiles will be modified and overwritten. Do you really want to proceed?\n")
+    print("\nThe files above will be updated. Save this card?\n")
     return overwrite_line("ENTER = save it     ESC = forget it") == "enter"
 
 # 3d. Check, confirm and save one new entry to its deck and master
@@ -204,8 +205,9 @@ def save_entry(entry, label, filename):
     master_rows.append(entry)
     write_sorted(filename, deck_rows)
     write_sorted(MASTER_FILE, master_rows)
-    print(f"\nRESULT:  Saved. {entry['acronym']} was added to {filename} and {MASTER_FILE}")
-    print("     and both files were re-sorted.")
+    print(f"\nRESULT:  Saved. {entry['acronym']} was added and re-sorted:")
+    print(f"     {filename}")
+    print(f"     {MASTER_FILE}")
     return True
 
 # 3e. Keep adding acronyms to one deck
@@ -506,7 +508,7 @@ def confirm_edits(card, new_entry, filenames):
         print(f"             {filename}")
 
     print("*" * CARD_WIDTH)
-    print("\nFiles will be modified and overwritten. Do you really want to proceed?\n")
+    print("\nThe files above will be updated. Save these changes?\n")
     return overwrite_line("ENTER = save it     ESC = forget it") == "enter"
 
 # 5c. Edit one card in every deck in the scope, then update master.csv
@@ -562,7 +564,7 @@ def confirm_delete(card, filenames):
         print(f"                {filename}")
     print("*" * CARD_WIDTH)
 
-    print("\nFiles will be modified and overwritten. Do you really want to proceed?\n")
+    print("\nThe card will be removed from the files above. Continue?\n")
     return overwrite_line("ENTER = delete it     ESC = forget it") == "enter"
 
 # 6b. Have the acronym typed exactly; give a friendly hint and ask again until it matches
