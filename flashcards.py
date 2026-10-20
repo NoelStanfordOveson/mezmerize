@@ -30,6 +30,7 @@ def show_card(card, number=None, total=None):
 
     return overwrite_line("ENTER = next card     ESC = menu")
 
+
 # 2. Turn what the user typed into a full path to a CSV file
 def resolve_csv_path(name):
     """Turn what the user typed into a full path to a CSV"""
@@ -39,6 +40,7 @@ def resolve_csv_path(name):
     if os.path.isabs(name):
         return name
     return csv_path(name)
+
 
 # 3. Flashcard deck chooser
 def choose_deck():

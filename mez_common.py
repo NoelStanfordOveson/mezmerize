@@ -35,6 +35,7 @@ BUILTIN_DECKS = [
 # 1h. get_key
 # 1i. read_key
 # 1j. input_or_esc
+# 2. Loading decks
 # 2a. load_flashcards
 # 2b. load_all_builtin
 # 3. say_goodbye
@@ -188,6 +189,8 @@ def input_or_esc(prompt, required=False, width=None):
             text += key
             print(key, end="", flush=True)
 
+
+# 2. Loading decks
 # 2a. Load the flashcards from CSV
 def load_flashcards(filename, deck_label=None):
     """Load one CSV. Each card remembers which deck it came from."""
@@ -225,6 +228,7 @@ def load_all_builtin():
             missing.append(filename)
     cards.sort(key=lambda card: card["acronym"].casefold())
     return cards, missing
+
 
 # 3. Sign off block on exit
 def say_goodbye():

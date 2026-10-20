@@ -65,6 +65,7 @@ def write_sorted(filename, rows):
         writer.writeheader()
         writer.writerows(rows)
 
+
 # 2. Card identity
 # 2a. Find the CSV file for a built-in deck label
 def deck_file_for(label):
@@ -105,6 +106,7 @@ def decks_with_acronym(acronym):
         if any(row["acronym"].casefold() == wanted for row in read_rows(filename)):
             found.append(label)
     return found
+
 
 # 3. Update master.csv: add the new version, drop the old one only if no deck still uses it
 def update_master(old_entry, new_entry):
