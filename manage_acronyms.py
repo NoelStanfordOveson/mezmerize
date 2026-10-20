@@ -13,10 +13,12 @@ from mez_common import (BUILTIN_DECKS, clear_screen, print_mode_banner, print_wr
 from mez_cards import (MASTER_FILE, BACKUP_FILE, FIELDS, read_rows, write_sorted, deck_file_for,
                        version_of, find_row, decks_with_acronym, decks_with_version, update_master)
 
+# 1. Pre-filled typing (Windows console)
 # 1a. Windows keystroke records (classes)
 # 1b. prefill
 # 1c. input_prefilled
 # 2. choose_target_deck
+# 3. Interactive
 # 3a. ask_for_entry
 # 3b. ok_to_add
 # 3c. confirm_add
@@ -25,20 +27,25 @@ from mez_cards import (MASTER_FILE, BACKUP_FILE, FIELDS, read_rows, write_sorted
 # 3f. add_another
 # 3g. add_from_lookup
 # 3h. add_acronyms
+# 4. Manage Elements
 # 4a. show_full_card
-# 4b. lookup_acronym
-# 4c. lookup_all_decks
-# 4d. wrap_choices
-# 4e. choose_edit_scope
-# 4f. pick_from_matches
-# 4g. ask_this_or_all
+# 4b. show_caution
+# 4c. lookup_acronym
+# 4d. lookup_all_decks
+# 4e. wrap_choices
+# 4f. choose_edit_scope
+# 4g. pick_from_matches
+# 4h. ask_this_or_all
+# 5. Edit
 # 5a. ask_for_edits
 # 5b. confirm_edits
 # 5c. edit_card
+# 6. Delete
 # 6a. confirm_delete
 # 6b. type_to_confirm
 # 6c. confirm_removal_in_master
 # 6d. delete_card
+# 7. Copy
 # 7a. choose_copy_target
 # 7b. confirm_copy
 # 7c. copy_card
@@ -82,6 +89,7 @@ def input_prefilled(prompt, default):
     prefill(default.replace("\n", " "))
     return input(prompt).strip()
 
+
 # 2. Choose which deck gets the new acronym
 def choose_target_deck():
     """
@@ -106,6 +114,7 @@ def choose_target_deck():
     return BUILTIN_DECKS[int(choice) -1]
 
 
+# 3. Interactive
 # 3a. Ask for the new acronym's details
 def ask_for_entry(acronym=None):
     """
@@ -179,13 +188,7 @@ def confirm_add(entry, label, filename):
     clear_screen()
     print_mode_banner(f"ADDING TO: {label}")
     print()
-    print(" ⚠️  CAUTION  ⚠️ ".center(CARD_WIDTH, "*"))
-    print(f"ACRONYM:     {entry['acronym']}")
-    print_wrapped("FULL NAME:   ", entry['full_name'] or '(blank)')
-    print_wrapped("DESCRIPTION: ", entry['description'] or '(blank)')
-    print(f"\nWRITING TO:  {filename}")
-    print(f"             {MASTER_FILE}")
-    print("*" * CARD_WIDTH)
+    show_caution([filename, MASTER_FILE], entry=entry)
     print("\nThe files above will be updated. Save this card?\n")
     return overwrite_line("ENTER = save it     ESC = forget it") == "enter"
 
@@ -286,7 +289,7 @@ def add_acronyms():
             return "quit"                                               # anything else means ESC: loop back to the deck list
 
 
-# 4. Lookup
+# 4. Manage Elements
 # 4a. Show a full single flashcard without options
 def show_full_card(card, title=None):
     """Show every field at once. An optional title is centered in the top rule."""
@@ -300,7 +303,23 @@ def show_full_card(card, title=None):
     print_wrapped("DESCRIPTION: ", card["description"])
     print("=" * CARD_WIDTH)
 
-# 4b. Look up a flashcard by acronym
+# 4b. Show the CAUTION box: optional card fields, then the files that will change
+def show_caution(files, heading="WRITING TO:", entry=None):
+    """Print the starred CAUTION box. The caller prints its own question and keys after it."""
+    print(" ⚠️  CAUTION  ⚠️ ".center(CARD_WIDTH, "*"))
+    if entry:
+        print(f"ACRONYM:     {entry['acronym']}")
+        print_wrapped("FULL NAME:   ", entry["full_name"] or "(blank)")
+        print_wrapped("DESCRIPTION: ", entry["description"] or "(blank)")
+        print()
+
+    indent = " " * (len(heading) + 2)
+    print(f"{heading}  {files[0]}")
+    for filename in files[1:]:
+        print(f"{indent}{filename}")
+    print("*" * CARD_WIDTH)
+
+# 4c. Look up a flashcard by acronym
 def lookup_acronym(flashcards, deck_name):
     """
     Look up acronyms until the user leaves.
@@ -430,7 +449,7 @@ def lookup_acronym(flashcards, deck_name):
         elif action == "q":
             return "quit"
 
-# 4c. Look up an acronym across all built-in decks
+# 4d. Look up an acronym across all built-in decks
 def lookup_all_decks():
     """Load every built-in deck, then run the lookup. Return 'back' or 'quit'."""
     cards, missing = load_all_builtin()
@@ -439,7 +458,7 @@ def lookup_all_decks():
         input("Press ENTER to continue...")
     return lookup_acronym(cards, "ALL DECKS")
 
-# 4d. Wrap key choices to the card width, never splitting a choice
+# 4e. Wrap key choices to the card width, never splitting a choice
 def wrap_choices(lead, choices):
     """
     Put the lead text, then the choices 3 spaces apart, e.g. "1 = Cybersecurity".
@@ -455,7 +474,7 @@ def wrap_choices(lead, choices):
             lines[-1] += "   " + choice                                 # fits: add it to this line
     return "\n".join(lines)
 
-# 4e. Decide which card to edit or delete, and which decks it applies to
+# 4f. Decide which card to edit or delete, and which decks it applies to
 def choose_edit_scope(matches, verb="Edit"):
     """
     Return (card, decks): the card to edit or delete, plus the (label, filename) decks
@@ -473,7 +492,7 @@ def choose_edit_scope(matches, verb="Edit"):
         return card, [(card["deck"], deck_file_for(card["deck"]))]      # one deck only: no question
     return ask_this_or_all(card, decks, verb)                           # screen 2
 
-# 4f. Screen 1: several matches on screen; pick one deck, or A for all of them
+# 4g. Screen 1: several matches on screen; pick one deck, or A for all of them
 def pick_from_matches(editable, verb="Edit", allow_all=True):
     """Ask which match to edit, delete, or copy, or A for all identical matches. Return (card, decks) or None."""
     choices = [f"{number} = {card['deck']}" for number, card in editable]
@@ -499,7 +518,7 @@ def pick_from_matches(editable, verb="Edit", allow_all=True):
         if str(number) == choice:
             return card, [(card["deck"], deck_file_for(card["deck"]))]
 
-# 4g. Screen 2: one match on screen, copies elsewhere; D for this deck, or A for all of them
+# 4h. Screen 2: one match on screen, copies elsewhere; D for this deck, or A for all of them
 def ask_this_or_all(card, decks, verb="Edit"):
     """Confirm the choice; ask D (this deck only) or A (every deck with this identical card). Return (card, decks) or None"""
     print(f"\n\nYou chose {verb}.")
@@ -551,12 +570,7 @@ def confirm_edits(card, new_entry, filenames):
     show_full_card({**new_entry, "deck": card["deck"]}, title="PROPOSED")
     print()
 
-    print(" ⚠️  CAUTION  ⚠️ ".center(CARD_WIDTH, "*"))
-    print(f"WRITING TO:  {filenames[0]}")
-    for filename in filenames[1:] + [MASTER_FILE]:
-        print(f"             {filename}")
-
-    print("*" * CARD_WIDTH)
+    show_caution(filenames + [MASTER_FILE])
     print("\nThe files above will be updated. Save these changes?\n")
     return overwrite_line("ENTER = save it     ESC = forget it") == "enter"
 
@@ -608,12 +622,7 @@ def confirm_delete(card, filenames):
     show_full_card(card, title="DELETING")
     print()
 
-    print(" ⚠️  CAUTION  ⚠️ ".center(CARD_WIDTH, "*"))
-    print(f"DELETING FROM:  {filenames[0]}")
-    for filename in filenames[1:]:
-        print(f"                {filename}")
-    print("*" * CARD_WIDTH)
-
+    show_caution(filenames, heading="DELETING FROM:")
     print("\nThe card will be removed from the files above. Continue?\n")
     return overwrite_line("ENTER = delete it     ESC = forget it") == "enter"
 
@@ -655,12 +664,7 @@ def confirm_removal_in_master(card):
                         f"{MASTER_FILE} too, or keep it there as backlog?")
     print()
 
-    print(" ⚠️  CAUTION  ⚠️ ".center(CARD_WIDTH, "*"))
-    print(f"ACRONYM:     {card['acronym']}")
-    print_wrapped("FULL NAME:   ", card["full_name"] or "(blank)")
-    print_wrapped("DESCRIPTION: ", card["description"] or "(blank)")
-    print(f"\nWRITING TO:  {MASTER_FILE}  (backed up to {BACKUP_FILE} first)")
-    print("*" * CARD_WIDTH)
+    show_caution([f"{MASTER_FILE}  (backed up to {BACKUP_FILE} first)"], entry=card)
     print()
 
     print(wrap_choices("", ["R = remove from master", "K = keep in master (backlog)",
@@ -782,11 +786,10 @@ def confirm_copy(card, label, filename, different, master_too):
         show_full_card({**existing, "deck": label}, title="ALREADY IN TARGET DECK")
     print()
 
-    print(" ⚠️  CAUTION  ⚠️ ".center(CARD_WIDTH, "*"))
-    print(f"WRITING TO:  {filename}")
+    files = [filename]
     if master_too:
-        print(f"             {MASTER_FILE}")
-    print("*" * CARD_WIDTH)
+        files.append(MASTER_FILE)
+    show_caution(files)
     print()
 
     if different:
