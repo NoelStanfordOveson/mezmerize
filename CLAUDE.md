@@ -47,6 +47,9 @@ py check_decks.py        # audit data/master.csv against the decks
   after R + typing the acronym exactly (capitals included; friendly hints, retry until it
   matches or ESC). K keeps it in master as backlog. Nothing is written until every question
   is answered.
+- Copying puts a card, exactly as it is, into one other built-in deck. Decks that already
+  hold that exact version can't be picked; a deck with a different version can (both shown
+  on the CAUTION screen). master.csv gets the version only if it lacks it.
 - Every write to master.csv first copies it to data/master.bak (one step of undo;
   *.bak is in .gitignore).
 - Lookup matches on acronym only.
@@ -68,8 +71,10 @@ py check_decks.py        # audit data/master.csv against the decks
 - Q quits completely; ESC goes back one level.
 - Result lines start `RESULT:` followed by two spaces.
 - Before saving or deleting, show a CAUTION block listing every file that will be affected.
-- Lookup's key line is two lines: actions (A = add it / E = edit / D = delete), then a fixed
-  navigation line (ENTER / ESC / Q). Navigation keys are written in capitals.
+- CAUTION's WRITING TO lists filenames; RESULT lists deck labels (master.csv by name).
+  Copy does this; add, edit, and delete still list filenames until they're switched.
+- Lookup's key line is two lines: actions (A = add it / E = edit / D = delete /
+  C = copy), then a fixed navigation line (ENTER / ESC / Q). Navigation keys are in capitals.
 - Printed prompts don't say "sync"; code names can.
 - Use `...` in examples to stand for other text that's on the screen.
 
