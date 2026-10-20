@@ -24,7 +24,8 @@ py check_decks.py        # audit data/master.csv against the decks
 - `mez_cards.py` (middle): card logic, no screens. Reads and writes the CSVs (read_rows,
   write_sorted), identifies cards and finds them in decks (version_of, find_row,
   decks_with_version, decks_with_acronym), and keeps master.csv current (update_master).
-- `manage_acronyms.py`: the screens for lookup, add, edit, and delete.
+- `manage_acronyms.py`: the screens for lookup, add, edit, delete, and copy.
+  show_caution draws every CAUTION box.
 - `flashcards.py` and `check_decks.py`: flashcards imports lookup_acronym from manage_acronyms.
 - `mezmerize.py` (top): the menu that calls each program's main().
 - Two-test rule for mez_common: code goes there only if (1) more than one program needs it
@@ -70,7 +71,9 @@ py check_decks.py        # audit data/master.csv against the decks
   splits across lines.
 - Q quits completely; ESC goes back one level.
 - Result lines start `RESULT:` followed by two spaces.
-- Before saving or deleting, show a CAUTION block listing every file that will be affected.
+- Before saving, deleting, or copying, show a CAUTION block listing every file that
+  will be affected. Always draw it with show_caution; the caller prints its own question
+  and keys after it.
 - CAUTION's WRITING TO lists filenames; RESULT lists deck labels (master.csv by name).
   Copy does this; add, edit, and delete still list filenames until they're switched.
 - Lookup's key line is two lines: actions (A = add it / E = edit / D = delete /
@@ -98,9 +101,12 @@ py check_decks.py        # audit data/master.csv against the decks
 - Each file has a numbered index at the top; keep it matching the section headers.
 - No blank line after a module docstring.
 - Imports in three groups with a blank line between: standard library, third-party, ours.
-- Two blank lines before main() (and after the imports and constants at the top);
-  one blank line between other functions.
-- Cosmetic changes (spacing, wording) get their own commit.
+- Two blank lines before each numbered section header (# 1., # 2., ...) and after
+  the imports and constants at the top; one blank line between other functions
+  and lettered sub-sections.
+- Cosmetic changes (anything that changes what the screen shows: spacing, wording,
+  layout) get their own commit. Comments, the index, and other internal tidy-ups
+  aren't cosmetic; they go in with the code change they belong to.
 - Git on Windows converts line endings (autocrlf). CRLF/LF differences seen from Claude's
   side aren't real changes; check with `GIT_OPTIONAL_LOCKS=0` and `-c core.autocrlf=true`.
 - The someday list (in priority order) is kept in Claude's memory, not here.
