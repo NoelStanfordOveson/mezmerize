@@ -39,7 +39,10 @@ from mez_cards import (MASTER_FILE, BACKUP_FILE, FIELDS, read_rows, write_sorted
 # 6b. type_to_confirm
 # 6c. confirm_removal_in_master
 # 6d. delete_card
-# 7. Main program loop
+# 7a. choose_copy_target
+# 7b. confirm_copy
+# 7c. copy_card
+# 8. Main program loop
 
 
 # 1. Pre-filled typing (Windows console)
@@ -101,6 +104,7 @@ def choose_target_deck():
     if choice == "q":
         return "quit"
     return BUILTIN_DECKS[int(choice) -1]
+
 
 # 3a. Ask for the new acronym's details
 def ask_for_entry(acronym=None):
@@ -281,6 +285,7 @@ def add_acronyms():
         if add_to_deck(label, filename) == "quit":
             return "quit"                                               # anything else means ESC: loop back to the deck list
 
+
 # 4. Lookup
 # 4a. Show a full single flashcard without options
 def show_full_card(card, title=None):
@@ -355,8 +360,8 @@ def lookup_acronym(flashcards, deck_name):
             actions.append("A = add it")
 
         if any(deck_file_for(card["deck"]) for card in matches):
-            keys += ["e", "d"]
-            actions += ["E = edit", "D = delete"]
+            keys += ["e", "d", "c"]
+            actions += ["E = edit", "D = delete", "C = copy"]
 
         print()
         if actions:
@@ -400,6 +405,26 @@ def lookup_acronym(flashcards, deck_name):
                 print("ENTER = back to lookup     Q = quit", end="", flush=True)
                 if read_key(("enter", "esc", "q")) == "q":
                     return "quit"
+        elif action == "c":
+            editable = [(number, card) for number, card in enumerate(matches, start=1)
+                        if deck_file_for(card["deck"])]
+            if len(editable) == 1:
+                card = editable[0][1]
+            else:
+                picked = pick_from_matches(editable, "Copy", allow_all=False)
+                card = picked[0] if picked else None
+            if card is not None:
+                result = copy_card(card)
+                if result == "quit":
+                    return "quit"
+                if result != "back":
+                    if result and deck_name == "ALL DECKS":
+                        flashcards.append({**card, "deck": result})
+                        flashcards.sort(key=lambda card: card["acronym"].casefold())
+                    print()
+                    print("ENTER = back to lookup     Q = quit", end="", flush=True)
+                    if read_key(("enter", "esc", "q")) == "q":
+                        return "quit"
         elif action == "esc":
             return "back"
         elif action == "q":
@@ -449,14 +474,14 @@ def choose_edit_scope(matches, verb="Edit"):
     return ask_this_or_all(card, decks, verb)                           # screen 2
 
 # 4f. Screen 1: several matches on screen; pick one deck, or A for all of them
-def pick_from_matches(editable, verb="Edit"):
-    """Ask which match to edit or delete, or A for all identical matches. Return (card, decks) or None."""
+def pick_from_matches(editable, verb="Edit", allow_all=True):
+    """Ask which match to edit, delete, or copy, or A for all identical matches. Return (card, decks) or None."""
     choices = [f"{number} = {card['deck']}" for number, card in editable]
 
     keys = [str(number) for number, card in editable]
     extras = []
     first = editable[0][1]
-    if all(version_of(card) == version_of(first) for number, card in editable):
+    if allow_all and all(version_of(card) == version_of(first) for number, card in editable):
         extras.append("A = all decks (identical)")
         keys.append("a")
     extras.append("ESC = cancel")
@@ -489,6 +514,7 @@ def ask_this_or_all(card, decks, verb="Edit"):
     if choice == "a":
         return card, decks
     return card, [(card["deck"], deck_file_for(card["deck"]))]
+
 
 # 5. Edit
 # 5a. Show the edit screen and collect the new values
@@ -570,6 +596,7 @@ def edit_card(card, decks):
     for filename in filenames + [MASTER_FILE]:
         print(f"     {filename}")
     return new_entry
+
 
 # 6. Delete
 # 6a. Show the card, and the deck files that will be deleted from; ask before deleting
@@ -702,7 +729,110 @@ def delete_card(card, decks):
     return True
 
 
-# 7. Main program loop
+# 7. Copy
+# 7a. Show every built-in deck; number only the ones this card can be copied to
+def choose_copy_target(card):
+    """
+    List all built-in decks. Decks that already hold this exact card get no number.
+    Return (label, filename), 'back' for ESC, or 'quit' for Q.
+    """
+    same_card = [label for label, filename in decks_with_version(card)]
+    same_acronym = decks_with_acronym(card["acronym"])
+
+    clear_screen()
+    print_mode_banner("COPY AN ACRONYM - DECK LIST")
+    print(f"\nCopy {card['acronym']} to which deck?\n")
+
+    choices = {}
+    for label, filename in BUILTIN_DECKS:
+        if label == card["deck"]:
+            print(f"   {label:<23}(copying from here)")
+        elif label in same_card:
+            print(f"   {label:<23}(already has it)")
+        else:
+            number = str(len(choices) + 1)
+            choices[number] = (label, filename)
+            note = f"(has a different {card['acronym']})" if label in same_acronym else ""
+            print(f"{number}. {label:<23}{note}".rstrip())
+
+    if not choices:
+        print()
+        print_wrapped("", f"{card['acronym']} is already in every deck. There's nowhere to copy it.")
+        print()
+        print("ENTER or ESC = back     Q = quit", end="", flush=True)
+        return "quit" if read_key(("enter", "esc", "q")) == "q" else "back"
+
+    print()
+    print("ESC = back     Q = quit")
+    choice = read_key(list(choices) + ["esc", "q"])
+    if choice == "esc":
+        return "back"
+    if choice == "q":
+        return "quit"
+    return choices[choice]
+
+# 7b. Show the card being copied (and any different version already there); ask before copying
+def confirm_copy(card, label, filename, different, master_too):
+    """Show the COPYING card, any card it differs from, and the CAUTION block. Return True for ENTER."""
+    clear_screen()
+    print_mode_banner(f"COPYING TO: {label}")
+    print()
+    show_full_card(card, title="COPYING")
+    for existing in different:
+        show_full_card({**existing, "deck": label}, title="ALREADY IN TARGET DECK")
+    print()
+
+    print(" ⚠️  CAUTION  ⚠️ ".center(CARD_WIDTH, "*"))
+    print(f"WRITING TO:  {filename}")
+    if master_too:
+        print(f"             {MASTER_FILE}")
+    print("*" * CARD_WIDTH)
+    print()
+
+    if different:
+        print_wrapped("", f"{label} already has a different {card['acronym']}. Copy anyway?")
+    else:
+        print("The files above will be updated. Copy this card?")
+    print()
+    return overwrite_line("ENTER = copy it     ESC = forget it") == "enter"
+
+# 7c. Copy one card, exactly as it is, into another built-in deck
+def copy_card(card):
+    """
+    Pick a deck, confirm, then copy the card there. Add it to master.csv only if master lacks it.
+    Return the deck label it went to, None if cancelled at CAUTION, 'back' for ESC, or 'quit' for Q.
+    """
+    target = choose_copy_target(card)
+    if target in ("back", "quit"):
+        return target
+    label, filename = target
+
+    rows = read_rows(filename)
+    wanted = card["acronym"].casefold()
+    different = [row for row in rows if row["acronym"].casefold() == wanted]
+    master_rows = read_rows(MASTER_FILE)
+    master_too = find_row(master_rows, card) is None
+
+    if not confirm_copy(card, label, filename, different, master_too):
+        print("\nRESULT:  Not copied. No files were changed.")
+        return None
+
+    entry = {field: card[field] for field in FIELDS}
+    rows.append(entry)
+    write_sorted(filename, rows)
+    added_to = [label]
+    if master_too:
+        master_rows.append(entry)
+        write_sorted(MASTER_FILE, master_rows)
+        added_to.append(MASTER_FILE)
+
+    print(f"\nRESULT:  Copied. {card['acronym']} was added to:")
+    for name in added_to:
+        print(f"     {name}")
+    return label
+
+
+# 8. Main program loop
 def main():
     """Show the manage-acronyms menu. Return 'back' (ESC) or 'quit' (Q)."""
     while True:
