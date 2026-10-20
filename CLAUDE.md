@@ -49,8 +49,9 @@ py check_decks.py        # audit data/master.csv against the decks
   matches or ESC). K keeps it in master as backlog. Nothing is written until every question
   is answered.
 - Copying puts a card, exactly as it is, into one other built-in deck. Decks that already
-  hold that exact version can't be picked; a deck with a different version can (both shown
-  on the CAUTION screen). master.csv gets the version only if it lacks it.
+  hold that exact version can't be picked; a deck with a different version can (that
+  version is shown in the VERSION CONFLICT card). master.csv gets the version only if it
+  lacks it.
 - Every write to master.csv first copies it to data/master.bak (one step of undo;
   *.bak is in .gitignore).
 - Lookup matches on acronym only.
@@ -71,11 +72,30 @@ py check_decks.py        # audit data/master.csv against the decks
   splits across lines.
 - Q quits completely; ESC goes back one level.
 - Result lines start `RESULT:` followed by two spaces.
-- Before saving, deleting, or copying, show a CAUTION block listing every file that
-  will be affected. Always draw it with show_caution; the caller prints its own question
-  and keys after it.
-- CAUTION's WRITING TO lists filenames; RESULT lists deck labels (master.csv by name).
-  Copy does this; add, edit, and delete still list filenames until they're switched.
+- Confirm screens (before saving, deleting, or copying) have at most two cards:
+  - the existing card on top (show_full_card, === lines, titled), if there is one;
+  - one CAUTION card below it (show_caution, *** lines), with no blank line between them.
+    It holds the proposed outcome (or, for a copy conflict, the version already there):
+    DECK / DECKS line, the card's fields, a blank line, then the file heading and every
+    file that will be affected. With no top card, it sits right under the banner's
+    blank line. The caller prints its own question and keys after it.
+- CAUTION card titles are just the text; show_caution puts ⚠️ on both sides.
+  PENDING INSERT (add), PENDING WRITE (edit), PENDING DELETE (delete), PENDING FINAL
+  DELETE (master removal), PENDING COPY (copy), VERSION CONFLICT (copy into a deck with
+  a different version).
+- Every value in a card lines up at column 13. Field labels and file headings are 12
+  characters or fewer (WRITING TO:, DELETE FROM:, COPYING TO:). DECK: for one deck,
+  DECKS: for several (labels comma-separated, wrapped like DESCRIPTION).
+- Once a CAUTION card is answered (ENTER, ESC, R, or K), the whole screen is redrawn
+  with draw(False): the card's titled line becomes plain stars, and the question, keys,
+  and any typing are replaced by a blank line, the RESULT, a blank line, then the
+  navigation line. On ESC the confirm_ function prints the RESULT itself
+  (`RESULT:  Nothing was saved.` or deleted / copied, then `NO CHANGES were made.`);
+  on success the caller writes the files and prints it.
+- Lines under a RESULT (files, notes) are indented 9 spaces, under the first word.
+- The CAUTION card's file list shows filenames; RESULT lists deck labels (master.csv by
+  name). Copy does this; add, edit, and delete still list filenames until they're
+  switched.
 - Lookup's key line is two lines: actions (A = add it / E = edit / D = delete /
   C = copy), then a fixed navigation line (ENTER / ESC / Q). Navigation keys are in capitals.
 - Printed prompts don't say "sync"; code names can.
@@ -83,7 +103,8 @@ py check_decks.py        # audit data/master.csv against the decks
 
 ## How to work with me
 
-- I'm learning Python and type every change myself. Don't edit code files directly.
+- I'm learning Python and type every code change myself. Don't edit code files directly.
+- Claude writes and maintains this CLAUDE.md. I review each change and commit it.
 - For a big new or contiguous block, show the whole block first, then break it into
   snippets, outermost bracket first, each with a short explanation.
 - When pointing at code, give the function name, index number, line number, and a
