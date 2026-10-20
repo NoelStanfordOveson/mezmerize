@@ -182,15 +182,27 @@ def ok_to_add(entry, existing_rows):
         return False
     return True
 
-# 3c. Show the new entry and ask before saving
+# 3c. Show the PENDING INSERT card; ask before saving; on ESC, redraw it with the result
 def confirm_add(entry, label, filename):
-    """Show what will be saved on a clean screen. Return True for ENTER, False for ESC."""
-    clear_screen()
-    print_mode_banner(f"ADDING TO: {label}")
-    print()
-    show_caution([filename, MASTER_FILE], entry=entry)
-    print("\nThe files above will be updated. Save this card?\n")
-    return overwrite_line("ENTER = save it     ESC = forget it") == "enter"
+    """
+    Show what will be saved on a clean screen. Return True for ENTER. On ESC,
+    redraw the screen without the CAUTION title, show the RESULT, and return False.
+    """
+    def draw(caution):
+        clear_screen()
+        print_mode_banner(f"ADD AN ACRONYM TO: {label}")
+        print()
+        show_caution([filename, MASTER_FILE], entry=entry, title="PENDING INSERT", caution=caution)
+
+    draw(True)
+    print("\nThe files shown will be updated. Save this card?\n")
+    if overwrite_line("ENTER = save it     ESC = forget it") == "enter":
+        draw(False)
+        return True
+    draw(False)
+    print("\nRESULT:  Nothing was saved.")
+    print("         NO CHANGES were made.")
+    return False
 
 # 3d. Check, confirm and save one new entry to its deck and master
 def save_entry(entry, label, filename):
@@ -204,7 +216,6 @@ def save_entry(entry, label, filename):
     if not ok_to_add(entry, master_rows + deck_rows):
         return False
     if not confirm_add(entry, label, filename):
-        print(f"\nRESULT:  Not saved. {filename} and {MASTER_FILE} were NOT changed.")
         return False
 
     deck_rows.append(entry)
@@ -212,8 +223,8 @@ def save_entry(entry, label, filename):
     write_sorted(filename, deck_rows)
     write_sorted(MASTER_FILE, master_rows)
     print(f"\nRESULT:  Saved. {entry['acronym']} was added and re-sorted:")
-    print(f"     {filename}")
-    print(f"     {MASTER_FILE}")
+    print(f"         {filename}")
+    print(f"         {MASTER_FILE}")
     return True
 
 # 3e. Keep adding acronyms to one deck
@@ -221,7 +232,7 @@ def add_to_deck(label, filename):
     """Add acronyms to one deck. Return 'back' (ESC = deck list) or 'quit' (Q)."""
     while True:
         clear_screen()
-        print_mode_banner(f"ADDING TO: {label}")
+        print_mode_banner(f"ADD AN ACRONYM TO: {label}")
 
         entry = ask_for_entry()
         if entry is None:
@@ -258,7 +269,7 @@ def add_from_lookup(acronym):
 
         label, filename = result
         clear_screen()
-        print_mode_banner(f"ADDING TO: {label}")
+        print_mode_banner(f"ADD AN ACRONYM TO: {label}")
 
         entry = ask_for_entry(acronym)
         if entry is None:
@@ -303,20 +314,28 @@ def show_full_card(card, title=None):
     print_wrapped("DESCRIPTION: ", card["description"])
     print("=" * CARD_WIDTH)
 
-# 4b. Show the CAUTION box: optional card fields, then the files that will change
-def show_caution(files, heading="WRITING TO:", entry=None):
-    """Print the starred CAUTION box. The caller prints its own question and keys after it."""
-    print(" ⚠️  CAUTION  ⚠️ ".center(CARD_WIDTH, "*"))
+# 4b. Show the CAUTION card: a titled star box with the card's fields and the files that will change
+def show_caution(files, heading="WRITING TO:", entry=None, decks=None, title="CAUTION", caution=True):
+    """
+    Print the CAUTION card. The caller prints its own question and keys after it.
+    caution=False draws a plain star line instead of the title (used after ESC).
+    """
+    if caution:
+        print(f" ⚠️  {title}  ⚠️ ".center(CARD_WIDTH, "*"))
+    else:
+        print("*" * CARD_WIDTH)
+    if decks:
+        names = ", ".join(label.replace(" ", "\u00a0") for label in decks)
+        print_wrapped("DECK:        " if len(decks) == 1 else "DECKS:       ", names)
     if entry:
         print(f"ACRONYM:     {entry['acronym']}")
         print_wrapped("FULL NAME:   ", entry["full_name"] or "(blank)")
         print_wrapped("DESCRIPTION: ", entry["description"] or "(blank)")
         print()
 
-    indent = " " * (len(heading) + 2)
-    print(f"{heading}  {files[0]}")
+    print(f"{heading:<13}{files[0]}")
     for filename in files[1:]:
-        print(f"{indent}{filename}")
+        print(f"{'':<13}{filename}")
     print("*" * CARD_WIDTH)
 
 # 4c. Look up a flashcard by acronym
@@ -560,19 +579,29 @@ def ask_for_edits(card):
 
     return {"acronym": acronym, "full_name": full_name, "description": description}
 
-# 5b. Show the CURRENT and PROPOSED cards and ask before saving
-def confirm_edits(card, new_entry, filenames):
-    """Show both cards and the CAUTION block. Return True for ENTER, False for ESC."""
-    clear_screen()
-    print_mode_banner("EDIT AN ACRONYM")
-    print()
-    show_full_card(card, title="CURRENT")
-    show_full_card({**new_entry, "deck": card["deck"]}, title="PROPOSED")
-    print()
+# 5b. Show the CURRENT and PENDING WRITE cards; ask before saving; on ESC, redraw with the result
+def confirm_edits(card, new_entry, filenames, labels):
+    """
+    Show the CURRENT card and the PENDING WRITE card. Return True for ENTER. On ESC,
+    redraw the screen without the PENDING WRITE title, show the RESULT, and return False.
+    """
+    def draw(caution):
+        clear_screen()
+        print_mode_banner("EDIT AN ACRONYM")
+        print()
+        show_full_card(card, title="CURRENT")
+        show_caution(filenames + [MASTER_FILE], entry=new_entry, decks=labels,
+                     title="PENDING WRITE", caution=caution)
 
-    show_caution(filenames + [MASTER_FILE])
-    print("\nThe files above will be updated. Save these changes?\n")
-    return overwrite_line("ENTER = save it     ESC = forget it") == "enter"
+    draw(True)
+    print("\nThe files shown will be updated. Save these changes?\n")
+    if overwrite_line("ENTER = save it     ESC = forget it") == "enter":
+        draw(False)
+        return True
+    draw(False)
+    print("\nRESULT:  Nothing was saved.")
+    print("         NO CHANGES were made.")
+    return False
 
 # 5c. Edit one card in every deck in the scope, then update master.csv
 def edit_card(card, decks):
@@ -597,8 +626,8 @@ def edit_card(card, decks):
         return None
 
     filenames = [filename for label, filename in decks]
-    if not confirm_edits(card, new_entry, filenames):
-        print("\nRESULT:  Not saved. No files were changed.")
+    labels = [label for label, filename in decks]
+    if not confirm_edits(card, new_entry, filenames, labels):
         return None
 
     for filename, rows, position in loaded:
@@ -608,23 +637,33 @@ def edit_card(card, decks):
 
     print(f"\nRESULT:  Saved. {new_entry['acronym']} was updated and re-sorted in:")
     for filename in filenames + [MASTER_FILE]:
-        print(f"     {filename}")
+        print(f"         {filename}")
     return new_entry
 
 
 # 6. Delete
-# 6a. Show the card, and the deck files that will be deleted from; ask before deleting
-def confirm_delete(card, filenames):
-    """Show the card and the CAUTION block. Return True for ENTER, False for ESC."""
-    clear_screen()
-    print_mode_banner("DELETE AN ACRONYM")
-    print()
-    show_full_card(card, title="DELETING")
-    print()
+# 6a. Show the PENDING DELETE card; ask before deleting; on ESC, redraw with the result
+def confirm_delete(card, filenames, labels):
+    """
+    Show the PENDING DELETE card. Return True for ENTER. On ESC, redraw the
+    screen without the PENDING DELETE title, show the RESULT, and return False.
+    """
+    def draw(caution):
+        clear_screen()
+        print_mode_banner("DELETE AN ACRONYM")
+        print()
+        show_caution(filenames, heading="DELETE FROM:", entry=card, decks=labels,
+                     title="PENDING DELETE", caution=caution)
 
-    show_caution(filenames, heading="DELETING FROM:")
-    print("\nThe card will be removed from the files above. Continue?\n")
-    return overwrite_line("ENTER = delete it     ESC = forget it") == "enter"
+    draw(True)
+    print("\nThe card will be removed from the files shown. Continue?\n")
+    if overwrite_line("ENTER = delete it     ESC = forget it") == "enter":
+        draw(False)
+        return True
+    draw(False)
+    print("\nRESULT:  Nothing was deleted.")
+    print("         NO CHANGES were made.")
+    return(False)
 
 # 6b. Have the acronym typed exactly; give a friendly hint and ask again until it matches
 def type_to_confirm(acronym):
@@ -654,31 +693,41 @@ def type_to_confirm(acronym):
 # 6c. Last deck copy: ask whether to remove it from master.csv too, or keep it there as backlog
 def confirm_removal_in_master(card):
     """
-    Show the master.csv CAUTION screen.
-    Return 'remove' (R, then the acronym typed exactly), 'keep' (K), or None for ESC
+    Show the PENDING FINAL DELETE card for master.csv. Return 'remove'
+    (R, then the acronym typed exactly), 'keep' (K), or None for ESC
     """
-    clear_screen()
-    print_mode_banner("DELETE AN ACRONYM - MASTER")
+    def draw(caution):
+        clear_screen()
+        print_mode_banner("DELETE AN ACRONYM - MASTER")
+        print()
+        show_caution([MASTER_FILE], heading="DELETE FROM:", entry=card,
+                     title="PENDING FINAL DELETE", caution=caution)
+
+    def cancelled():
+        draw(False)
+        print("\nRESULT:  Nothing was deleted.")
+        print("         NO CHANGES were made.")
+        return None
+
+    draw(True)
     print()
     print_wrapped("", f"{card['acronym']} is not in any other deck. Remove it from "
-                        f"{MASTER_FILE} too, or keep it there as backlog?")
+                  f"{MASTER_FILE} too, or keep it there as backlog?")
     print()
-
-    show_caution([f"{MASTER_FILE}  (backed up to {BACKUP_FILE} first)"], entry=card)
-    print()
-
     print(wrap_choices("", ["R = remove from master", "K = keep in master (backlog)",
                             "ESC = cancel"]), end="", flush=True)
     choice = read_key(("r", "k", "esc"))
     if choice == "esc":
-        return None
+        return cancelled()
     if choice == "k":
+        draw(False)
         return "keep"
     print()
     print()
     if type_to_confirm(card["acronym"]):
+        draw(False)
         return "remove"
-    return None
+    return cancelled()
 
 # 6d. Delete one card from every deck in the scope; then remove it from master.csv if asked
 def delete_card(card, decks):
@@ -700,8 +749,8 @@ def delete_card(card, decks):
         loaded.append((filename, rows, position))
 
     filenames = [filename for label, filename in decks]
-    if not confirm_delete(card, filenames):
-        print("\nRESULT:  Not deleted. No files were changed.")
+    labels = [label for label, filename in decks]
+    if not confirm_delete(card, filenames, labels):
         return False
 
     remaining = [deck for deck in decks_with_version(card) if deck not in decks]
@@ -712,7 +761,6 @@ def delete_card(card, decks):
     if not remaining and master_position is not None:                   # last deck copy, and master has it
         master_choice = confirm_removal_in_master(card)
         if master_choice is None:
-            print("\nRESULT:  Not deleted. No files were changed.")
             return False
 
     for filename, rows, position in loaded:
@@ -721,15 +769,15 @@ def delete_card(card, decks):
     if master_choice == "remove":
         master_rows.pop(master_position)
         write_sorted(MASTER_FILE, master_rows)
-        filenames.append(MASTER_FILE)
+        filenames.append(f"{MASTER_FILE} (copied first to {BACKUP_FILE})")
 
     print(f"\nRESULT:  Deleted. {card['acronym']} was removed from:")
     for filename in filenames:
-        print(f"     {filename}")
+        print(f"         {filename}")
     if remaining:
-        print(f"     Still in: {', '.join(label for label, filename in remaining)}")
+        print(f"         Still in: {', '.join(label for label, filename in remaining)}")
     elif master_choice == "keep" and master_position is not None:
-        print(f"     It stays in {MASTER_FILE} as backlog.")
+        print(f"         It stays in {MASTER_FILE} as backlog.")
     return True
 
 
@@ -775,29 +823,45 @@ def choose_copy_target(card):
         return "quit"
     return choices[choice]
 
-# 7b. Show the card being copied (and any different version already there); ask before copying
+# 7b. Show COPYING FROM, then PENDING COPY or VERSION CONFLICT; on ESC, redraw with the result
 def confirm_copy(card, label, filename, different, master_too):
-    """Show the COPYING card, any card it differs from, and the CAUTION block. Return True for ENTER."""
-    clear_screen()
-    print_mode_banner(f"COPYING TO: {label}")
-    print()
-    show_full_card(card, title="COPYING")
-    for existing in different:
-        show_full_card({**existing, "deck": label}, title="ALREADY IN TARGET DECK")
-    print()
-
+    """
+    Show the COPYING FROM card, then the PENDING COPY card (or the VERSION CONFLICT
+    card when the target already has a different version). Return True for ENTER.
+    On ESC, redraw the screen without the title, show the RESULT, and return False.
+    """
     files = [filename]
     if master_too:
         files.append(MASTER_FILE)
-    show_caution(files)
-    print()
 
-    if different:
-        print_wrapped("", f"{label} already has a different {card['acronym']}. Copy anyway?")
-    else:
-        print("The files above will be updated. Copy this card?")
+    def draw(caution):
+        clear_screen()
+        print_mode_banner(f"COPYING TO: {label}")
+        print()
+        show_full_card(card, title="COPYING FROM")
+        if different:
+            show_caution(files, heading="COPYING TO:", entry=different[0], decks=[label],
+                         title="VERSION CONFLICT", caution=caution)
+        else:
+            show_caution(files, heading="COPYING TO:", entry=card, decks=[label],
+                         title="PENDING COPY", caution=caution)
+
+    draw(True)
     print()
-    return overwrite_line("ENTER = copy it     ESC = forget it") == "enter"
+    if different:
+        whole_label = label.replace(" ", "\u00a0")                      # keep the deck name on the same line
+        print_wrapped("", f"A different version of {card['acronym']} already exists in "
+                      f"{whole_label}. Copy anyway?")
+    else:
+        print("The files shown will be updated. Copy this card?")
+    print()
+    if overwrite_line("ENTER = copy it     ESC = forget it") == "enter":
+        draw(False)
+        return True
+    draw(False)
+    print("\nRESULT:  Nothing was copied.")
+    print("         NO CHANGES were made.")
+    return False
 
 # 7c. Copy one card, exactly as it is, into another built-in deck
 def copy_card(card):
@@ -817,7 +881,6 @@ def copy_card(card):
     master_too = find_row(master_rows, card) is None
 
     if not confirm_copy(card, label, filename, different, master_too):
-        print("\nRESULT:  Not copied. No files were changed.")
         return None
 
     entry = {field: card[field] for field in FIELDS}
@@ -829,9 +892,9 @@ def copy_card(card):
         write_sorted(MASTER_FILE, master_rows)
         added_to.append(MASTER_FILE)
 
-    print(f"\nRESULT:  Copied. {card['acronym']} was added to:")
+    print(f"\nRESULT:  Copied card {card['acronym']} to:")
     for name in added_to:
-        print(f"     {name}")
+        print(f"         {name}")
     return label
 
 
