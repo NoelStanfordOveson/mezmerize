@@ -19,9 +19,9 @@ BUILTIN_DECKS = [
     ("Cloud Security", "cloud.csv"),
     ("Cybersecurity", "cybersec.csv"),
     ("DevSecOps", "devsec.csv"),
+    ("GRC/Frameworks", "grc.csv"),
     ("IS Engineering", "engineer.csv"),
     ("IS Management", "mgmt.csv"),
-    ("Standards/Frameworks", "standards.csv"),
 ]
 
 
