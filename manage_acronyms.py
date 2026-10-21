@@ -30,12 +30,13 @@ from mez_cards import (MASTER_FILE, BACKUP_FILE, FIELDS, read_rows, write_sorted
 # 4. Manage Elements
 # 4a. show_full_card
 # 4b. show_caution
-# 4c. lookup_acronym
-# 4d. lookup_all_decks
-# 4e. wrap_choices
-# 4f. choose_edit_scope
-# 4g. pick_from_matches
-# 4h. ask_this_or_all
+# 4c. ask_or_cancel
+# 4d. lookup_acronym
+# 4e. lookup_all_decks
+# 4f. wrap_choices
+# 4g. choose_edit_scope
+# 4h. pick_from_matches
+# 4i. ask_this_or_all
 # 5. Edit
 # 5a. ask_for_edits
 # 5b. confirm_edits
@@ -194,15 +195,11 @@ def confirm_add(entry, label, filename):
         print()
         show_caution([filename, MASTER_FILE], entry=entry, title="PENDING INSERT", caution=caution)
 
-    draw(True)
-    print("\nThe files shown will be updated. Save this card?\n")
-    if overwrite_line("ENTER = save it     ESC = forget it") == "enter":
-        draw(False)
-        return True
-    draw(False)
-    print("\nRESULT:  Nothing was saved.")
-    print("         NO CHANGES were made.")
-    return False
+    return ask_or_cancel(draw, "The files shown will be updated. Save this card?",
+                         "ENTER = save it     ESC = forget it", "saved")
+
+
+
 
 # 3d. Check, confirm and save one new entry to its deck and master
 def save_entry(entry, label, filename):
@@ -301,7 +298,7 @@ def add_acronyms():
 
 
 # 4. Manage Elements
-# 4a. Show a full single flashcard without options
+# 4a. Show a full single card without options
 def show_full_card(card, title=None):
     """Show every field at once. An optional title is centered in the top rule."""
     if title:
@@ -338,7 +335,25 @@ def show_caution(files, heading="WRITING TO:", entry=None, decks=None, title="CA
         print(f"{'':<13}{filename}")
     print("*" * CARD_WIDTH)
 
-# 4c. Look up a flashcard by acronym
+# 4c. Draw a confirm screen, ask, then redraw it without its title; on ESC, show the RESULT
+def ask_or_cancel(draw, question, keys, verb):
+    """
+    Draw the screen with draw(True), ask the question, then redraw it with draw(False).
+    Return True for ENTER. On ESC, print the "Nothing was <verb>." RESULT and return False.
+    """
+    draw(True)
+    print()
+    print_wrapped("", question)
+    print()
+    answer = overwrite_line(keys)
+    draw(False)
+    if answer == "enter":
+        return True
+    print(f"\nRESULT:  Nothing was {verb}.")
+    print("         NO CHANGES were made.")
+    return False
+
+# 4d. Look up a flashcard by acronym
 def lookup_acronym(flashcards, deck_name):
     """
     Look up acronyms until the user leaves.
@@ -468,7 +483,7 @@ def lookup_acronym(flashcards, deck_name):
         elif action == "q":
             return "quit"
 
-# 4d. Look up an acronym across all built-in decks
+# 4e. Look up an acronym across all built-in decks
 def lookup_all_decks():
     """Load every built-in deck, then run the lookup. Return 'back' or 'quit'."""
     cards, missing = load_all_builtin()
@@ -477,7 +492,7 @@ def lookup_all_decks():
         input("Press ENTER to continue...")
     return lookup_acronym(cards, "ALL DECKS")
 
-# 4e. Wrap key choices to the card width, never splitting a choice
+# 4f. Wrap key choices to the card width, never splitting a choice
 def wrap_choices(lead, choices):
     """
     Put the lead text, then the choices 3 spaces apart, e.g. "1 = Cybersecurity".
@@ -493,7 +508,7 @@ def wrap_choices(lead, choices):
             lines[-1] += "   " + choice                                 # fits: add it to this line
     return "\n".join(lines)
 
-# 4f. Decide which card to edit or delete, and which decks it applies to
+# 4g. Decide which card to edit or delete, and which decks it applies to
 def choose_edit_scope(matches, verb="Edit"):
     """
     Return (card, decks): the card to edit or delete, plus the (label, filename) decks
@@ -511,7 +526,7 @@ def choose_edit_scope(matches, verb="Edit"):
         return card, [(card["deck"], deck_file_for(card["deck"]))]      # one deck only: no question
     return ask_this_or_all(card, decks, verb)                           # screen 2
 
-# 4g. Screen 1: several matches on screen; pick one deck, or A for all of them
+# 4h. Screen 1: several matches on screen; pick one deck, or A for all of them
 def pick_from_matches(editable, verb="Edit", allow_all=True):
     """Ask which match to edit, delete, or copy, or A for all identical matches. Return (card, decks) or None."""
     choices = [f"{number} = {card['deck']}" for number, card in editable]
@@ -537,7 +552,7 @@ def pick_from_matches(editable, verb="Edit", allow_all=True):
         if str(number) == choice:
             return card, [(card["deck"], deck_file_for(card["deck"]))]
 
-# 4h. Screen 2: one match on screen, copies elsewhere; D for this deck, or A for all of them
+# 4i. Screen 2: one match on screen, copies elsewhere; D for this deck, or A for all of them
 def ask_this_or_all(card, decks, verb="Edit"):
     """Confirm the choice; ask D (this deck only) or A (every deck with this identical card). Return (card, decks) or None"""
     print(f"\n\nYou chose {verb}.")
@@ -593,15 +608,8 @@ def confirm_edits(card, new_entry, filenames, labels):
         show_caution(filenames + [MASTER_FILE], entry=new_entry, decks=labels,
                      title="PENDING WRITE", caution=caution)
 
-    draw(True)
-    print("\nThe files shown will be updated. Save these changes?\n")
-    if overwrite_line("ENTER = save it     ESC = forget it") == "enter":
-        draw(False)
-        return True
-    draw(False)
-    print("\nRESULT:  Nothing was saved.")
-    print("         NO CHANGES were made.")
-    return False
+    return ask_or_cancel(draw, "The files shown will be updated. Save these changes?",
+                         "ENTER = save it     ESC = forget it", "saved")
 
 # 5c. Edit one card in every deck in the scope, then update master.csv
 def edit_card(card, decks):
@@ -655,15 +663,8 @@ def confirm_delete(card, filenames, labels):
         show_caution(filenames, heading="DELETE FROM:", entry=card, decks=labels,
                      title="PENDING DELETE", caution=caution)
 
-    draw(True)
-    print("\nThe card will be removed from the files shown. Continue?\n")
-    if overwrite_line("ENTER = delete it     ESC = forget it") == "enter":
-        draw(False)
-        return True
-    draw(False)
-    print("\nRESULT:  Nothing was deleted.")
-    print("         NO CHANGES were made.")
-    return(False)
+    return ask_or_cancel(draw, "The card will be removed from the files shown. Continue?",
+                         "ENTER = delete it     ESC = forget it", "deleted")
 
 # 6b. Have the acronym typed exactly; give a friendly hint and ask again until it matches
 def type_to_confirm(acronym):
@@ -846,22 +847,13 @@ def confirm_copy(card, label, filename, different, master_too):
             show_caution(files, heading="COPYING TO:", entry=card, decks=[label],
                          title="PENDING COPY", caution=caution)
 
-    draw(True)
-    print()
     if different:
         whole_label = label.replace(" ", "\u00a0")                      # keep the deck name on the same line
-        print_wrapped("", f"A different version of {card['acronym']} already exists in "
-                      f"{whole_label}. Copy anyway?")
+        question = (f"A different version of {card['acronym']} already exists in "
+                    f"{whole_label}. Copy anyway?")
     else:
-        print("The files shown will be updated. Copy this card?")
-    print()
-    if overwrite_line("ENTER = copy it     ESC = forget it") == "enter":
-        draw(False)
-        return True
-    draw(False)
-    print("\nRESULT:  Nothing was copied.")
-    print("         NO CHANGES were made.")
-    return False
+        question = "The files shown will be updated. Copy this card?"
+    return ask_or_cancel(draw, question, "ENTER = copy it     ESC = forget it", "copied")
 
 # 7c. Copy one card, exactly as it is, into another built-in deck
 def copy_card(card):
