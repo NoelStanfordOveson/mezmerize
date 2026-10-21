@@ -189,17 +189,16 @@ def confirm_add(entry, label, filename):
     Show what will be saved on a clean screen. Return True for ENTER. On ESC,
     redraw the screen without the CAUTION title, show the RESULT, and return False.
     """
-    def draw(caution):
+    def draw(state):
+        heading = "WRITTEN TO:" if state == "confirmed" else "WRITE TO:"
         clear_screen()
         print_mode_banner(f"ADD AN ACRONYM TO: {label}")
         print()
-        show_caution([filename, MASTER_FILE], entry=entry, title="PENDING INSERT", caution=caution)
+        show_caution([(heading, [filename, MASTER_FILE])], entry=entry,
+                     title="PENDING INSERT", caution=state == "ask")
 
     return ask_or_cancel(draw, "The files shown will be updated. Save this card?",
                          "ENTER = save it     ESC = forget it", "saved")
-
-
-
 
 # 3d. Check, confirm and save one new entry to its deck and master
 def save_entry(entry, label, filename):
@@ -312,10 +311,11 @@ def show_full_card(card, title=None):
     print("=" * CARD_WIDTH)
 
 # 4b. Show the CAUTION card: a titled star box with the card's fields and the files that will change
-def show_caution(files, heading="WRITING TO:", entry=None, decks=None, title="CAUTION", caution=True):
+def show_caution(sections, entry=None, decks=None, title="CAUTION", caution=True):
     """
-    Print the CAUTION card. The caller prints its own question and keys after it.
-    caution=False draws a plain star line instead of the title (used after ESC).
+    Print the CAUTION card. sections is a list of (heading, files) pairs: one heading,
+    then its files lined up at column 13. caution=False draws a plain star line instead
+    of the title (used once the card is answered). The caller prints its own question.
     """
     if caution:
         print(f" ⚠️  {title}  ⚠️ ".center(CARD_WIDTH, "*"))
@@ -330,23 +330,26 @@ def show_caution(files, heading="WRITING TO:", entry=None, decks=None, title="CA
         print_wrapped("DESCRIPTION: ", entry["description"] or "(blank)")
         print()
 
-    print(f"{heading:<13}{files[0]}")
-    for filename in files[1:]:
-        print(f"{'':<13}{filename}")
+    for heading, files in sections:
+        print(f"{heading:<13}{files[0]}")
+        for filename in files[1:]:
+            print(f"{'':<13}{filename}")
     print("*" * CARD_WIDTH)
 
 # 4c. Draw a confirm screen, ask, then redraw it without its title; on ESC, show the RESULT
 def ask_or_cancel(draw, question, keys, verb):
     """
-    Draw the screen with draw(True), ask the question, then redraw it with draw(False).
-    Return True for ENTER. On ESC, print the "Nothing was <verb>." RESULT and return False.
+    Draw the screen with draw("ask"), ask the question, then redraw it with
+    draw("confirmed") for ENTER, draw("cancelled") for ESC. Return True for ENTER.
+    On ESC, print the "Nothing was <verb>." RESULT and return False.
     """
-    draw(True)
+    draw("ask")
     print()
     print_wrapped("", question)
     print()
+
     answer = overwrite_line(keys)
-    draw(False)
+    draw("confirmed" if answer == "enter" else "cancelled")
     if answer == "enter":
         return True
     print(f"\nRESULT:  Nothing was {verb}.")
@@ -600,13 +603,15 @@ def confirm_edits(card, new_entry, filenames, labels):
     Show the CURRENT card and the PENDING WRITE card. Return True for ENTER. On ESC,
     redraw the screen without the PENDING WRITE title, show the RESULT, and return False.
     """
-    def draw(caution):
+    def draw(state):
+        confirmed = state == "confirmed"
+        heading = "WRITTEN TO:" if confirmed else "WRITE TO:"
         clear_screen()
         print_mode_banner("EDIT AN ACRONYM")
         print()
-        show_full_card(card, title="CURRENT")
-        show_caution(filenames + [MASTER_FILE], entry=new_entry, decks=labels,
-                     title="PENDING WRITE", caution=caution)
+        show_full_card(card, title="PREVIOUS" if confirmed else "CURRENT")
+        show_caution([(heading, filenames + [MASTER_FILE])], entry=new_entry, decks=labels,
+                     title="PENDING WRITE", caution=state == "ask")
 
     return ask_or_cancel(draw, "The files shown will be updated. Save these changes?",
                          "ENTER = save it     ESC = forget it", "saved")
@@ -656,12 +661,13 @@ def confirm_delete(card, filenames, labels):
     Show the PENDING DELETE card. Return True for ENTER. On ESC, redraw the
     screen without the PENDING DELETE title, show the RESULT, and return False.
     """
-    def draw(caution):
+    def draw(state):
+        heading = "ERASED FROM:" if state == "confirmed" else "DELETE FROM:"
         clear_screen()
         print_mode_banner("DELETE AN ACRONYM")
         print()
-        show_caution(filenames, heading="DELETE FROM:", entry=card, decks=labels,
-                     title="PENDING DELETE", caution=caution)
+        show_caution([(heading, filenames)], entry=card, decks=labels,
+                     title="PENDING DELETE", caution=state == "ask")
 
     return ask_or_cancel(draw, "The card will be removed from the files shown. Continue?",
                          "ENTER = delete it     ESC = forget it", "deleted")
@@ -697,36 +703,43 @@ def confirm_removal_in_master(card):
     Show the PENDING FINAL DELETE card for master.csv. Return 'remove'
     (R, then the acronym typed exactly), 'keep' (K), or None for ESC
     """
-    def draw(caution):
+    def draw(state):
+        if state == "confirmed":
+            heading = "ERASED FROM:"
+        elif state == "kept":
+            heading = "KEPT IN:"
+        else:
+            heading = "DELETE FROM:"
         clear_screen()
         print_mode_banner("DELETE AN ACRONYM - MASTER")
         print()
-        show_caution([MASTER_FILE], heading="DELETE FROM:", entry=card,
-                     title="PENDING FINAL DELETE", caution=caution)
+        show_caution([(heading, [MASTER_FILE])], entry=card,
+                     title="PENDING FINAL DELETE", caution=state == "ask")
 
     def cancelled():
-        draw(False)
+        draw("cancelled")
         print("\nRESULT:  Nothing was deleted.")
         print("         NO CHANGES were made.")
         return None
 
-    draw(True)
+    draw("ask")
     print()
     print_wrapped("", f"{card['acronym']} is not in any other deck. Remove it from "
                   f"{MASTER_FILE} too, or keep it there as backlog?")
     print()
     print(wrap_choices("", ["R = remove from master", "K = keep in master (backlog)",
                             "ESC = cancel"]), end="", flush=True)
+
     choice = read_key(("r", "k", "esc"))
     if choice == "esc":
         return cancelled()
     if choice == "k":
-        draw(False)
+        draw("kept")
         return "keep"
     print()
     print()
     if type_to_confirm(card["acronym"]):
-        draw(False)
+        draw("confirmed")
         return "remove"
     return cancelled()
 
@@ -835,17 +848,19 @@ def confirm_copy(card, label, filename, different, master_too):
     if master_too:
         files.append(MASTER_FILE)
 
-    def draw(caution):
+    def draw(state):
+        confirmed = state == "confirmed"
+        heading = "COPIED TO:" if confirmed else "COPY TO:"
         clear_screen()
-        print_mode_banner(f"COPYING TO: {label}")
+        print_mode_banner(f"COPY AN ACRONYM TO: {label}")
         print()
-        show_full_card(card, title="COPYING FROM")
+        show_full_card(card, title="COPIED FROM" if confirmed else "COPYING FROM")
         if different:
-            show_caution(files, heading="COPYING TO:", entry=different[0], decks=[label],
-                         title="VERSION CONFLICT", caution=caution)
+            show_caution([(heading, files)], entry=different[0], decks=[label],
+                         title="VERSION CONFLICT", caution=state == "ask")
         else:
-            show_caution(files, heading="COPYING TO:", entry=card, decks=[label],
-                         title="PENDING COPY", caution=caution)
+            show_caution([(heading, files)], entry=card, decks=[label],
+                         title="PENDING COPY", caution=state == "ask")
 
     if different:
         whole_label = label.replace(" ", "\u00a0")                      # keep the deck name on the same line
