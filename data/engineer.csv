@@ -1,4 +1,5 @@
 acronym,full_name,description
+AAA,"Authentication, Authorization, and Accounting","A security framework that verifies user and device identities, determines access permissions, and records activity to enforce policies and maintain accountability across networks, applications, and other IT resources."
 ACL,Access Control List,"A set of rules that allows or blocks network traffic based on source and destination IP addresses, protocols, and ports."
 ADFS,Active Directory Federation Services,
 AFH,Adaptive Frequency Hopping,Communicating devices continuously monitor their environment for interference and adjust the channel map to address it.
