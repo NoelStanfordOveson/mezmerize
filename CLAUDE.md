@@ -89,9 +89,14 @@ py check_decks.py        # audit data/master.csv against the decks
 - Once a CAUTION card is answered (ENTER, ESC, R, or K), the whole screen is redrawn
   with draw(False): the card's titled line becomes plain stars, and the question, keys,
   and any typing are replaced by a blank line, the RESULT, a blank line, then the
-  navigation line. On ESC the confirm_ function prints the RESULT itself
-  (`RESULT:  Nothing was saved.` or deleted / copied, then `NO CHANGES were made.`);
-  on success the caller writes the files and prints it.
+  navigation line. On ESC the RESULT is `RESULT:  Nothing was saved.` (or deleted /
+  copied), then `NO CHANGES were made.`; on success the caller writes the files and
+  prints it.
+- ENTER / ESC confirm screens (add, edit, delete, copy) define their own draw(caution)
+  and end with `return ask_or_cancel(draw, question, keys, verb)`: the caller decides
+  what (screen, question, keys, verb), the helper does how (draw, ask, redraw, ESC
+  RESULT). Questions are passed without surrounding newlines. The master screen
+  (R / K / ESC plus typing) keeps its own code.
 - Lines under a RESULT (files, notes) are indented 9 spaces, under the first word.
 - The CAUTION card's file list shows filenames; RESULT lists deck labels (master.csv by
   name). Copy does this; add, edit, and delete still list filenames until they're
@@ -106,7 +111,15 @@ py check_decks.py        # audit data/master.csv against the decks
 - I'm learning Python and type every code change myself. Don't edit code files directly.
 - Claude writes and maintains this CLAUDE.md. I review each change and commit it.
 - For a big new or contiguous block, show the whole block first, then break it into
-  snippets, outermost bracket first, each with a short explanation.
+  snippets, outermost bracket first.
+- For each snippet: first show it in context (the whole function if it's not huge,
+  otherwise about 10 lines either side) so placement and indentation are clear, then
+  ask "Questions?" and stop. Then show the snippets themselves one by one and explain
+  them part by part, pausing again. I type every character myself (no copy/paste),
+  so expect the odd typo.
+- In explanations, give variables extra attention: where each one comes from (parameter,
+  assignment, loop, enclosing function, import), where it is first assigned, what it
+  holds, and where it is used.
 - When pointing at code, give the function name, index number, line number, and a
   search phrase.
 - Break replies into small chunks. End each with a pause for my questions or comments,
