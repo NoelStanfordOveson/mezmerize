@@ -49,6 +49,7 @@ RFB,Remote Frame Buffer,"An open, simple protocol used by VNC to transmit a remo
 SAML,Security Assertion Markup Language,An open XML-based standard for exchanging authentication and authorization data between an identity provider and a service provider.
 SASE,Secure Access Service Edge,"A cloud-delivered architecture that combines networking and security services—such as SD-WAN, secure web gateways, CASB, firewalls, and Zero Trust Network Access—to provide secure access to applications and resources from anywhere."
 SCIM,System for Cross-domain Identity Management,"An open standard (protocol) for automating the provisioning, updating, and deprovisioning of user identities between systems."
+SD-WAN,Software-Defined Wide Area Network,"A software-based WAN technology that centrally manages connectivity among data centers, cloud services, branch offices, and remote users, routing traffic across internet, MPLS, cellular, and other links to improve performance, availability, and cost efficiency."
 SGT,Security Group Tag,"A label that identifies a user, device, or workload by its security role or group rather than its IP address."
 SMTP,Simple Mail Transfer Protocol,
 SSH,Secure Shell,

@@ -12,4 +12,5 @@ JSON,JavaScript Object Notation,A lightweight format for storing and transportin
 REST,Representational State Transfer,"REST is an architectural style for web services using APIs that define constraints for distributed, Internet-scale hypermedia systems commonly using HTTP methods such as GET, POST, PUT, and DELETE."
 SPIFFE,Secure Production Identity Framework For Everyone,"An open standard that provides cryptographically verifiable identities for workloads and services, enabling mutual authentication and Zero Trust communication."
 SPIRE,SPIFFE Runtime Environment,"The reference implementation of SPIFFE that provides workload attestation, identity issuance, certificate management, and authentication for Zero Trust service-to-service communication."
+SQL,Structured Query Language,
 XML,eXtensible Markup Language,"A markup language and file format used to store, structure, transmit, and reconstruct data between systems, focusing on describing and organizing data rather than displaying it."

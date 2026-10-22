@@ -19,6 +19,7 @@ KAG,Knowledge-Augmented Generation,
 MDR,Managed Detection and Response,"A cybersecurity service in which a third-party provider continuously monitors an organization's environment to detect threats, investigate suspicious activity, and support incident response."
 MFA,Multi-Factor Authentication,"A security method that requires users to verify their identity with at least two distinct factors—something they know, have, or are—before granting access."
 NAC,Network Access Control,"A security framework that verifies users and devices before granting network access, enforcing policies based on identity, device type, location, and security posture."
+NGAV,Next-Generation AntiVirus,"An endpoint security solution, beyond traditional signature-based detection, that uses behavioral analysis, machine learning, and threat intelligence to detect and block known and unkown threats."
 OT,Operational Technology,Hardware and software used to monitor control and automate physical processes in industrial settings.
 PAM,Privileged Access Management,"The practice of securing, controlling, monitoring, and auditing privileged accounts and administrative access to critical systems, applications, and data."
 PDP,Policy Decision Point,"The Zero Trust component that evaluates access requests against security policies and context, then grants, denies, or revokes access."
