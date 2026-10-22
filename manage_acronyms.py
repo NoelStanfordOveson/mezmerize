@@ -47,10 +47,13 @@ from mez_cards import (MASTER_FILE, BACKUP_FILE, FIELDS, read_rows, write_sorted
 # 6c. confirm_removal_in_master
 # 6d. delete_card
 # 7. Copy
-# 7a. choose_copy_target
+# 7a. choose_destination
 # 7b. confirm_copy
 # 7c. copy_card
-# 8. Main program loop
+# 8. Move
+# 8a. confirm_move
+# 8b. move_card
+# 9. Main program loop
 
 
 # 1. Pre-filled typing (Windows console)
@@ -408,7 +411,6 @@ def lookup_acronym(flashcards, deck_name):
             print()
             for number, card in enumerate(matches, start=1):
                 show_full_card(card, title=f"Match {number} of {len(matches)}")
-
         keys = ["enter", "esc", "q"]
         actions = []
         if not matches:
@@ -416,8 +418,8 @@ def lookup_acronym(flashcards, deck_name):
             actions.append("A = add it")
 
         if any(deck_file_for(card["deck"]) for card in matches):
-            keys += ["e", "d", "c"]
-            actions += ["E = edit", "D = delete", "C = copy"]
+            keys += ["e", "d", "c", "m"]
+            actions += ["E = edit", "D = delete", "C = copy", "M = move"]
 
         print()
         if actions:
@@ -477,6 +479,28 @@ def lookup_acronym(flashcards, deck_name):
                     if result and deck_name == "ALL DECKS":
                         flashcards.append({**card, "deck": result})
                         flashcards.sort(key=lambda card: card["acronym"].casefold())
+                    print()
+                    print("ENTER = back to lookup     Q = quit", end="", flush=True)
+                    if read_key(("enter", "esc", "q")) == "q":
+                        return "quit"
+        elif action == "m":
+            editable = [(number, card) for number, card in enumerate(matches, start=1)
+                        if deck_file_for(card["deck"])]
+            if len(editable) == 1:
+                card = editable[0][1]
+            else:
+                picked = pick_from_matches(editable, "Move", allow_all=False)
+                card = picked[0] if picked else None
+            if card is not None:
+                result = move_card(card)
+                if result == "quit":
+                    return "quit"
+                if result != "back":
+                    if result:                                          # moved: it left its old deck
+                        flashcards.remove(card)
+                        if deck_name == "ALL DECKS":
+                            flashcards.append({**card, "deck": result})
+                            flashcards.sort(key=lambda card: card["acronym"].casefold())
                     print()
                     print("ENTER = back to lookup     Q = quit", end="", flush=True)
                     if read_key(("enter", "esc", "q")) == "q":
@@ -796,23 +820,24 @@ def delete_card(card, decks):
 
 
 # 7. Copy
-# 7a. Show every built-in deck; number only the ones this card can be copied to
-def choose_copy_target(card):
+# 7a. Show every built-in deck; number only the ones this card can be copied or moved to
+def choose_destination(card, verb, doing):
     """
-    List all built-in decks. Decks that already hold this exact card get no number.
+    List all built-in decks for a copy or a move. verb is "Copy" or "Move"; doing is
+    "copying" or "moving". Decks that already hold this exact card get no number.
     Return (label, filename), 'back' for ESC, or 'quit' for Q.
     """
     same_card = [label for label, filename in decks_with_version(card)]
     same_acronym = decks_with_acronym(card["acronym"])
 
     clear_screen()
-    print_mode_banner("COPY AN ACRONYM - DECK LIST")
-    print(f"\nCopy {card['acronym']} to which deck?\n")
+    print_mode_banner(f"{verb.upper()} AN ACRONYM - DECK LIST")
+    print(f"\n{verb} {card['acronym']} to which deck?\n")
 
     choices = {}
     for label, filename in BUILTIN_DECKS:
         if label == card["deck"]:
-            print(f"   {label:<23}(copying from here)")
+            print(f"   {label:<23}({doing} from here)")
         elif label in same_card:
             print(f"   {label:<23}(already has it)")
         else:
@@ -823,7 +848,7 @@ def choose_copy_target(card):
 
     if not choices:
         print()
-        print_wrapped("", f"{card['acronym']} is already in every deck. There's nowhere to copy it.")
+        print_wrapped("", f"{card['acronym']} is already in every deck. There's nowhere to {verb.lower()} it.")
         print()
         print("ENTER or ESC = back     Q = quit", end="", flush=True)
         return "quit" if read_key(("enter", "esc", "q")) == "q" else "back"
@@ -876,7 +901,7 @@ def copy_card(card):
     Pick a deck, confirm, then copy the card there. Add it to master.csv only if master lacks it.
     Return the deck label it went to, None if cancelled at CAUTION, 'back' for ESC, or 'quit' for Q.
     """
-    target = choose_copy_target(card)
+    target = choose_destination(card, "Copy", "copying")
     if target in ("back", "quit"):
         return target
     label, filename = target
@@ -905,7 +930,83 @@ def copy_card(card):
     return label
 
 
-# 8. Main program loop
+# 8. Move
+# 8a. Show MOVING FROM, then PENDING MOVE or VERSION CONFLICT; ask; redraw with the result
+def confirm_move(card, label, filename, source_file, different):
+    """
+    Show the MOVING FROM card, then the PENDING MOVE card (or the VERSION CONFLICT
+    card when the target already has a different version). Return True for ENTER.
+    On ESC, redraw the screen without the title, show the RESULT, and return False.
+    """
+    def draw(state):
+        confirmed = state == "confirmed"
+        if confirmed:
+            sections = [("MOVED TO:", [filename]), ("MOVED FROM:", [source_file])]
+        else:
+            sections = [("COPY TO:", [filename]), ("REMOVE FROM:", [source_file])]
+
+        clear_screen()
+        print_mode_banner(f"MOVE AN ACRONYM TO: {label}")
+        print()
+        if confirmed:                                                   # the source deck no longer has it
+            gone = {"deck": card["deck"], "acronym": "(not found)", "full_name": "", "description": ""}
+            show_full_card(gone, title="PREVIOUS")
+        else:
+            show_full_card(card, title="MOVING FROM")
+        if different:
+            show_caution(sections, entry=different[0], decks=[label],
+                         title="VERSION CONFLICT", caution=state == "ask")
+        else:
+            show_caution(sections, entry=card, decks=[label],
+                         title="PENDING MOVE", caution=state == "ask")
+
+    whole_target = label.replace(" ", "\u00a0")                         # keep deck names on one line
+    whole_source = card["deck"].replace(" ", "\u00a0")
+    if different:
+        question = (f"A different version of {card['acronym']} already exists in "
+                    f"{whole_target}. Move anyway?")
+    else:
+        question = f"Move this card to {whole_target} from {whole_source} now?"
+    return ask_or_cancel(draw, question, "ENTER = move it     ESC = forget it", "moved")
+
+# 8b. Move one card, exactly as it is, from its deck into another built-in deck
+def move_card(card):
+    """
+    Pick a deck, confirm, then add the card there and remove it from its own deck.
+    master.csv is not touched: the version still lives in a deck. Return
+    the deck label it went to, None if not moved, 'back' for ESC, or 'quit' for Q.
+    """
+    target = choose_destination(card, "Move", "moving")
+    if target in ("back", "quit"):
+        return target
+    label, filename = target
+
+    source_file = deck_file_for(card["deck"])
+    source_rows = read_rows(source_file)
+    position = find_row(source_rows, card)
+    if position is None:                                                # file changed since lookup
+        print(f"\nRESULT:  Can't move. {card['acronym']} is no longer in {card['deck']}.")
+        print("         NO CHANGES were made.")
+        return None
+
+    rows = read_rows(filename)
+    wanted = card["acronym"].casefold()
+    different = [row for row in rows if row["acronym"].casefold() == wanted]
+
+    if not confirm_move(card, label, filename, source_file, different):
+        return None
+
+    rows.append({field: card[field] for field in FIELDS})
+    write_sorted(filename, rows)
+    source_rows.pop(position)
+    write_sorted(source_file, source_rows)
+
+    print(f"\nRESULT:  Moved card {card['acronym']} from {card['deck']} to:")
+    print(f"         {label}")
+    return label
+
+
+# 9. Main program loop
 def main():
     """Show the manage-acronyms menu. Return 'back' (ESC) or 'quit' (Q)."""
     while True:
