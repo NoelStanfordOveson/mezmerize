@@ -34,6 +34,7 @@ MFA,Multi-Factor Authentication,"A security method that requires users to verify
 MTTD,Mean Time to Detect,Measures the average time from the start of a security incident to its detection.
 MTTR,Mean Time to Respond,Measures the average time it takes an organization to respond to and recover from a security incident after detection.
 NAC,Network Access Control,"A security framework that verifies users and devices before granting network access, enforcing policies based on identity, device type, location, and security posture."
+NAT,Network Address Translation,"A networking process that modifies IP addresses in packet headers on routers and/or firewalls, allowing multiple devices on a private network to share a single public IP address when accessing the internet."
 NTP,Network Time Protocol,
 NVMe,Non-Volatile Memory express,A high-speed protocol that lets solid-state drives communicate directly with computers over PCIe.
 OAuth,Open Authorization,An authorization framework that lets users grant applications limited access to resources through access tokens without sharing passwords.
