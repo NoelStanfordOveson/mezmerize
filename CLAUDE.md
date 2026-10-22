@@ -11,9 +11,9 @@ editing an existing card is Windows-only (it uses the console's own line editor)
 ## Commands
 
 ```bash
-py mezmerize.py          # main menu: study, look up/add/edit/delete, check deck health
+py mezmerize.py          # main menu: study, look up/add/edit/delete/copy/move, check deck health
 py flashcards.py         # study only (review, random quiz, lookup)
-py manage_acronyms.py    # look up, add, edit, or delete acronyms
+py manage_acronyms.py    # look up, add, edit, delete, copy, or move acronyms
 py check_decks.py        # audit data/master.csv against the decks
 ```
 
@@ -24,7 +24,7 @@ py check_decks.py        # audit data/master.csv against the decks
 - `mez_cards.py` (middle): card logic, no screens. Reads and writes the CSVs (read_rows,
   write_sorted), identifies cards and finds them in decks (version_of, find_row,
   decks_with_version, decks_with_acronym), and keeps master.csv current (update_master).
-- `manage_acronyms.py`: the screens for lookup, add, edit, delete, and copy.
+- `manage_acronyms.py`: the screens for lookup, add, edit, delete, copy, and move.
   show_caution draws every CAUTION box.
 - `flashcards.py` and `check_decks.py`: flashcards imports lookup_acronym from manage_acronyms.
 - `mezmerize.py` (top): the menu that calls each program's main().
@@ -52,6 +52,11 @@ py check_decks.py        # audit data/master.csv against the decks
   hold that exact version can't be picked; a deck with a different version can (that
   version is shown in the VERSION CONFLICT card). master.csv gets the version only if it
   lacks it.
+- Moving copies a card into one other built-in deck, then removes it from its own deck
+  (target written first, then the source). Same deck-pick rules as copying
+  (choose_destination). master.csv is never touched by a move. After a move, a
+  single-deck lookup drops the card from its list; an all-decks lookup keeps it with
+  its new deck label.
 - Every write to master.csv first copies it to data/master.bak (one step of undo;
   *.bak is in .gitignore).
 - Lookup matches on acronym only.
@@ -72,27 +77,39 @@ py check_decks.py        # audit data/master.csv against the decks
   splits across lines.
 - Q quits completely; ESC goes back one level.
 - Result lines start `RESULT:` followed by two spaces.
-- Confirm screens (before saving, deleting, or copying) have at most two cards:
+- Confirm screens (before saving, deleting, copying, or moving) have at most two cards:
   - the existing card on top (show_full_card, === lines, titled), if there is one;
   - one CAUTION card below it (show_caution, *** lines), with no blank line between them.
-    It holds the proposed outcome (or, for a copy conflict, the version already there):
-    DECK / DECKS line, the card's fields, a blank line, then the file heading and every
-    file that will be affected. With no top card, it sits right under the banner's
+    It holds the proposed outcome (or, for a copy/move conflict, the version already
+    there): DECK / DECKS line, the card's fields, a blank line, then one or more file
+    headings, each with the files it affects (show_caution takes a list of
+    (heading, files) sections). With no top card, it sits right under the banner's
     blank line. The caller prints its own question and keys after it.
 - CAUTION card titles are just the text; show_caution puts ⚠️ on both sides.
   PENDING INSERT (add), PENDING WRITE (edit), PENDING DELETE (delete), PENDING FINAL
-  DELETE (master removal), PENDING COPY (copy), VERSION CONFLICT (copy into a deck with
-  a different version).
+  DELETE (master removal), PENDING COPY (copy), PENDING MOVE (move), VERSION CONFLICT
+  (copy or move into a deck with a different version).
+- Banners: `ADD / COPY / MOVE AN ACRONYM TO: <deck>` on confirm screens (TO: names a
+  destination); `COPY / MOVE AN ACRONYM - DECK LIST` on deck-pick screens (a dash names
+  a step). Edit, delete, and master banners name the task only.
 - Every value in a card lines up at column 13. Field labels and file headings are 12
-  characters or fewer (WRITING TO:, DELETE FROM:, COPYING TO:). DECK: for one deck,
-  DECKS: for several (labels comma-separated, wrapped like DESCRIPTION).
-- Once a CAUTION card is answered (ENTER, ESC, R, or K), the whole screen is redrawn
-  with draw(False): the card's titled line becomes plain stars, and the question, keys,
+  characters or fewer. DECK: for one deck, DECKS: for several (labels comma-separated,
+  wrapped like DESCRIPTION).
+- File headings are instructions before the card is answered and after ESC, and past
+  tense after ENTER: WRITE TO: / WRITTEN TO: (add, edit), DELETE FROM: / ERASED FROM:
+  (delete, master), COPY TO: / COPIED TO: (copy), COPY TO: + REMOVE FROM: / MOVED TO: +
+  MOVED FROM: (move). Master K shows KEPT IN: master.csv (master isn't touched).
+- Top cards keep their titles until ENTER (CURRENT, COPYING FROM, MOVING FROM), then
+  become PREVIOUS (edit, move) or COPIED FROM (copy). After a move, PREVIOUS shows the
+  source deck with `ACRONYM: (not found)` and blank fields: the deck's point of view.
+- Once a CAUTION card is answered (ENTER, ESC, R, or K), the whole screen is redrawn:
+  draw(state) with state "ask" (waiting), "confirmed" (ENTER, or R + typed acronym),
+  "cancelled" (ESC), or "kept" (K). The card's titled line becomes plain stars, and the question, keys,
   and any typing are replaced by a blank line, the RESULT, a blank line, then the
   navigation line. On ESC the RESULT is `RESULT:  Nothing was saved.` (or deleted /
-  copied), then `NO CHANGES were made.`; on success the caller writes the files and
+  copied / moved), then `NO CHANGES were made.`; on success the caller writes the files and
   prints it.
-- ENTER / ESC confirm screens (add, edit, delete, copy) define their own draw(caution)
+- ENTER / ESC confirm screens (add, edit, delete, copy, move) define their own draw(state)
   and end with `return ask_or_cancel(draw, question, keys, verb)`: the caller decides
   what (screen, question, keys, verb), the helper does how (draw, ask, redraw, ESC
   RESULT). Questions are passed without surrounding newlines. The master screen
@@ -102,7 +119,7 @@ py check_decks.py        # audit data/master.csv against the decks
   name). Copy does this; add, edit, and delete still list filenames until they're
   switched.
 - Lookup's key line is two lines: actions (A = add it / E = edit / D = delete /
-  C = copy), then a fixed navigation line (ENTER / ESC / Q). Navigation keys are in capitals.
+  C = copy / M = move), then a fixed navigation line (ENTER / ESC / Q). Navigation keys are in capitals.
 - Printed prompts don't say "sync"; code names can.
 - Use `...` in examples to stand for other text that's on the screen.
 
