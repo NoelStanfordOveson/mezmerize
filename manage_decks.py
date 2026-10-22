@@ -2,9 +2,9 @@
 Compare a master acronym list to the merged built-in flashcard decks.
 
 Put this file next to flashcards.py (the CSV decks live in the data folder), then run:
-    py check_decks.py
-    py check_decks.py master.csv
-    py check_decks.py --master master.csv
+    py manage_decks.py
+    py manage_decks.py master.csv
+    py manage_decks.py --master master.csv
 
 Expected CSV columns (same as flashcards.py):
     acronym, full_name, description
@@ -264,7 +264,7 @@ def main():
             f"Master file: {master_name}",
             f"Could not load master: {master_error}",
             "Put the master CSV in the data folder, or pass the path:",
-            "     py check_decks.py path\\to\\master.csv",
+            "     py manage_decks.py path\\to\\master.csv",
         ], last=True)
         return "quit" if action == "q" else "back"
 
