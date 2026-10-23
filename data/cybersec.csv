@@ -1,18 +1,26 @@
 acronym,full_name,description
 ABAC,Attribute-Based Access Control,"A model that grants or denies access based on attributes of the user, resource, action, and environment against defined policies."
+BEC,Business Email Compromise,"A major email attack threat in which an attacker impersonates a trusted person to trick someone into transferring funds, changing payment details, disclosing sensitive data, or taking other unauthorized actions."
 CA,Central Authority,"The Zscaler cloud’s central control-plane component, which monitors service infrastructure, coordinates authentication, manages ZPA policies, and distributes configuration, software and database updates, and threat intelligence."
 CAG,Context-Augmented Generation,
 CASB,Cloud Access Security Broker,A security solution that mediates access between users and cloud services to enforce organizational policies and protect cloud applications and data.
-CDE,Cardholder Data Environment,
+CDE,Cardholder Data Environment,"A PCI DSS term for the people, processes, technologies, and system components that store, process, or transmit CHD or SAD, along with components that support their security."
 CDI,Constrained Data Item,A protected piece of data in the Clark-Wilson integrity model whose accuracy and completeness must be strictly maintained.
 CIA,"Confidentiality, Integrity, Availability","A foundational cybersecurity model—Confidentiality, Integrity, and Availability—used to guide security controls and assess information—system risks."
+CMMC,Cybersecurity Maturity Model Certification,A U.S. Department of War cybersecurity certification program that verifies whether defense contractors and subcontractors implement required controls to protect FCI and CUI.
 CTEM,Continuous Threat Exposure Management,"A cybersecurity operating model that continuously identifies attacker-exploitable exposures, prioritizes those that matter most, and drives their remediation."
+CTF,Capture The Flag,"A hands-on cybersecurity competition where participants solve challenges in areas such as web security, digital forensics, network analysis, and vulnerability exploitation to uncover hidden “flags”—text strings that verify successful completion."
 CVE,Common Vulnerabilities and Exposures,A reference method for publicly known information-security vulnerabilities and exposures.
 CVSS,Common Vulnerability Scoring System,An open framework for rating the severity of security vulnerabilities in computing systems.
+DCS,Distributed Control System,"An plant-wide industrial control system that distributes control logic across multiple controllers throughout a manufacturing facility, forming a core OT platform whose compromise can disrupt production, endanger safety, and affect critical infrastructure operations."
+DLP,Data Loss Prevention,Detects the unauthorized transmission or disclosure of sensitive data and prevents its occurrence.
 EDR,Endpoint Detection and Response,"Cybersecurity technology that continuously monitors endpoint devices to detect, investigate, and respond to cyber threats in real time."
 EIG,Enhanced Identity Governance,"The practice of improving visibility, control, and governance of identities, accounts, roles, and access privileges across an organization."
 EPP,Endpoint Protection Platform,"A centrally managed security solution that prevents malware and other threats from compromising endpoint devices through antivirus, behavioral analysis, policy enforcement, and other preventive controls."
-IPS,Intrusion Prevention System,
+ESA,Email Security Appliance,"Cisco’s secure email gateway, formerly known as ESA, filters inbound and outbound email to block spam, phishing, and malware while providing encryption, DLP, and policy enforcement."
+ESC,Endpoint Security Client,"Software installed on endpoint devices that communicates with a central security platform to enforce policies, monitor activity, and help prevent, detect, and respond to threats."
+ICS,Industrial Control Systems,"The hardware, software, and networks that monitor and control physical processes in industrial and critical infrastructure environments, where security protects against cyber threats while preserving safety, availability, and reliability."
+IPS,Intrusion Prevention System,"A security technology that monitors network traffic to detect and automatically block malicious activity in real time by dropping packets, blocking IP addresses, or terminating suspicious connections."
 ITDR,Identity Threat Detection and Response,"A cybersecurity capability that detects, investigates, and responds to attacks targeting identities, credentials, accounts, and authentication systems."
 JEA,Just Enough Access,A security principle that restricts users to the minimum privileges and access needed to perform their authorized tasks.
 KAG,Knowledge-Augmented Generation,
@@ -20,18 +28,26 @@ MDR,Managed Detection and Response,"A cybersecurity service in which a third-par
 MFA,Multi-Factor Authentication,"A security method that requires users to verify their identity with at least two distinct factors—something they know, have, or are—before granting access."
 NAC,Network Access Control,"A security framework that verifies users and devices before granting network access, enforcing policies based on identity, device type, location, and security posture."
 NGAV,Next-Generation AntiVirus,"An endpoint security solution, beyond traditional signature-based detection, that uses behavioral analysis, machine learning, and threat intelligence to detect and block known and unkown threats."
+NGFW,Next Generation FireWall,"Inspects and controls network traffic, identifies applications, and blocks attacks and exploits."
 OT,Operational Technology,Hardware and software used to monitor control and automate physical processes in industrial settings.
 PAM,Privileged Access Management,"The practice of securing, controlling, monitoring, and auditing privileged accounts and administrative access to critical systems, applications, and data."
 PDP,Policy Decision Point,"The Zero Trust component that evaluates access requests against security policies and context, then grants, denies, or revokes access."
 PEP,Policy Enforcement Point,"The Zero Trust component that enforces the PDP’s decisions by allowing, blocking, or terminating access to a resource."
 PII,Personally Identifiable Information,"Any information that can identify, distinguish, or trace an individual, alone or combined with other information."
+PLC,Programmable Logic Controller,"A rugged industrial computer—a core ICS foundational component—used in automation and to monitor inputs from sensors, switches, etc., in order to execute programmed logic, and to control outputs such as motors, valves, and relays in real time."
 RBAC,Role-Based Access Control,
 RMF,Risk Management Framework,"Commonly refers to the NIST Risk Management Framework, a structured process for identifying, assessing, mitigating, and continuously monitoring security and privacy risks throughout a system’s lifecycle."
+SCADA,Supervisory Control and Data Acquisition,"As a wide area solution, it comprises the hardware, software, and networks used for centralized monitoring and control of geographically distributed industrial processes through data collection, alarms, and supervisory commands, with security focused on preserving safety, availability, and reliability."
+SEG,Secure Email Gateway,An email security solution that inspects inbound and outbound messages to detect threats and enforce organizational policies.
 SOAR,"Security Orchestration, Automation, and Response",A Cisco Splunk security platform that automates and coordinates incident investigation and response across multiple tools using predefined workflows called playbooks.
 SOC,Security Operations Center,"A dedicated site and centralized team that monitors, detects, investigates, and responds to cybersecurity threats across an organization’s IT environment."
+SSE,Security Service Edge,"A cloud-delivered Cisco Systems security architecture that integrates multiple security controls into a unified service to secure user access to applications, internet resources, and data from anywhere."
+SWA,Secure Web Appliance,"A Cisco Systems on-premises web security appliance that provides SWG capabilities to inspect, filter, and control web traffic."
+SWG,Secure Web Gateway,"A security capability that inspects, filters, and controls web traffic to protect users and prevent malware, phishing, access to malicious websites, data loss, and other web threats."
 TDR,Threat Detection and Response,"The continuous process of detecting, investigating, containing, and remediating cyber threats to minimize their organizational impact."
 TP,Transformation Procedure,An authorized procedure in the Clark-Wilson integrity model that operates on CDIs or converts approved UDI into valid CDI.
 UDI,Unconstrained Data Item,"Represents data that has not been validated against the Clark–Wilson integrity model’s constraints, such as arbitrary user input."
+WSA,Web Security Appliance,"Cisco’s previous SWG, now called SWA, provides URL filtering, malware protection, web traffic inspection, and policy enforcement to protect users from internet threats."
 X.509,PKI Certificate,"A certificate standard that defines the format of public-key certificates used to authenticate identities and support encryption, digital signatures, and secure communications."
 XDR,eXtended Detection and Response,"A cybersecurity platform that collects, correlates, and analyzes security data from multiple sources to detect and respond to threats across an organization’s environment."
 YAML,YAML Ain't Markup Language,

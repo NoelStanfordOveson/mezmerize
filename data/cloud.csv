@@ -6,6 +6,9 @@ CSPM,Cloud Security Posture Management,"Tools and processes that continuously mo
 FWaaS,Firewall as a Service,"A cloud-delivered firewall that provides network filtering, threat prevention, and access control without on-premises hardware."
 GCP,Google Cloud Platform,
 IaaS,Infrastructure as a Service,"A cloud computing model in which a provider supplies virtualized compute, storage, and networking resources."
+IaC,Infrastructure as Code,"The practice of defining, deploying, and managing infrastructure through code and configuration files rather than manual setup."
 PaaS,Platform as a Service,"A cloud computing model that provides a managed environment for developing, deploying, and running applications, while the provider manages the platform resources."
 SaaS,Software as a Service,"A cloud computing model in which software applications are hosted and managed by a provider and accessed by customers over the internet, typically through a web browser or application."
+SASE,Secure Access Service Edge,"A cloud-delivered architecture that combines networking and security services—such as SD-WAN, secure web gateways, CASB, firewalls, and Zero Trust Network Access—to provide secure access to applications and resources from anywhere."
+SSE,Security Service Edge,"A cloud-delivered Cisco Systems security architecture that integrates multiple security controls into a unified service to secure user access to applications, internet resources, and data from anywhere."
 SSPM,SaaS Security Posture Management,"A security approach and category of tools that continuously monitors SaaS applications for security risks, misconfigurations, excessive permissions, and compliance issues."

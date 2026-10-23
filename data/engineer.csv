@@ -1,25 +1,33 @@
 acronym,full_name,description
 AAA,"Authentication, Authorization, and Accounting","A security framework that verifies user and device identities, determines access permissions, and records activity to enforce policies and maintain accountability across networks, applications, and other IT resources."
 ACL,Access Control List,"A set of rules that allows or blocks network traffic based on source and destination IP addresses, protocols, and ports."
-ADFS,Active Directory Federation Services,
+ACS,Access Control Server,"A Cisco Systems AAA and policy management platform that centrally controlled identity-based access to network devices, VPNs, wireless networks, and other infrastructure resources using RADIUS and TACACS+."
+ADFS,Active Directory Federation Services,"A Microsoft identity and access management service that provides SSO and federated authentication, enabling users to access applications and services across trusted organizations with one set of credentials."
 AFH,Adaptive Frequency Hopping,Communicating devices continuously monitor their environment for interference and adjust the channel map to address it.
+ASA,Adaptive Security Appliance,"A Cisco security appliance and operating system that secures traffic between networks through stateful firewalling, VPN connectivity, NAT, and access control."
+ASA,Firewall Adaptive Security Appliance,"A Cisco Systems Secure Firewall ASA security appliance and operating system that secures traffic between networks through stateful firewalling, VPN connectivity, NAT, and access control."
+BEC,Business Email Compromise,"A major email attack threat in which an attacker impersonates a trusted person to trick someone into transferring funds, changing payment details, disclosing sensitive data, or taking other unauthorized actions."
 BGP,Border Gateway Protocol,A path-vector exterior gateway protocol that exchanges routing information between autonomous systems and selects paths based on policies and AS-path attributes.
 CCE,Common Configuration Enumeration,"Provides unique identifiers for system configuration issues, facilitating fast and accurate correlation of configuration data across multiple information sources and tools."
 CMDB,Configuration Management Database,a centralized repository that stores information about an organization's IT assets and the relationships between them.
 CPE,Common Platform Enumeration,"A standardized, machine-readable method for naming and identifying classes of applications, operating systems, and hardware devices within an enterprise’s computing assets."
-CSP,Content Security Policy,
+CSP,Content Security Policy,"A web security standard that lets websites restrict which resources browsers can load and execute and how pages can be embedded, helping prevent cross-site scripting (XSS), code injection, and clickjacking."
 DLP,Data Loss Prevention,Detects the unauthorized transmission or disclosure of sensitive data and prevents its occurrence.
 DNS,Domain Name System,
 E2EE,End-To-End Encryption,A security model in which information is encrypted on the sender’s device and can be decrypted only on the intended recipient’s device.
 EIGRP,Enhanced Interior Gateway Routing Protocol,A Cisco-developed dynamic routing protocol that enables routers to automatically learn and exchange route information within a network.
+ESA,Email Security Appliance,"Cisco’s secure email gateway, formerly known as ESA, filters inbound and outbound email to block spam, phishing, and malware while providing encryption, DLP, and policy enforcement."
 FHSS,Frequency Hopping Spread Spectrum,A method of transmitting radio signals by rapidly changing the carrier frequency among many frequencies.
 FIM,Federated Identity Management,"A common set of policies, practices, and protocols that manage and verify the identities of users and devices accessing applications and resources across organizations."
+FMC,Firepower Management Center,"Cisco Systems' centralized platform for configuring and monitoring FTD devices, managing security policies, configuring and monitoring IDS/IPS, and analyzing security events."
+FMC,Firewall Management Center,"Cisco Systems' Secure FMC is a centralized platform for configuring and monitoring FTD devices, managing security policies, configuring and monitoring IDS/IPS, and analyzing security events."
+FTD,Firepower Threat Defense,"Cisco Systems' NGFW software combines firewall capabilities, IDS/IPS, application visibility and control, malware protections, and advanced threat detection in a single platform."
+FTD,Firewall Threat Defense,"Cisco Systems' Secure FTD (NGFW) software combines firewall capabilities, IDS/IPS, application visibility and control, malware protection, and advanced threat detection in a single platform."
 FTP,File Transfer Protocol,
 grep,Global Regular Expression Print,Designed to search through text input for lines that match a specified pattern.
 HSM,Hardware Security Module,"A physical device that securely manages cryptographic keys and performs encryption, decryption, digital-signature, and authentication functions."
 HTTP,HyperText Transfer Protocol,
 HTTPS,HyperTest Transfer Protocol Secure,
-IaC,Infrastructure as Code,"The practice of defining, deploying, and managing infrastructure through code and configuration files rather than manual setup."
 IAM,Identity and Access Management,A framework of policies and technologies to ensure that the right users have the appropriate access to technology resources.
 IdP,Identity Provider,A service that stores and manages user identities.
 IDS,Intrusion Detection System,
@@ -31,10 +39,10 @@ ISSE,Information Systems Security Engineer,
 JIT,Just-In-Time,"The temporary granting of privileged permissions for a specific task or time period, after which the permissions are automatically revoked."
 MDM,Mobile Device Management,A subset of UEM focused on managing and securing mobile devices.
 MFA,Multi-Factor Authentication,"A security method that requires users to verify their identity with at least two distinct factors—something they know, have, or are—before granting access."
-MTTD,Mean Time to Detect,Measures the average time from the start of a security incident to its detection.
-MTTR,Mean Time to Respond,Measures the average time it takes an organization to respond to and recover from a security incident after detection.
 NAC,Network Access Control,"A security framework that verifies users and devices before granting network access, enforcing policies based on identity, device type, location, and security posture."
 NAT,Network Address Translation,"A networking process that modifies IP addresses in packet headers on routers and/or firewalls, allowing multiple devices on a private network to share a single public IP address when accessing the internet."
+NDR,Network Detection and Response,
+NGFW,Next Generation FireWall,"Inspects and controls network traffic, identifies applications, and blocks attacks and exploits."
 NTP,Network Time Protocol,
 NVMe,Non-Volatile Memory express,A high-speed protocol that lets solid-state drives communicate directly with computers over PCIe.
 OAuth,Open Authorization,An authorization framework that lets users grant applications limited access to resources through access tokens without sharing passwords.
@@ -45,16 +53,21 @@ PCIe,Peripheral Component Interconnect express,A high-speed interface standard f
 PKI,Public Key Infrastructure,
 PoP,Point of Presence,"A physical location where installed network infrastructure serves as an interface between communicating entities, allowing users to connect to a service provider’s network or cloud services."
 POP3,Post Office Protocol v3,
+RADIUS,Remote Authentication Dial-In User Service,"A network access protocol that provides centralized AAA for users and devices accessing VPNs, wireless networks, routers, and switches, traditionally using UDP and password hashing in order to hide credentials without encrypting the entire packet."
 RFB,Remote Frame Buffer,"An open, simple protocol used by VNC to transmit a remote computer’s screen and relay keyboard and mouse input between systems."
 SAML,Security Assertion Markup Language,An open XML-based standard for exchanging authentication and authorization data between an identity provider and a service provider.
-SASE,Secure Access Service Edge,"A cloud-delivered architecture that combines networking and security services—such as SD-WAN, secure web gateways, CASB, firewalls, and Zero Trust Network Access—to provide secure access to applications and resources from anywhere."
 SCIM,System for Cross-domain Identity Management,"An open standard (protocol) for automating the provisioning, updating, and deprovisioning of user identities between systems."
 SD-WAN,Software-Defined Wide Area Network,"A software-based WAN technology that centrally manages connectivity among data centers, cloud services, branch offices, and remote users, routing traffic across internet, MPLS, cellular, and other links to improve performance, availability, and cost efficiency."
-SGT,Security Group Tag,"A label that identifies a user, device, or workload by its security role or group rather than its IP address."
+SEG,Secure Email Gateway,An email security solution that inspects inbound and outbound messages to detect threats and enforce organizational policies.
+SEG,Secure Email Gateway,"Cisco System’s email security platform, formerly known as ESA, that performs an SEG role by inspecting inbound and outbound messages to detect threats and enforce organizational policies."
+SGT,Security Group Tag,"A2 label that identifies a user, device, or workload by its security role or group rather than its IP address."
+SIEM,Security Information and Event Management,"A security platform that centralizes, normalizes, correlates, and analyzes log and event data across an organization's environment to detect threats, support incident investigation and response, and provide security visibility through alerts, dashboards, and reports."
 SMTP,Simple Mail Transfer Protocol,
 SSH,Secure Shell,
 SSO,Single Sign-On,An authentication system that lets a user sign in once with a trusted identity provider and then access multiple related applications without logging in separately to each one.
-SWA,Secure Web Access,"A security web gateway that controls, inspects, and protects users’ access to websites and internet applications."
+SWA,Secure Web Appliance,"A Cisco Systems on-premises web security appliance that provides SWG capabilities to inspect, filter, and control web traffic."
+SWG,Secure Web Gateway,"A security capability that inspects, filters, and controls web traffic to protect users and prevent malware, phishing, access to malicious websites, data loss, and other web threats."
+TACACS+,Terminal Access Controller Access-Control System +,"A centralized AAA protocol developed by Cisco Systems that controls and audits administrative access to network infrastructure devices such as routers, switches, firewalls, and wireless controllers."
 TCP,Transmission Control Protocol,
 Telnet,TELetype over a NETwork,
 UEM,Unified Endpoint Management,"A platform that centrally manages, secures, configures, and monitors endpoints throughout their lifecycle."
@@ -65,3 +78,4 @@ VPN,Virtual Private Network,"An overlay network using virtualization to extend a
 VRF,Virtual Routing and Forwarding,A technology that allows multiple instances of a routing table to co-exist within the same router at the same time.
 WAF,Web Application Firewall,A security control that inspects HTTP/HTTPS traffic to protect web applications from attacks that traditional network firewalls may not detect.
 WCCP,Web Cache Communication Protocol,
+WSA,Web Security Appliance,"Cisco’s previous SWG, now called SWA, provides URL filtering, malware protection, web traffic inspection, and policy enforcement to protect users from internet threats."

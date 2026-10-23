@@ -8,14 +8,17 @@ acronym,full_name,description
 800-53,NIST SP 800-53 Security and Privacy Controls,NIST 800-53r5 is a comprehensive catalog of security and privacy controls used by U.S. federal systems and widely adopted elsewhere.
 AICPA,American Institute of Certified Public Accountants,The AICPA’s Trust Services Criteria provide a framework that independent CPA firms use to audit and report on a service organization’s security controls.
 CCPA,California Consumer Privacy Act,"A California privacy law that grants consumers control over their personal data and requires qualifying businesses to disclose how they collect, use, share, and sell it."
+CHD,CardHolder Data,"Payment card information protected under PCI DSS stored or processed that consists of at least the PAN and may also include the cardholder's name, expiration date, and service code."
 CIS,Center for Internet Security,"The CIS Critical Security Controls are a prioritized set of cybersecurity best practices that help organizations defend against common cyberattacks through practical, action-oriented guidance."
 CISA,Cybersecurity and Infrastructure Security Agency,A U.S. government agency responsible for cybersecurity and information technology infrastructure protection.
+CMMC,Cybersecurity Maturity Model Certification,A U.S. Department of War cybersecurity certification program that verifies whether defense contractors and subcontractors implement required controls to protect FCI and CUI.
 CSF,Cybersecurity Framework 2.0,"This NIST high-level, U.S. government cybersecurity framework is organized around functions that helps organizations assess, prioritize, and communicate cybersecurity risk-management outcomes."
 CSRC,Computer Security Resource Center,"Operated by NIST, it provides cybersecurity publications, frameworks, standards, guidelines, and project resources."
 CUI,Controlled Unclassified Information,"Unclassified information created or held by the government, or on its behalf, that requires safeguarding or dissemination controls under applicable laws, regulations, or policies."
 DISA,Defense Information Systems Agency,
+DLP,Data Loss Prevention,Detects the unauthorized transmission or disclosure of sensitive data and prevents its occurrence.
 e-PHI,Electronic Protected Health Information,"PHI that is created, received, maintained, or transmitted electronically."
-FISMA,Federal Information Security Modernization Act,
+FISMA,Federal Information Security Modernization Act,"A U.S. federal law requiring federal agencies to develop, implement, and maintain risk-based information security programs—including security controls, continuous monitoring, and compliance reporting—to protect government information and systems, including those operated by contractors on the government’s behalf."
 GDPR,General Data Protection Regulation,Data privacy protection framework applying to the European Union.
 HIPAA,Health Insurance Portability and Accountability Act,"A law that prohibits covered entities from disclosing protected health information without a patient’s authorization, except as permitted or required by law."
 HITECH,Health Information Technology for Economic and Clinical Health Act,
@@ -23,10 +26,12 @@ HITRUST,Health Information Trust Alliance,"An organization that develops cyberse
 ISMS,Information Security Management System,"A formal framework of policies, procedures, people, and controls used to manage and protect an organization’s information assets."
 ISO,International Organization for Standardization,"An international organization that develops standards for consistent management, security, quality, and operational practices, e.g. computer networking systems."
 NIST,National Institute of Standards and Technology,"A U.S. federal agency that develops standards, guidelines, and tools for fields such as cybersecurity, measurement science, and technology."
+PAN,Primary Account Number,"The unique number assigned to a credit, debit, or prepaid card that identifies the issuer and cardholder’s account and must be protected under PCI DSS when stored, processed, or transmitted."
 PCI DSS,Payment Card Industry Data Security Standard,"A set of security standards designed to ensure that companies that store, process, or transmit credit or debit card information maintain a secure environment."
 PHI,Protected Health Information,
 PII,Personally Identifiable Information,"Any information that can identify, distinguish, or trace an individual, alone or combined with other information."
 RMF,Risk Management Framework,"Commonly refers to the NIST Risk Management Framework, a structured process for identifying, assessing, mitigating, and continuously monitoring security and privacy risks throughout a system’s lifecycle."
+SAD,Sensitive Authentication Data,"Security-related payment card information used to authenticate cardholders or authorize transactions—including card verification codes, PINs, PIN blocks, and full track data—that generally must not be stored after authorization under PCI DSS, even if encrypted."
 SOC 2,System and Organization Controls 2,"An attestation report that evaluates based on a Type whether a service organization’s controls are designed and operating effectively to protect customer data, based on criteria developed by the AICPA."
 SP,Special Publication,An official guidance document published by the NIST.
 STIG,Security Technical Implementation Guide,

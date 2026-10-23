@@ -10,18 +10,22 @@ AAA,"Authentication, Authorization, and Accounting","A security framework that v
 ABAC,Attribute-Based Access Control,"A model that grants or denies access based on attributes of the user, resource, action, and environment against defined policies."
 ACL,Access Control List,"A set of rules that allows or blocks network traffic based on source and destination IP addresses, protocols, and ports."
 ACS,Access Control Systems,"Uses digital credentials, controllers, and electronic locks to regulate access to physical spaces instead of traditional metal keys."
-ADFS,Active Directory Federation Services,
+ACS,Access Control Server,"A Cisco Systems AAA and policy management platform that centrally controlled identity-based access to network devices, VPNs, wireless networks, and other infrastructure resources using RADIUS and TACACS+."
+ADFS,Active Directory Federation Services,"A Microsoft identity and access management service that provides SSO and federated authentication, enabling users to access applications and services across trusted organizations with one set of credentials."
 AFH,Adaptive Frequency Hopping,Communicating devices continuously monitor their environment for interference and adjust the channel map to address it.
 AI,Artificial Intelligence,"The capability of a machine to learn, reason, solve problems, make decisions, and understand language."
 AICPA,American Institute of Certified Public Accountants,The AICPA’s Trust Services Criteria provide a framework that independent CPA firms use to audit and report on a service organization’s security controls.
 ALE,Annualized Loss Expectancy,ALE = SLE * ARO
 API,Application Programming Interface,A set of rules that allows different software applications to communicate with each other.
 ARO,Annualized Rate of Occurrence,An estimate of how often a threat would be successful in exploiting a vulnerability.
+ASA,Adaptive Security Appliance,"A Cisco Systems security appliance and operating system that secures traffic between networks through stateful firewalling, VPN connectivity, NAT, and access control."
+ASA,Firewall Adaptive Security Appliance,"A Cisco Systems Secure Firewall ASA security appliance and operating system that secures traffic between networks through stateful firewalling, VPN connectivity, NAT, and access control."
 AV,Asset Value,"Represents the total value of an asset, calculated based on the potential financial impact of a security incident—crucial for risk management and security assessments."
 AWS,Amazon Web Services,"A cloud computing platform, AWS provides on-demand infrastructure, platform, and security services for building, deploying, and securing applications without managing physical data centers."
 AWS SAA,AWS Certified Solutions Architect - Associate,"An AWS certification validating the ability to design secure, resilient, high-performing, and cost-optimized architectures on AWS."
 AWS SCS,AWS Certified Security - Specialty,"An AWS specialty-level certification validating expertise in securing AWS workloads, including data protection, identity and access management, threat detection, incident response, and logging and monitoring."
 BCP,Business Continuity Plan,The capability of an organization to continue the delivery of products or services following a disruptive incident.
+BEC,Business Email Compromise,"A major email attack threat in which an attacker impersonates a trusted person to trick someone into transferring funds, changing payment details, disclosing sensitive data, or taking other unauthorized actions."
 BGP,Border Gateway Protocol,A path-vector exterior gateway protocol that exchanges routing information between autonomous systems and selects paths based on policies and AS-path attributes.
 BIA,Business Impact Analysis,"The process of identifying critical business functions, assessing the effects of their disruption, and defining recovery priorities and requirements."
 CA,Central Authority,"The Zscaler cloud’s central control-plane component, which monitors service infrastructure, coordinates authentication, manages ZPA policies, and distributes configuration, software and database updates, and threat intelligence."
@@ -35,11 +39,12 @@ CCNA Automation,Cisco Certified Network Associate Automation,"A Cisco certificat
 CCNA Security,Cisco Certified Network Associate Security,
 CCPA,California Consumer Privacy Act,"A California privacy law that grants consumers control over their personal data and requires qualifying businesses to disclose how they collect, use, share, and sell it."
 CD,Continuous Delivery/Deployment,"A 2 part process that refers to the integration, testing, and delivery of code changes."
-CDE,Cardholder Data Environment,
+CDE,Cardholder Data Environment,"A PCI DSS term for the people, processes, technologies, and system components that store, process, or transmit CHD or SAD, along with components that support their security."
 CDI,Constrained Data Item,A protected piece of data in the Clark-Wilson integrity model whose accuracy and completeness must be strictly maintained.
 CDN,Content Delivery Network,A geographically distributed network of proxy servers and corresponding data centers.
 CEH,Certified Ethical Hacker,"An EC-Council certification validating the skills to identify and exploit system vulnerabilities using the same tools and techniques as malicious attackers, in order to assess and strengthen security."
 CGRC,"Certified in Governance, Risk and Compliance","Validates one's ability to manage governance, risk, compliance, security controls, and information system authorization processes within an organization."
+CHD,CardHolder Data,"Payment card information protected under PCI DSS stored or processed that consists of at least the PAN and may also include the cardholder's name, expiration date, and service code."
 CI,Continuous Integration,The practice of automatically and frequently integrating code changes into a shared source code repository.
 CI/CD,Continuous Integration and Continuous Delivery/Deployment,A standard that aims to streamline and accelerate the software development lifecycle.
 CIA,"Confidentiality, Integrity, Availability","A foundational cybersecurity model—Confidentiality, Integrity, and Availability—used to guide security controls and assess information—system risks."
@@ -49,21 +54,24 @@ CISSP,Certified Information Systems Security Professional,"An ISC2 certification
 CLSA,Certified LAN Server Administrator,An IBM certification validating the skills to administer and manage IBM LAN Server network environments.
 CLSE,Certified LAN Server Engineer,"A IBM certification validating the skills to plan, install, configure, troubleshoot, and support IBM LAN Server networks and servers."
 CMDB,Configuration Management Database,a centralized repository that stores information about an organization's IT assets and the relationships between them.
+CMMC,Cybersecurity Maturity Model Certification,A U.S. Department of War cybersecurity certification program that verifies whether defense contractors and subcontractors implement required controls to protect FCI and CUI.
 CNA,Certified Novell Administrator,A Novell certification validating the skills to administer and manage Novell network environments.
 CNAPP,Cloud-Native Application Protection Platform,"An integrated security platform that protects cloud-native applications throughout their lifecycle, from development through deployment and runtime."
 CNE,Certified Novell Engineer,"A Novell certification validating the skills to plan, install, configure, troubleshoot, and support Novell networks and servers."
 CPE,Common Platform Enumeration,"A standardized, machine-readable method for naming and identifying classes of applications, operating systems, and hardware devices within an enterprise’s computing assets."
 CSF,Cybersecurity Framework 2.0,"This NIST high-level, U.S. government cybersecurity framework is organized around functions that helps organizations assess, prioritize, and communicate cybersecurity risk-management outcomes."
-CSP,Content Security Policy,
+CSP,Content Security Policy,"A web security standard that lets websites restrict which resources browsers can load and execute and how pages can be embedded, helping prevent cross-site scripting (XSS), code injection, and clickjacking."
 CSPM,Cloud Security Posture Management,"Tools and processes that continuously monitor cloud environments for misconfigurations, compliance violations, and security risks, then guide or automate remediation."
 CSRC,Computer Security Resource Center,"Operated by NIST, it provides cybersecurity publications, frameworks, standards, guidelines, and project resources."
 CSV,Comma-Separated Values,"A plain-text file format used to store tabular data, in which each line represents a row and individual values are separated by commas."
 CTEM,Continuous Threat Exposure Management,"A cybersecurity operating model that continuously identifies attacker-exploitable exposures, prioritizes those that matter most, and drives their remediation."
+CTF,Capture The Flag,"A hands-on cybersecurity competition where participants solve challenges in areas such as web security, digital forensics, network analysis, and vulnerability exploitation to uncover hidden “flags”—text strings that verify successful completion."
 CUI,Controlled Unclassified Information,"Unclassified information created or held by the government, or on its behalf, that requires safeguarding or dissemination controls under applicable laws, regulations, or policies."
 CVE,Common Vulnerabilities and Exposures,A reference method for publicly known information-security vulnerabilities and exposures.
 CVSS,Common Vulnerability Scoring System,An open framework for rating the severity of security vulnerabilities in computing systems.
 CySA+,Cybersecurity Analyst,"A CompTIA certification validating the skills to detect, analyze, and respond to security threats using threat monitoring, vulnerability management, and incident response techniques."
 DAST,Dynamic Application Security Testing,A black-box security testing tool that evaluates a running application externally to identify runtime vulnerabilities.
+DCS,Distributed Control System,"An plant-wide industrial control system that distributes control logic across multiple controllers throughout a manufacturing facility, forming a core OT platform whose compromise can disrupt production, endanger safety, and affect critical infrastructure operations."
 DISA,Defense Information Systems Agency,
 DLP,Data Loss Prevention,Detects the unauthorized transmission or disclosure of sensitive data and prevents its occurrence.
 e-PHI,Electronic Protected Health Information,"PHI that is created, received, maintained, or transmitted electronically."
@@ -74,11 +82,17 @@ EIG,Enhanced Identity Governance,"The practice of improving visibility, control,
 EIGRP,Enhanced Interior Gateway Routing Protocol,A Cisco-developed dynamic routing protocol that enables routers to automatically learn and exchange route information within a network.
 EPP,Endpoint Protection Platform,"A centrally managed security solution that prevents malware and other threats from compromising endpoint devices through antivirus, behavioral analysis, policy enforcement, and other preventive controls."
 ERP,Enterprise Resource Planning,"Business management software used by an organization to collect, store, manage, and interpret data from many business activities."
-ESA,Enterprise Security Architecture,
+ESA,Enterprise Security Architecture,"A strategic framework that integrates an organization’s people, processes, technologies, policies, and security controls to protect business operations, systems, data, and infrastructure while supporting confidentiality, integrity, availability, and regulatory compliance."
+ESA,Email Security Appliance,"Cisco’s secure email gateway, formerly known as ESA, filters inbound and outbound email to block spam, phishing, and malware while providing encryption, DLP, and policy enforcement."
+ESC,Endpoint Security Client,"Software installed on endpoint devices that communicates with a central security platform to enforce policies, monitor activity, and help prevent, detect, and respond to threats."
 FHSS,Frequency Hopping Spread Spectrum,A method of transmitting radio signals by rapidly changing the carrier frequency among many frequencies.
 FIM,Federated Identity Management,"A common set of policies, practices, and protocols that manage and verify the identities of users and devices accessing applications and resources across organizations."
-FISMA,Federal Information Security Modernization Act,
+FISMA,Federal Information Security Modernization Act,"A U.S. federal law requiring federal agencies to develop, implement, and maintain risk-based information security programs—including security controls, continuous monitoring, and compliance reporting—to protect government information and systems, including those operated by contractors on the government’s behalf."
+FMC,Firepower Management Center,"Cisco Systems' centralized platform for configuring and monitoring FTD devices, managing security policies, configuring and monitoring IDS/IPS, and analyzing security events."
+FMC,Firewall Management Center,"Cisco Systems' Secure FMC is a centralized platform for configuring and monitoring FTD devices, managing security policies, configuring and monitoring IDS/IPS, and analyzing security events."
 FPU,Floating Point Unit,"Colloquially known as a math coprocessor, it is a part of a computer system specially designed to carry out operations on floating-point numbers."
+FTD,Firewall Threat Defense,"Cisco Systems' Secure FTD (NGFW) software combines firewall capabilities, IDS/IPS, application visibility and control, malware protection, and advanced threat detection in a single platform."
+FTD,Firepower Threat Defense,"Cisco Systems' NGFW software combines firewall capabilities, IDS/IPS, application visibility and control, malware protections, and advanced threat detection in a single platform."
 FWaaS,Firewall as a Service,"A cloud-delivered firewall that provides network filtering, threat prevention, and access control without on-premises hardware."
 GDPR,General Data Protection Regulation,Data privacy protection framework applying to the European Union.
 gen AI,generative AI,"A type of AI that creates new content, such as text, images, code, audio, or video, by learning patterns from large amounts of training data."
@@ -93,6 +107,7 @@ HTTPS,HyperTest Transfer Protocol Secure,
 IaaS,Infrastructure as a Service,"A cloud computing model in which a provider supplies virtualized compute, storage, and networking resources."
 IaC,Infrastructure as Code,"The practice of defining, deploying, and managing infrastructure through code and configuration files rather than manual setup."
 IAM,Identity and Access Management,A framework of policies and technologies to ensure that the right users have the appropriate access to technology resources.
+ICS,Industrial Control Systems,"The hardware, software, and networks that monitor and control physical processes in industrial and critical infrastructure environments, where security protects against cyber threats while preserving safety, availability, and reliability."
 IdP,Identity Provider,A service that stores and manages user identities.
 IDS,Intrusion Detection System,
 IGA,Identity Governance and Administration,
@@ -125,7 +140,9 @@ MTTD,Mean Time to Detect,Measures the average time from the start of a security 
 MTTR,Mean Time to Respond,Measures the average time it takes an organization to respond to and recover from a security incident after detection.
 NAC,Network Access Control,"A security framework that verifies users and devices before granting network access, enforcing policies based on identity, device type, location, and security posture."
 NAT,Network Address Translation,"A networking process that modifies IP addresses in packet headers on routers and/or firewalls, allowing multiple devices on a private network to share a single public IP address when accessing the internet."
+NDR,Network Detection and Response,
 NGAV,Next-Generation AntiVirus,"An endpoint security solution, beyond traditional signature-based detection, that uses behavioral analysis, machine learning, and threat intelligence to detect and block known and unkown threats."
+NGFW,Next Generation FireWall,"Inspects and controls network traffic, identifies applications, and blocks attacks and exploits."
 NIST,National Institute of Standards and Technology,"A U.S. federal agency that develops standards, guidelines, and tools for fields such as cybersecurity, measurement science, and technology."
 NTP,Network Time Protocol,
 NVMe,Non-Volatile Memory express,A high-speed protocol that lets solid-state drives communicate directly with computers over PCIe.
@@ -134,6 +151,7 @@ OPA,Open Policy Agent,
 OT,Operational Technology,Hardware and software used to monitor control and automate physical processes in industrial settings.
 PaaS,Platform as a Service,"A cloud computing model that provides a managed environment for developing, deploying, and running applications, while the provider manages the platform resources."
 PAM,Privileged Access Management,"The practice of securing, controlling, monitoring, and auditing privileged accounts and administrative access to critical systems, applications, and data."
+PAN,Primary Account Number,"The unique number assigned to a credit, debit, or prepaid card that identifies the issuer and cardholder’s account and must be protected under PCI DSS when stored, processed, or transmitted."
 PBR,Policy-Based Routing,"A routing technique that directs traffic according to defined policies, rather than only by destination IP and the routing table."
 PCAP,Packet CAPture,
 PCI DSS,Payment Card Industry Data Security Standard,"A set of security standards designed to ensure that companies that store, process, or transmit credit or debit card information maintain a secure environment."
@@ -143,7 +161,9 @@ PEP,Policy Enforcement Point,"The Zero Trust component that enforces the PDP’s
 PHI,Protected Health Information,
 PII,Personally Identifiable Information,"Any information that can identify, distinguish, or trace an individual, alone or combined with other information."
 PKI,Public Key Infrastructure,
+PLC,Programmable Logic Controller,"A rugged industrial computer—a core ICS foundational component—used in automation and to monitor inputs from sensors, switches, etc., in order to execute programmed logic, and to control outputs such as motors, valves, and relays in real time."
 PoP,Point of Presence,"A physical location where installed network infrastructure serves as an interface between communicating entities, allowing users to connect to a service provider’s network or cloud services."
+RADIUS,Remote Authentication Dial-In User Service,"A network access protocol that provides centralized AAA for users and devices accessing VPNs, wireless networks, routers, and switches, traditionally using UDP and password hashing in order to hide credentials without encrypting the entire packet."
 RAG,Retrieval-Augmented Generation,An AI architecture that improves a large language model’s responses by retrieving relevant external information before generating an answer.
 RBAC,Role-Based Access Control,
 REST,Representational State Transfer,"REST is an architectural style for web services using APIs that define constraints for distributed, Internet-scale hypermedia systems commonly using HTTP methods such as GET, POST, PUT, and DELETE."
@@ -152,12 +172,17 @@ RMF,Risk Management Framework,"Commonly refers to the NIST Risk Management Frame
 ROI,Return on Investment,
 RPA,Robotic Process Automation,"A technology that uses software robots, or bots, to automate repetitive, rule-based tasks typically performed by humans on computers."
 SaaS,Software as a Service,"A cloud computing model in which software applications are hosted and managed by a provider and accessed by customers over the internet, typically through a web browser or application."
+SAD,Sensitive Authentication Data,"Security-related payment card information used to authenticate cardholders or authorize transactions—including card verification codes, PINs, PIN blocks, and full track data—that generally must not be stored after authorization under PCI DSS, even if encrypted."
 SAML,Security Assertion Markup Language,An open XML-based standard for exchanging authentication and authorization data between an identity provider and a service provider.
 SASE,Secure Access Service Edge,"A cloud-delivered architecture that combines networking and security services—such as SD-WAN, secure web gateways, CASB, firewalls, and Zero Trust Network Access—to provide secure access to applications and resources from anywhere."
+SCADA,Supervisory Control and Data Acquisition,"As a wide area solution, it comprises the hardware, software, and networks used for centralized monitoring and control of geographically distributed industrial processes through data collection, alarms, and supervisory commands, with security focused on preserving safety, availability, and reliability."
 SCIM,System for Cross-domain Identity Management,"An open standard (protocol) for automating the provisioning, updating, and deprovisioning of user identities between systems."
 SD-WAN,Software-Defined Wide Area Network,"A software-based WAN technology that centrally manages connectivity among data centers, cloud services, branch offices, and remote users, routing traffic across internet, MPLS, cellular, and other links to improve performance, availability, and cost efficiency."
 SDP,Software-Defined Perimeter,A security architecture that authenticates users and devices before granting identity-based access to protected applications and resources.
+SEG,Secure Email Gateway,An email security solution that inspects inbound and outbound messages to detect threats and enforce organizational policies.
+SEG,Secure Email Gateway,"Cisco System’s email security platform, formerly known as ESA, that performs an SEG role by inspecting inbound and outbound messages to detect threats and enforce organizational policies."
 SGT,Security Group Tag,"A label that identifies a user, device, or workload by its security role or group rather than its IP address."
+SIEM,Security Information and Event Management,"A security platform that centralizes, normalizes, correlates, and analyzes log and event data across an organization's environment to detect threats, support incident investigation and response, and provide security visibility through alerts, dashboards, and reports."
 SOAR,"Security Orchestration, Automation, and Response",A Cisco Splunk security platform that automates and coordinates incident investigation and response across multiple tools using predefined workflows called playbooks.
 SOC,Security Operations Center,"A dedicated site and centralized team that monitors, detects, investigates, and responds to cybersecurity threats across an organization’s IT environment."
 SOC 2,System and Organization Controls 2,"An attestation report that evaluates based on a Type whether a service organization’s controls are designed and operating effectively to protect customer data, based on criteria developed by the AICPA."
@@ -165,11 +190,14 @@ SP,Special Publication,An official guidance document published by the NIST.
 SPIFFE,Secure Production Identity Framework For Everyone,"An open standard that provides cryptographically verifiable identities for workloads and services, enabling mutual authentication and Zero Trust communication."
 SPIRE,SPIFFE Runtime Environment,"The reference implementation of SPIFFE that provides workload attestation, identity issuance, certificate management, and authentication for Zero Trust service-to-service communication."
 SQL,Structured Query Language,
+SSE,Security Service Edge,"A cloud-delivered Cisco Systems security architecture that integrates multiple security controls into a unified service to secure user access to applications, internet resources, and data from anywhere."
 SSO,Single Sign-On,An authentication system that lets a user sign in once with a trusted identity provider and then access multiple related applications without logging in separately to each one.
 SSP,System Security Plans,
 SSPM,SaaS Security Posture Management,"A security approach and category of tools that continuously monitors SaaS applications for security risks, misconfigurations, excessive permissions, and compliance issues."
 STIG,Security Technical Implementation Guide,
-SWA,Secure Web Access,"A security web gateway that controls, inspects, and protects users’ access to websites and internet applications."
+SWA,Secure Web Appliance,"A Cisco Systems on-premises web security appliance that provides SWG capabilities to inspect, filter, and control web traffic."
+SWG,Secure Web Gateway,"A security capability that inspects, filters, and controls web traffic to protect users and prevent malware, phishing, access to malicious websites, data loss, and other web threats."
+TACACS+,Terminal Access Controller Access-Control System +,"A centralized AAA protocol developed by Cisco Systems that controls and audits administrative access to network infrastructure devices such as routers, switches, firewalls, and wireless controllers."
 TCP,Transmission Control Protocol,
 TDR,Threat Detection and Response,"The continuous process of detecting, investigating, containing, and remediating cyber threats to minimize their organizational impact."
 TP,Transformation Procedure,An authorized procedure in the Clark-Wilson integrity model that operates on CDIs or converts approved UDI into valid CDI.
@@ -184,6 +212,8 @@ VPN,Virtual Private Network,"An overlay network using virtualization to extend a
 VRF,Virtual Routing and Forwarding,A technology that allows multiple instances of a routing table to co-exist within the same router at the same time.
 WAF,Web Application Firewall,A security control that inspects HTTP/HTTPS traffic to protect web applications from attacks that traditional network firewalls may not detect.
 WCCP,Web Cache Communication Protocol,
+WSA,Web Security Appliance,"Cisco’s former SWG provides URL filtering, malware protection, web traffic inspection, and policy enforcement to protect users from internet threats."
+WSA,Web Security Appliance,"Cisco’s previous SWG, now called SWA, provides URL filtering, malware protection, web traffic inspection, and policy enforcement to protect users from internet threats."
 X.509,PKI Certificate,"A certificate standard that defines the format of public-key certificates used to authenticate identities and support encryption, digital signatures, and secure communications."
 XDR,eXtended Detection and Response,"A cybersecurity platform that collects, correlates, and analyzes security data from multiple sources to detect and respond to threats across an organization’s environment."
 XML,eXtensible Markup Language,"A markup language and file format used to store, structure, transmit, and reconstruct data between systems, focusing on describing and organizing data rather than displaying it."
