@@ -260,7 +260,7 @@ def main():
 
     master_cards, master_error = load_csv(master_name, "master")
     if master_error:
-        action = show_pages("CHECK DECKS: Problem", None, [
+        action = show_pages("DECK HEALTH - Problem", None, [
             f"Master file: {master_name}",
             f"Could not load master: {master_error}",
             "Put the master CSV in the data folder, or pass the path:",
@@ -303,12 +303,12 @@ def main():
     else:
         verdict = f"Finished. {problem_count} item(s) to review."
 
-    screens = [("CHECK DECKS: Summary", None, summary)]
+    screens = [("DECK HEALTH - Summary", None, summary)]
     for number, (title, rows) in enumerate(sections, start=1):
         screens.append((
-            f"CHECK DECKS: Section {number} of {len(sections)}",
+            f"DECK HEALTH - SECTION {number} OF {len(sections)}",
             f"{title}  ({len(rows)})",
-            rows or ["None. Good."],
+            rows or ["None. Excellent."],
         ))
 
     for banner, heading, lines in screens:
@@ -318,7 +318,7 @@ def main():
         if action == "q":
             return "quit"
 
-    action = show_pages("CHECK DECKS: Result", None, [verdict], last=True)
+    action = show_pages("DECK HEALTH - Result", None, [verdict], last=True)
     return "quit" if action == "q" else "back"
 
 

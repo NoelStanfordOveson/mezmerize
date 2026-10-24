@@ -3,14 +3,14 @@ import flashcards
 import manage_acronyms
 import manage_decks
 
-from mez_common import clear_screen, print_mode_banner, read_key, say_goodbye
+from mez_common import clear_screen, print_mode_banner, print_wrapped, read_key, say_goodbye
 
 
 # Menu label and the function that runs that program
 PROGRAMS = [
-    ("Study flashcards", flashcards.main),
-    ("Look up or add/edit/delete acronyms", manage_acronyms.main),
-    ("Check deck health", manage_decks.main),
+    ("Study Mode: Review flashcards in order or quiz at random; all decks or by category", flashcards.main),
+    ("Look up and manage acronyms (all decks)", manage_acronyms.main),
+    ("Manage decks and deck health", manage_decks.main),
 ]
 
 
@@ -23,7 +23,7 @@ def choose_program():
     print("\nWhat would you like to do?\n")
 
     for number, (label, run) in enumerate(PROGRAMS, start=1):
-        print(f"{number}. {label}")
+        print_wrapped(f"{number}. ", label)
     print()
     print("ESC or Q = quit")
 

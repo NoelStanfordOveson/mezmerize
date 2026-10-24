@@ -103,7 +103,7 @@ def choose_target_deck():
     deck_keys = [str(number) for number in range(1, len(BUILTIN_DECKS) + 1)]
 
     clear_screen()
-    print_mode_banner("ADD AN ACRONYM - DECK LIST")
+    print_mode_banner("ADD AN ACRONYM - Deck List")
     print("\nWhich deck gets the new acronym?\n")
     for number, (label, filename) in enumerate(BUILTIN_DECKS, start=1):
         print(f"{number}. {label}")
@@ -652,8 +652,9 @@ def edit_card(card, decks):
         rows = read_rows(filename)
         position = find_row(rows, card)
         if position is None:                                            # file changed since lookup
-            print(f"\nRESULT:  Can't edit. {card['acronym']} ({card['full_name']}) wasn't found in {filename}.")
-            print("     Nothing was changed. Check deck health can help find the mismatch.")
+            print(f"\nRESULT:  Can't edit. {card['acronym']} is no longer in {label}.")
+            print("         NO CHANGES were made. To find the mismatch, use")
+            print("         Manage decks and deck health on the main menu.")
             return None
         loaded.append((filename, rows, position))
 
@@ -735,7 +736,7 @@ def confirm_removal_in_master(card):
         else:
             heading = "DELETE FROM:"
         clear_screen()
-        print_mode_banner("DELETE AN ACRONYM - MASTER")
+        print_mode_banner("DELETE AN ACRONYM - Master")
         print()
         show_caution([(heading, [MASTER_FILE])], entry=card,
                      title="PENDING FINAL DELETE", caution=state == "ask")
@@ -780,9 +781,9 @@ def delete_card(card, decks):
         rows = read_rows(filename)
         position = find_row(rows, card)
         if position is None:                                            # file changed since lookup
-            print(f"\nRESULT:  Can't delete. {card['acronym']} ({card['full_name']}) "
-                  f"wasn't found in {filename}.")
-            print("     Nothing was changed. Check deck health to help find the mismatch.")
+            print(f"\nRESULT:  Can't delete. {card['acronym']} is no longer in {label}.")
+            print("         NO CHANGES were made. To find the mismatch, use")
+            print("         Manage decks and deck health on the main menu.")
             return False
         loaded.append((filename, rows, position))
 
@@ -831,7 +832,7 @@ def choose_destination(card, verb, doing):
     same_acronym = decks_with_acronym(card["acronym"])
 
     clear_screen()
-    print_mode_banner(f"{verb.upper()} AN ACRONYM - DECK LIST")
+    print_mode_banner(f"{verb.upper()} AN ACRONYM - Deck List")
     print(f"\n{verb} {card['acronym']} to which deck?\n")
 
     choices = {}
@@ -986,7 +987,8 @@ def move_card(card):
     position = find_row(source_rows, card)
     if position is None:                                                # file changed since lookup
         print(f"\nRESULT:  Can't move. {card['acronym']} is no longer in {card['deck']}.")
-        print("         NO CHANGES were made.")
+        print("         NO CHANGES were made. To find the mismatch, use")
+        print("         Manage decks and deck health on the main menu.")
         return None
 
     rows = read_rows(filename)
