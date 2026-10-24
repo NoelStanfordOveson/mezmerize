@@ -89,9 +89,12 @@ py check_decks.py        # audit data/master.csv against the decks
   PENDING INSERT (add), PENDING WRITE (edit), PENDING DELETE (delete), PENDING FINAL
   DELETE (master removal), PENDING COPY (copy), PENDING MOVE (move), VERSION CONFLICT
   (copy or move into a deck with a different version).
-- Banners: `ADD / COPY / MOVE AN ACRONYM TO: <deck>` on confirm screens (TO: names a
-  destination); `COPY / MOVE AN ACRONYM - DECK LIST` on deck-pick screens (a dash names
-  a step). Edit, delete, and master banners name the task only.
+- Banners name the task; the cards name the decks. Format `MAJOR - Minor`: the task in
+  capitals, a dash, then the step or focus in Title Case (`ADD AN ACRONYM - Deck List`,
+  `DELETE AN ACRONYM - Master`, `DECK HEALTH - Summary`, `DECK HEALTH - Problem`). One
+  exception, kept in capitals so the user sees where they are: `DECK HEALTH - SECTION n
+  OF m`. (Add / Copy / Move confirm banners still read `... TO: <deck>` until add-fixes
+  drops `TO:`.)
 - Every value in a card lines up at column 13. Field labels and file headings are 12
   characters or fewer. DECK: for one deck, DECKS: for several (labels comma-separated,
   wrapped like DESCRIPTION).
