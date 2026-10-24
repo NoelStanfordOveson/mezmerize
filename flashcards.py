@@ -52,7 +52,7 @@ def choose_deck():
 
     while True:
         clear_screen()
-        print_mode_banner("DECK CHOOSER")
+        print_mode_banner("STUDY MODE - Deck List")
         print("\nWhich deck do you want to study?\n")
 
         for number, (label, filename) in enumerate(BUILTIN_DECKS, start=1):
@@ -124,7 +124,7 @@ def main():
 
         while True:                                                         # mode loop for this deck
             clear_screen()
-            print_mode_banner("MAIN MENU")
+            print_mode_banner("STUDY MODE - Menu")
 
             print(f"\nDeck: {deck_name}")
             print(f"Loaded {len(flashcards)} flashcards! 🎉\n")
@@ -139,7 +139,7 @@ def main():
 
             if choice == "1":
                 clear_screen(margin=False)
-                print_mode_banner("REVIEW")
+                print_mode_banner("STUDY MODE - Review")
                 total = len(flashcards)
                 for number, card in enumerate(flashcards, start=1):
                     if show_card(card, number=number, total=total) == "esc":
@@ -147,7 +147,7 @@ def main():
 
             elif choice == "2":
                 clear_screen(margin=False)
-                print_mode_banner("QUIZ")
+                print_mode_banner("STUDY MODE - Quiz")
                 quiz_cards = random.sample(flashcards, len(flashcards))     # shuffle the cards
                 total = len(quiz_cards)
                 for number, card in enumerate(quiz_cards, start=1):
