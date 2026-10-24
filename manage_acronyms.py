@@ -640,7 +640,8 @@ def confirm_edits(card, new_entry, filenames, labels):
         show_caution([(heading, filenames + [MASTER_FILE])], entry=new_entry, decks=labels,
                      title="PENDING WRITE", caution=state == "ask")
 
-    return ask_or_cancel(draw, "The files shown will be updated. Save these changes?",
+    where = labels[0].replace(" ", "\u00a0") if len(labels) == 1 else f"({len(labels)}) decks"
+    return ask_or_cancel(draw, f"Save edits to {where} now?",
                          "ENTER = save it     ESC = forget it", "saved")
 
 # 5c. Edit one card in every deck in the scope, then update master.csv
@@ -697,7 +698,8 @@ def confirm_delete(card, filenames, labels):
         show_caution([(heading, filenames)], entry=card, decks=labels,
                      title="PENDING DELETE", caution=state == "ask")
 
-    return ask_or_cancel(draw, "The card will be removed from the files shown. Continue?",
+    where = labels[0].replace(" ", "\u00a0") if len(labels) == 1 else f"({len(labels)}) decks"
+    return ask_or_cancel(draw, f"Delete this card from {where} now?",
                          "ENTER = delete it     ESC = forget it", "deleted")
 
 # 6b. Have the acronym typed exactly; give a friendly hint and ask again until it matches
