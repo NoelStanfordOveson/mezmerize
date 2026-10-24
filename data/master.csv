@@ -20,6 +20,7 @@ API,Application Programming Interface,A set of rules that allows different softw
 ARO,Annualized Rate of Occurrence,An estimate of how often a threat would be successful in exploiting a vulnerability.
 ASA,Adaptive Security Appliance,"A Cisco Systems security appliance and operating system that secures traffic between networks through stateful firewalling, VPN connectivity, NAT, and access control."
 ASA,Firewall Adaptive Security Appliance,"A Cisco Systems Secure Firewall ASA security appliance and operating system that secures traffic between networks through stateful firewalling, VPN connectivity, NAT, and access control."
+ATT&CK,"Adversarial Tactics, Techniques, & Common Knowledge","A cybersecurity framework and knowledge base maintained by MITRE that catalogs real-world attacker tactics and techniques to support threat detection, hunting, incident response, and security architecture."
 AV,Asset Value,"Represents the total value of an asset, calculated based on the potential financial impact of a security incident—crucial for risk management and security assessments."
 AWS,Amazon Web Services,"A cloud computing platform, AWS provides on-demand infrastructure, platform, and security services for building, deploying, and securing applications without managing physical data centers."
 AWS SAA,AWS Certified Solutions Architect - Associate,"An AWS certification validating the ability to design secure, resilient, high-performing, and cost-optimized architectures on AWS."
@@ -72,6 +73,7 @@ CVSS,Common Vulnerability Scoring System,An open framework for rating the severi
 CySA+,Cybersecurity Analyst,"A CompTIA certification validating the skills to detect, analyze, and respond to security threats using threat monitoring, vulnerability management, and incident response techniques."
 DAST,Dynamic Application Security Testing,A black-box security testing tool that evaluates a running application externally to identify runtime vulnerabilities.
 DCS,Distributed Control System,"An plant-wide industrial control system that distributes control logic across multiple controllers throughout a manufacturing facility, forming a core OT platform whose compromise can disrupt production, endanger safety, and affect critical infrastructure operations."
+DFARS,Defense Federal Acquisition Regulation Supplement,"A set of DoD acquisition regulations that supplements FAR with additional requirements for defense contractors, including cybersecurity requirements for protecting defense information."
 DISA,Defense Information Systems Agency,
 DLP,Data Loss Prevention,Detects the unauthorized transmission or disclosure of sensitive data and prevents its occurrence.
 e-PHI,Electronic Protected Health Information,"PHI that is created, received, maintained, or transmitted electronically."
@@ -149,6 +151,7 @@ NVMe,Non-Volatile Memory express,A high-speed protocol that lets solid-state dri
 OAuth,Open Authorization,An authorization framework that lets users grant applications limited access to resources through access tokens without sharing passwords.
 OPA,Open Policy Agent,
 OT,Operational Technology,Hardware and software used to monitor control and automate physical processes in industrial settings.
+OWASP,Open Worldwide Application Security Project,"A nonprofit organization and global community that improves software and application security through open, vendor-neutral standards, tools, guidance, education, and research, best known for its Top 10 list of web application security risks."
 PaaS,Platform as a Service,"A cloud computing model that provides a managed environment for developing, deploying, and running applications, while the provider manages the platform resources."
 PAM,Privileged Access Management,"The practice of securing, controlling, monitoring, and auditing privileged accounts and administrative access to critical systems, applications, and data."
 PAN,Primary Account Number,"The unique number assigned to a credit, debit, or prepaid card that identifies the issuer and cardholder’s account and must be protected under PCI DSS when stored, processed, or transmitted."

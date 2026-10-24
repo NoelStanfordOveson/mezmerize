@@ -1,5 +1,6 @@
 acronym,full_name,description
 ABAC,Attribute-Based Access Control,"A model that grants or denies access based on attributes of the user, resource, action, and environment against defined policies."
+ATT&CK,"Adversarial Tactics, Techniques, & Common Knowledge","A cybersecurity framework and knowledge base maintained by MITRE that catalogs real-world attacker tactics and techniques to support threat detection, hunting, incident response, and security architecture."
 BEC,Business Email Compromise,"A major email attack threat in which an attacker impersonates a trusted person to trick someone into transferring funds, changing payment details, disclosing sensitive data, or taking other unauthorized actions."
 CA,Central Authority,"The Zscaler cloud’s central control-plane component, which monitors service infrastructure, coordinates authentication, manages ZPA policies, and distributes configuration, software and database updates, and threat intelligence."
 CAG,Context-Augmented Generation,
@@ -13,6 +14,7 @@ CTF,Capture The Flag,"A hands-on cybersecurity competition where participants so
 CVE,Common Vulnerabilities and Exposures,A reference method for publicly known information-security vulnerabilities and exposures.
 CVSS,Common Vulnerability Scoring System,An open framework for rating the severity of security vulnerabilities in computing systems.
 DCS,Distributed Control System,"An plant-wide industrial control system that distributes control logic across multiple controllers throughout a manufacturing facility, forming a core OT platform whose compromise can disrupt production, endanger safety, and affect critical infrastructure operations."
+DFARS,Defense Federal Acquisition Regulation Supplement,"A set of DoD acquisition regulations that supplements FAR with additional requirements for defense contractors, including cybersecurity requirements for protecting defense information."
 DLP,Data Loss Prevention,Detects the unauthorized transmission or disclosure of sensitive data and prevents its occurrence.
 EDR,Endpoint Detection and Response,"Cybersecurity technology that continuously monitors endpoint devices to detect, investigate, and respond to cyber threats in real time."
 EIG,Enhanced Identity Governance,"The practice of improving visibility, control, and governance of identities, accounts, roles, and access privileges across an organization."
@@ -30,6 +32,7 @@ NAC,Network Access Control,"A security framework that verifies users and devices
 NGAV,Next-Generation AntiVirus,"An endpoint security solution, beyond traditional signature-based detection, that uses behavioral analysis, machine learning, and threat intelligence to detect and block known and unkown threats."
 NGFW,Next Generation FireWall,"Inspects and controls network traffic, identifies applications, and blocks attacks and exploits."
 OT,Operational Technology,Hardware and software used to monitor control and automate physical processes in industrial settings.
+OWASP,Open Worldwide Application Security Project,"A nonprofit organization and global community that improves software and application security through open, vendor-neutral standards, tools, guidance, education, and research, best known for its Top 10 list of web application security risks."
 PAM,Privileged Access Management,"The practice of securing, controlling, monitoring, and auditing privileged accounts and administrative access to critical systems, applications, and data."
 PDP,Policy Decision Point,"The Zero Trust component that evaluates access requests against security policies and context, then grants, denies, or revokes access."
 PEP,Policy Enforcement Point,"The Zero Trust component that enforces the PDP’s decisions by allowing, blocking, or terminating access to a resource."

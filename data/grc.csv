@@ -7,6 +7,7 @@ acronym,full_name,description
 800-37,NIST SP 800-37 Risk Management Framework,"The NIST 800-37r2 RMF is a structured process for identifying, assessing, mitigating, and continuously monitoring security and privacy risks throughout a system’s lifecycle."
 800-53,NIST SP 800-53 Security and Privacy Controls,NIST 800-53r5 is a comprehensive catalog of security and privacy controls used by U.S. federal systems and widely adopted elsewhere.
 AICPA,American Institute of Certified Public Accountants,The AICPA’s Trust Services Criteria provide a framework that independent CPA firms use to audit and report on a service organization’s security controls.
+ATT&CK,"Adversarial Tactics, Techniques, & Common Knowledge","A cybersecurity framework and knowledge base maintained by MITRE that catalogs real-world attacker tactics and techniques to support threat detection, hunting, incident response, and security architecture."
 CCPA,California Consumer Privacy Act,"A California privacy law that grants consumers control over their personal data and requires qualifying businesses to disclose how they collect, use, share, and sell it."
 CHD,CardHolder Data,"Payment card information protected under PCI DSS stored or processed that consists of at least the PAN and may also include the cardholder's name, expiration date, and service code."
 CIS,Center for Internet Security,"The CIS Critical Security Controls are a prioritized set of cybersecurity best practices that help organizations defend against common cyberattacks through practical, action-oriented guidance."
@@ -26,6 +27,7 @@ HITRUST,Health Information Trust Alliance,"An organization that develops cyberse
 ISMS,Information Security Management System,"A formal framework of policies, procedures, people, and controls used to manage and protect an organization’s information assets."
 ISO,International Organization for Standardization,"An international organization that develops standards for consistent management, security, quality, and operational practices, e.g. computer networking systems."
 NIST,National Institute of Standards and Technology,"A U.S. federal agency that develops standards, guidelines, and tools for fields such as cybersecurity, measurement science, and technology."
+OWASP,Open Worldwide Application Security Project,"A nonprofit organization and global community that improves software and application security through open, vendor-neutral standards, tools, guidance, education, and research, best known for its Top 10 list of web application security risks."
 PAN,Primary Account Number,"The unique number assigned to a credit, debit, or prepaid card that identifies the issuer and cardholder’s account and must be protected under PCI DSS when stored, processed, or transmitted."
 PCI DSS,Payment Card Industry Data Security Standard,"A set of security standards designed to ensure that companies that store, process, or transmit credit or debit card information maintain a secure environment."
 PHI,Protected Health Information,
