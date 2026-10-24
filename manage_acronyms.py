@@ -120,14 +120,16 @@ def choose_target_deck():
 
 # 3. Interactive
 # 3a. Ask for the new acronym's details
-def ask_for_entry(acronym=None):
+def ask_for_entry(label, acronym=None):
     """
-    Ask for acronym, full name, and description.
+    Show the deck, then ask for acronym, full name, and
+    description.
     If an acronym is passed in (from a lookup), show it instead of asking.
     Returns a dict, or None if ESC was pressed at any prompt.
     """
     print("\nEnter the new acronym.     (ESC = back to the deck list)\n")
 
+    print(f"DECK:        {label}")
     if acronym is None:
         acronym = input_or_esc("Acronym:     ", required=True)
         if acronym is None:
@@ -195,12 +197,13 @@ def confirm_add(entry, label, filename):
     def draw(state):
         heading = "WRITTEN TO:" if state == "confirmed" else "WRITE TO:"
         clear_screen()
-        print_mode_banner(f"ADD AN ACRONYM TO: {label}")
+        print_mode_banner("ADD AN ACRONYM")
         print()
-        show_caution([(heading, [filename, MASTER_FILE])], entry=entry,
+        show_caution([(heading, [filename, MASTER_FILE])], entry=entry, decks=[label],
                      title="PENDING INSERT", caution=state == "ask")
 
-    return ask_or_cancel(draw, "The files shown will be updated. Save this card?",
+    whole_label = label.replace(" ", "\u00a0")                          # keep the deck name on one line
+    return ask_or_cancel(draw, f"Add this card to {whole_label} now?",
                          "ENTER = save it     ESC = forget it", "saved")
 
 # 3d. Check, confirm and save one new entry to its deck and master
@@ -231,9 +234,9 @@ def add_to_deck(label, filename):
     """Add acronyms to one deck. Return 'back' (ESC = deck list) or 'quit' (Q)."""
     while True:
         clear_screen()
-        print_mode_banner(f"ADD AN ACRONYM TO: {label}")
+        print_mode_banner("ADD AN ACRONYM")
 
-        entry = ask_for_entry()
+        entry = ask_for_entry(label)
         if entry is None:
             return "back"                                               # ESC while typing
 
@@ -268,9 +271,9 @@ def add_from_lookup(acronym):
 
         label, filename = result
         clear_screen()
-        print_mode_banner(f"ADD AN ACRONYM TO: {label}")
+        print_mode_banner("ADD AN ACRONYM")
 
-        entry = ask_for_entry(acronym)
+        entry = ask_for_entry(label, acronym)
         if entry is None:
             continue                                                    # ESC while typing: back to the deck list
 
