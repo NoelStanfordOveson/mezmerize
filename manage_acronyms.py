@@ -188,7 +188,7 @@ def ok_to_add(entry, existing_rows):
         return False
     return True
 
-# 3c. Show the PENDING INSERT card; ask before saving; on ESC, redraw it with the result
+# 3c. Show the PENDING WRITE card; ask before saving; on ESC, redraw it with the result
 def confirm_add(entry, label, filename):
     """
     Show what will be saved on a clean screen. Return True for ENTER. On ESC,
@@ -200,7 +200,7 @@ def confirm_add(entry, label, filename):
         print_mode_banner("ADD AN ACRONYM")
         print()
         show_caution([(heading, [filename, MASTER_FILE])], entry=entry, decks=[label],
-                     title="PENDING INSERT", caution=state == "ask")
+                     title="PENDING WRITE", caution=state == "ask")
 
     whole_label = label.replace(" ", "\u00a0")                          # keep the deck name on one line
     return ask_or_cancel(draw, f"Add this card to {whole_label} now?",
