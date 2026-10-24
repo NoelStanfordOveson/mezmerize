@@ -4,7 +4,6 @@ mez_common: the shared toolbox for the mezmerize programs.
 This is the foundation floor. It may import Python's own modules,
 but never any mezmerize file, so nothing can import in a circle.
 """
-
 import csv
 import os
 import textwrap
@@ -177,7 +176,7 @@ def input_or_esc(prompt, required=False, width=None):
                     print("\n" + indent, end="", flush=True)
                     line_start = len(text)
                     continue
-                word_start = text.rfind(" ", line_start) + 1        # where the unfinished word begins
+                word_start = max(text.rfind(" ", line_start), text.rfind("-", line_start)) + 1  # after the last space or hyphen
                 if word_start > line_start:                         # move the unfinished word down
                     partial = text[word_start:]
                     print("\b \b" * len(partial), end="")
