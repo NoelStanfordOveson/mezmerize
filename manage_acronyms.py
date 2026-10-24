@@ -878,7 +878,7 @@ def confirm_copy(card, label, filename, different, master_too):
         confirmed = state == "confirmed"
         heading = "COPIED TO:" if confirmed else "COPY TO:"
         clear_screen()
-        print_mode_banner(f"COPY AN ACRONYM TO: {label}")
+        print_mode_banner("COPY AN ACRONYM")
         print()
         show_full_card(card, title="COPIED FROM" if confirmed else "COPYING FROM")
         if different:
@@ -888,12 +888,13 @@ def confirm_copy(card, label, filename, different, master_too):
             show_caution([(heading, files)], entry=card, decks=[label],
                          title="PENDING COPY", caution=state == "ask")
 
+    whole_label = label.replace(" ", "\u00a0")                      # keep deck names on one line
+    whole_source = card["deck"].replace(" ", "\u00a0")
     if different:
-        whole_label = label.replace(" ", "\u00a0")                      # keep the deck name on the same line
         question = (f"A different version of {card['acronym']} already exists in "
                     f"{whole_label}. Copy anyway?")
     else:
-        question = "The files shown will be updated. Copy this card?"
+        question = f"Copy this card to {whole_label} from {whole_source} now?"
     return ask_or_cancel(draw, question, "ENTER = copy it     ESC = forget it", "copied")
 
 # 7c. Copy one card, exactly as it is, into another built-in deck
@@ -947,7 +948,7 @@ def confirm_move(card, label, filename, source_file, different):
             sections = [("COPY TO:", [filename]), ("REMOVE FROM:", [source_file])]
 
         clear_screen()
-        print_mode_banner(f"MOVE AN ACRONYM TO: {label}")
+        print_mode_banner("MOVE AN ACRONYM")
         print()
         if confirmed:                                                   # the source deck no longer has it
             gone = {"deck": card["deck"], "acronym": "(not found)", "full_name": "", "description": ""}
