@@ -421,6 +421,17 @@ def lookup_acronym(flashcards, deck_name):
     Look up acronyms until the user leaves.
     Return 'back' for ESC or 'quit' for Q.
     """
+    def next_step():
+        """After an edit, delete, copy, or move: None to stay, 'back' for ESC, 'quit' for Q."""
+        print()
+        print("ENTER = back to lookup    ESC = menu    Q = quit", end="", flush=True)
+        choice = read_key(("enter", "esc", "q"))
+        if choice == "esc":
+            return "back"
+        if choice == "q":
+            return "quit"
+        return None
+
     while True:
         clear_screen(margin=False)
         print_mode_banner("LOOKUP")
@@ -501,10 +512,9 @@ def lookup_acronym(flashcards, deck_name):
                         if shown["deck"] in labels and version_of(shown) == version_of(card):
                             flashcards[position] = {**updated, "deck": shown["deck"]}
                     flashcards.sort(key=lambda card: card["acronym"].casefold())
-                print()
-                print("ENTER = back to lookup     Q = quit", end="", flush=True)
-                if read_key(("enter", "esc", "q")) == "q":
-                    return "quit"
+                leave = next_step()
+                if leave:
+                    return leave
         elif action == "d":
             scope = choose_edit_scope(matches, "Delete")
             if scope is not None:
@@ -514,10 +524,9 @@ def lookup_acronym(flashcards, deck_name):
                     for shown in flashcards[:]:                         # loop over a copy, so removing is safe
                         if shown["deck"] in labels and version_of(shown) == version_of(card):
                             flashcards.remove(shown)
-                print()
-                print("ENTER = back to lookup     Q = quit", end="", flush=True)
-                if read_key(("enter", "esc", "q")) == "q":
-                    return "quit"
+                leave = next_step()
+                if leave:
+                    return leave
         elif action == "c":
             editable = [(number, card) for number, card in enumerate(matches, start=1)
                         if deck_file_for(card["deck"])]
@@ -534,10 +543,9 @@ def lookup_acronym(flashcards, deck_name):
                     if result and deck_name == "ALL DECKS":
                         flashcards.append({**card, "deck": result})
                         flashcards.sort(key=lambda card: card["acronym"].casefold())
-                    print()
-                    print("ENTER = back to lookup     Q = quit", end="", flush=True)
-                    if read_key(("enter", "esc", "q")) == "q":
-                        return "quit"
+                    leave = next_step()
+                    if leave:
+                        return leave
         elif action == "m":
             editable = [(number, card) for number, card in enumerate(matches, start=1)
                         if deck_file_for(card["deck"])]
@@ -556,10 +564,9 @@ def lookup_acronym(flashcards, deck_name):
                         if deck_name == "ALL DECKS":
                             flashcards.append({**card, "deck": result})
                             flashcards.sort(key=lambda card: card["acronym"].casefold())
-                    print()
-                    print("ENTER = back to lookup     Q = quit", end="", flush=True)
-                    if read_key(("enter", "esc", "q")) == "q":
-                        return "quit"
+                    leave = next_step()
+                    if leave:
+                        return leave
         elif action == "esc":
             return "back"
         elif action == "q":
