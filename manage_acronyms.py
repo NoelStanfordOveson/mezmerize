@@ -197,7 +197,9 @@ def ok_to_add(entry, label, deck_rows, master_rows):
                 left = others[start]
                 right = others[start +1] if start + 1 < len(others) else ""
                 print(f"  {left:<{width}}{right}")
-        print("This Add works the same as C = copy from a lookup.\n")
+        print()
+        print("Tip: use C = copy from a lookup next time, if applicable.")
+        print()
         return add_anyway()
 
     new_acronym = acronym.casefold()
@@ -209,6 +211,7 @@ def ok_to_add(entry, label, deck_rows, master_rows):
     full_names = {row["full_name"] for row in matches if row["full_name"].casefold() != new_name}
 
     if descriptions:
+        print()
         print_wrapped("", f"{acronym} ({entry['full_name']}) already exists with a different description:")
         for description in sorted(descriptions):
             print_wrapped("  - ", description)
