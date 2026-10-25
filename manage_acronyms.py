@@ -305,15 +305,17 @@ def add_another():
 def add_from_lookup(acronym):
     """
     Called from the lookup (A = add), found or not.
-    Pick a deck, add this one acronym, then go back to the lookup.
-    Returns the saved card (a dict), None if nothing was saved, or 'quit' for Q.
+    Pick a deck, add this one acronym, then add another or go back.
+    Return (choice, added): choice is 'lookup', 'menu' or 'quit';
+    added is the list of cards saved, each carrying its deck name.
     """
+    added = []
     while True:                                                         # deck list loop
         result = choose_target_deck()
         if result == "back":
-            return None
+            return "lookup", added
         if result == "quit":
-            return "quit"
+            return "quit", added
 
         label, filename = result
         clear_screen()
@@ -323,17 +325,22 @@ def add_from_lookup(acronym):
         if entry is None:
             continue                                                    # ESC while typing: back to the deck list
 
-        saved = save_entry(entry, label, filename)
+        if save_entry(entry, label, filename):
+            entry["deck"] = label                                       # lookup cards carry their deck name
+            added.append(entry)
 
         print()
-        print("ENTER = back to lookup     Q = quit", end="", flush=True)
-        if read_key(("enter", "esc", "q")) == "q":
-            return "quit"
+        print("A = add another")
+        print("ENTER = back to lookup    ESC = menu    Q = quit", end="", flush=True)
 
-        if saved:
-            entry["deck"] = label                                       # lookup cards carry their deck name
-            return entry
-        return None
+        choice = read_key(("a", "enter", "esc", "q"))
+        if choice == "a":
+            continue                                                    # same acronym, back to the deck list
+        if choice == "esc":
+            return "menu", added
+        if choice == "q":
+            return "quit", added
+        return "lookup", added
 
 # 3h. Pick a deck, then keep adding acronyms to it
 def add_acronyms():
@@ -462,7 +469,7 @@ def lookup_acronym(flashcards, deck_name):
                 show_full_card(card, title=f"Match {number} of {len(matches)}")
 
         keys = ["enter", "esc", "q", "a"]
-        actions = ["A = add"]                                       # add is offered on every lookup
+        actions = ["A = add"]                                           # add is offered on every lookup
 
         if any(deck_file_for(card["deck"]) for card in matches):
             keys += ["e", "d", "c", "m"]
@@ -474,13 +481,15 @@ def lookup_acronym(flashcards, deck_name):
 
         action = read_key(keys)
         if action == "a":
-            result = add_from_lookup(query)
-            if result == "quit":
+            choice, added = add_from_lookup(query)
+            for card in added:                                          # show new cards in this lookup
+                if deck_name == "ALL DECKS" or card["deck"] == deck_name:
+                    flashcards.append(card)
+            flashcards.sort(key=lambda card: card["acronym"].casefold())
+            if choice == "menu":
+                return "back"
+            if choice == "quit":
                 return "quit"
-            if result:                                                  # a saved card came back
-                if deck_name == "ALL DECKS" or result["deck"] == deck_name:
-                    flashcards.append(result)
-                    flashcards.sort(key=lambda card: card["acronym"].casefold())
         elif action == "e":
             scope = choose_edit_scope(matches)
             if scope is not None:
