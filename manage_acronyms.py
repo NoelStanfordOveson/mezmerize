@@ -301,10 +301,10 @@ def add_another():
     print("ENTER = add another     ESC = deck list     Q = quit", end="", flush=True)
     return read_key(("enter", "esc", "q"))
 
-# 3g. Add the one acronym a lookup didn't find
+# 3g. Add the acronym from a lookup
 def add_from_lookup(acronym):
     """
-    Called from the flashcards lookup when an acronym isn't found.
+    Called from the lookup (A = add), found or not.
     Pick a deck, add this one acronym, then go back to the lookup.
     Returns the saved card (a dict), None if nothing was saved, or 'quit' for Q.
     """
@@ -460,20 +460,17 @@ def lookup_acronym(flashcards, deck_name):
             print()
             for number, card in enumerate(matches, start=1):
                 show_full_card(card, title=f"Match {number} of {len(matches)}")
-        keys = ["enter", "esc", "q"]
-        actions = []
-        if not matches:
-            keys.append("a")
-            actions.append("A = add it")
+
+        keys = ["enter", "esc", "q", "a"]
+        actions = ["A = add"]                                       # add is offered on every lookup
 
         if any(deck_file_for(card["deck"]) for card in matches):
             keys += ["e", "d", "c", "m"]
             actions += ["E = edit", "D = delete", "C = copy", "M = move"]
 
         print()
-        if actions:
-            print("   ".join(actions))
-        print("ENTER = look up another   ESC = menu   Q = quit", end="", flush=True)
+        print("    ".join(actions))
+        print("ENTER = look up another    ESC = menu    Q = quit", end="", flush=True)
 
         action = read_key(keys)
         if action == "a":
