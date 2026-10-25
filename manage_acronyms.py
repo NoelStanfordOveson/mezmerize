@@ -9,7 +9,7 @@ from ctypes import wintypes
 
 from mez_common import (BUILTIN_DECKS, clear_screen, print_mode_banner, print_wrapped,
                         CARD_WIDTH, overwrite_line, read_key, input_or_esc, say_goodbye,
-                        load_all_builtin)
+                        load_all_builtin, COLUMN_GAP)
 from mez_cards import (MASTER_FILE, BACKUP_FILE, FIELDS, read_rows, write_sorted, deck_file_for,
                        version_of, find_row, decks_with_acronym, decks_with_version, update_master)
 
@@ -152,44 +152,77 @@ def ask_for_entry(label, acronym=None):
     }
 
 # 3b. Check for duplicates before adding
-def ok_to_add(entry, existing_rows):
-    """Return True if the entry should be added, False to skip it."""
-    new_acronym = entry["acronym"].casefold()
-    new_name = entry["full_name"].casefold()
+def ok_to_add(entry, label, deck_rows, master_rows):
+    """
+    Return True if the entry should be added, False to skip it. Only the exact
+    same version in this deck is refused; anything close is shown first.
+    """
+    def add_anyway():
+        """Ask Y / N and leave the chosen answer on the line. Return True for Y."""
+        prompt = "Add anyway?  Y = yes     N or ESC = no"
+        print(prompt, end="", flush=True)
+        answer = read_key(("y", "n", "esc"))
 
-    matches = [row for row in existing_rows
-               if row["acronym"].casefold() == new_acronym]
-    if not matches:
+        if answer == "y":
+            chosen = "Add anyway?  Y = yes"
+        else:
+            chosen = "Add anyway?              N or ESC = no"
+        print("\r" + " " * len(prompt) + "\r" + chosen)
+
+        if answer != 'y':
+            print("\nRESULT:  Nothing was added.")
+            print("         NO CHANGES were made.")
+            return False
         return True
 
-    for row in matches:
-        if row["full_name"].casefold() == new_name:
-            print(f"\n{entry['acronym']} ({row['full_name']}) is already listed.")
-            print("RESULT:  Nothing added. No files were changed.")
-            return False
-
-    print(f"\n{entry['acronym']} already exists with a different full name:")
-    for name in sorted({row["full_name"] for row in matches}):
-        print(f"   - {name}")
-    print()
-
-    prompt = "Add anyway?  Y = yes     N or ESC = no"
-    print(prompt, end="", flush=True)
-    answer = read_key(("y", "n", "esc"))
-
-    if answer == "y":
-        chosen = "Add anyway?  Y = yes"
-    else:
-        chosen = "Add anyway?              N or ESC = no"
-    print("\r" + " " * len(prompt) + "\r" + chosen)
-
-    if answer != "y":
-        print("RESULT:  Skipped. No files were changed.")
+    acronym = entry["acronym"]
+    if find_row(deck_rows, entry) is not None:                          # exact version already in this deck
+        whole_label = label.replace(" ", "\u00a0")
+        print()
+        print_wrapped("", f"{acronym} already in {whole_label}, exactly as entered.")
+        print("\nRESULT:  Nothing was added.")
+        print("         NO CHANGES were made.")
         return False
-    return True
+
+    others = [other for other, _ in decks_with_version(entry)]          # exact version in other decks
+    if others:
+        print()
+        if len(others) == 1:
+            whole_other = others[0].replace(" ", "\u00a0")
+            print_wrapped("", f"{acronym} already in {whole_other}, exactly as entered.")
+        else:
+            print_wrapped("", f"{acronym} already in ({len(others)}) decks, exactly as entered:")
+            width = max(len(other) for other in others) + COLUMN_GAP    # longest label plus the gap
+            for start in range(0, len(others), 2):                      # two labels per line
+                left = others[start]
+                right = others[start +1] if start + 1 < len(others) else ""
+                print(f"  {left:<{width}}{right}")
+        print("This Add works the same as C = copy from a lookup.\n")
+        return add_anyway()
+
+    new_acronym = acronym.casefold()
+    new_name = entry["full_name"].casefold()
+    matches = [row for row in master_rows + deck_rows
+               if row["acronym"].casefold() == new_acronym and version_of(row) != version_of(entry)]
+    descriptions = {row["description"] for row in matches
+                    if row["full_name"].casefold() == new_name and row["description"]}
+    full_names = {row["full_name"] for row in matches if row["full_name"].casefold() != new_name}
+
+    if descriptions:
+        print_wrapped("", f"{acronym} ({entry['full_name']}) already exists with a different description:")
+        for description in sorted(descriptions):
+            print_wrapped("  - ", description)
+    elif full_names:
+        print(f"\n{acronym} already exists with a different full name:")
+        for name in sorted(full_names):
+            print(f"  - {name}")
+    else:
+        return True                                                     # new, or only a blank backlog row to fill in
+    print()
+    return add_anyway()
 
 # 3c. Show the PENDING WRITE card; ask before saving; on ESC, redraw it with the result
-def confirm_add(entry, label, filename):
+def confirm_add(entry, label, files):
     """
     Show what will be saved on a clean screen. Return True for ENTER. On ESC,
     redraw the screen without the CAUTION title, show the RESULT, and return False.
@@ -199,7 +232,7 @@ def confirm_add(entry, label, filename):
         clear_screen()
         print_mode_banner("ADD AN ACRONYM")
         print()
-        show_caution([(heading, [filename, MASTER_FILE])], entry=entry, decks=[label],
+        show_caution([(heading, files)], entry=entry, decks=[label],
                      title="PENDING WRITE", caution=state == "ask")
 
     whole_label = label.replace(" ", "\u00a0")                          # keep the deck name on one line
@@ -215,18 +248,28 @@ def save_entry(entry, label, filename):
     master_rows = read_rows(MASTER_FILE)
     deck_rows = read_rows(filename)
 
-    if not ok_to_add(entry, master_rows + deck_rows):
+    if not ok_to_add(entry, label, deck_rows, master_rows):
         return False
-    if not confirm_add(entry, label, filename):
+
+    files = [filename]
+    if find_row(master_rows, entry) is None:                            # master doesn't have this version yet
+        files.append(MASTER_FILE)
+    if not confirm_add(entry, label, files):
         return False
 
     deck_rows.append(entry)
-    master_rows.append(entry)
     write_sorted(filename, deck_rows)
-    write_sorted(MASTER_FILE, master_rows)
+    if MASTER_FILE in files:
+        backlog = find_row(master_rows, dict(entry, description=""))    # the same card with no description yet
+        if backlog is None:
+            master_rows.append(entry)
+        else:
+            master_rows[backlog] = entry                                # fill in the description
+        write_sorted(MASTER_FILE, master_rows)
+
     print(f"\nRESULT:  Saved. {entry['acronym']} was added and re-sorted:")
-    print(f"         {filename}")
-    print(f"         {MASTER_FILE}")
+    for name in files:
+        print(f"         {name}")
     return True
 
 # 3e. Keep adding acronyms to one deck
