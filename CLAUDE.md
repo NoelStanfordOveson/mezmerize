@@ -14,19 +14,20 @@ editing an existing card is Windows-only (it uses the console's own line editor)
 py mezmerize.py          # main menu: study, look up/add/edit/delete/copy/move, check deck health
 py flashcards.py         # study only (review, random quiz, lookup)
 py manage_acronyms.py    # look up, add, edit, delete, copy, or move acronyms
-py check_decks.py        # audit data/master.csv against the decks
+py manage_decks.py       # deck health: audit data/master.csv against the decks
 ```
 
 ## Architecture (floors: each file imports only from floors below it)
 
-- `mez_common.py` (bottom): shared constants (CARD_WIDTH = 60, DATA_FOLDER, BUILTIN_DECKS)
+- `mez_common.py` (bottom): shared constants (CARD_WIDTH = 60, COLUMN_GAP, DATA_FOLDER, BUILTIN_DECKS)
   and helpers used by more than one program (screen, keys, input, CSV paths, loading decks).
 - `mez_cards.py` (middle): card logic, no screens. Reads and writes the CSVs (read_rows,
   write_sorted), identifies cards and finds them in decks (version_of, find_row,
   decks_with_version, decks_with_acronym), and keeps master.csv current (update_master).
 - `manage_acronyms.py`: the screens for lookup, add, edit, delete, copy, and move.
   show_caution draws every CAUTION box.
-- `flashcards.py` and `check_decks.py`: flashcards imports lookup_acronym from manage_acronyms.
+- `flashcards.py` and `manage_decks.py`: flashcards imports lookup_acronym from manage_acronyms,
+  so every lookup in the app is the same function.
 - `mezmerize.py` (top): the menu that calls each program's main().
 - Two-test rule for mez_common: code goes there only if (1) more than one program needs it
   and (2) it depends on nothing else of ours.
@@ -48,6 +49,14 @@ py check_decks.py        # audit data/master.csv against the decks
   after R + typing the acronym exactly (capitals included; friendly hints, retry until it
   matches or ESC). K keeps it in master as backlog. Nothing is written until every question
   is answered.
+- Adding (from the menu or from any lookup's A = add) refuses only the exact same version
+  already in the chosen deck ("<acronym> already in <deck>, exactly as entered."). These
+  are shown first, then "Add anyway?  Y = yes     N or ESC = no": the exact version in
+  other decks (listed in two columns; a Tip points to C = copy from a lookup), the same
+  acronym + full name with a different description (descriptions listed), or the same
+  acronym with a different full name (full names listed). master.csv gets the version
+  only if it lacks it; a master row with the same acronym + full name and a blank
+  description (backlog) gets filled in instead of a second row.
 - Copying puts a card, exactly as it is, into one other built-in deck. Decks that already
   hold that exact version can't be picked; a deck with a different version can (that
   version is shown in the VERSION CONFLICT card). master.csv gets the version only if it
@@ -66,17 +75,42 @@ py check_decks.py        # audit data/master.csv against the decks
   Not found here: `Found in:` the other decks, then `(N total)`.
   All-decks lookup skips this.
 - Data changes and code changes go in separate commits.
+- Two folders: `mezmerize` (build: branches, code, testing) and `mezmerize-use` (a second
+  clone that stays on main). Card work (add, edit, copy, move, delete) happens in
+  mezmerize-use and its data commits go straight to main; pull it before each session and
+  after each merge. The build folder never commits data: card changes made while testing
+  get discarded. Someday the decks may move out of the repo altogether.
 
 ## UI conventions
 
 - Nothing wider than CARD_WIDTH. Choice prompts wrap between choices (wrap_choices),
   never splitting a key from its name.
-- Key bars sit flush left with 5 spaces between choices (3 when a line is tight).
+- Key bars sit flush left. Lookup key lines use 4 spaces between choices; confirm-screen
+  key lines use 5 (`ENTER = save it     ESC = forget it`).
   Exception: the D / A scope prompt ("You chose Delete.") is indented 5 on purpose.
 - Deck labels in a wrapped list use non-breaking spaces ("\u00a0") so a name never
   splits across lines.
 - Q quits completely; ESC goes back one level.
 - Result lines start `RESULT:` followed by two spaces.
+- ALL CAPS is a record; Initial Caps is a request. Field labels on cards are ALL CAPS
+  (DECK:, ACRONYM:, FULL NAME:, DESCRIPTION:); bare typing prompts are Initial Caps
+  (Acronym:, Full name:, Description:). DECK: is always ALL CAPS, even on a typing
+  screen: it's set for you and never typed into. Edit's typing screen stays ALL CAPS
+  because it's drawn inside a card.
+- Screens never address the user as "you".
+- Confirm questions have one shape: action + this card + to/from/in + deck + now?
+  The action is what's about to happen at that point in the flow:
+  `Add this card to Cybersecurity now?`, `Copy this card to GRC/Frameworks from
+  Cybersecurity now?`, `Move this card to ... from ... now?`, `Delete this card from
+  Cybersecurity now?`. Edit is the one exception: its question comes after the typing,
+  so it asks to save: `Save edits to Cybersecurity now?`. No "deck" before a single deck
+  name. With several decks the question gives the count and the card's DECKS: line names
+  them: `Save edits to (2) decks now?`.
+- A count shown with a label goes in parentheses: `(2) decks`, `(3) decks`.
+- Lists of deck labels under a message are two columns, indented 2, filled across
+  (1 2 / 3 4); the gap after the longest label is COLUMN_GAP (mez_common).
+- A message that can run past CARD_WIDTH (a long acronym or deck name in it) is printed
+  with print_wrapped("", text), with its blank line from a separate print() first.
 - Confirm screens (before saving, deleting, copying, or moving) have at most two cards:
   - the existing card on top (show_full_card, === lines, titled), if there is one;
   - one CAUTION card below it (show_caution, *** lines), with no blank line between them.
@@ -86,15 +120,14 @@ py check_decks.py        # audit data/master.csv against the decks
     (heading, files) sections). With no top card, it sits right under the banner's
     blank line. The caller prints its own question and keys after it.
 - CAUTION card titles are just the text; show_caution puts ⚠️ on both sides.
-  PENDING INSERT (add), PENDING WRITE (edit), PENDING DELETE (delete), PENDING FINAL
+  PENDING WRITE (add and edit), PENDING DELETE (delete), PENDING FINAL
   DELETE (master removal), PENDING COPY (copy), PENDING MOVE (move), VERSION CONFLICT
   (copy or move into a deck with a different version).
 - Banners name the task; the cards name the decks. Format `MAJOR - Minor`: the task in
   capitals, a dash, then the step or focus in Title Case (`ADD AN ACRONYM - Deck List`,
   `DELETE AN ACRONYM - Master`, `DECK HEALTH - Summary`, `DECK HEALTH - Problem`). One
   exception, kept in capitals so the user sees where they are: `DECK HEALTH - SECTION n
-  OF m`. (Add / Copy / Move confirm banners still read `... TO: <deck>` until add-fixes
-  drops `TO:`.)
+  OF m`.
 - Every value in a card lines up at column 13. Field labels and file headings are 12
   characters or fewer. DECK: for one deck, DECKS: for several (labels comma-separated,
   wrapped like DESCRIPTION).
@@ -121,8 +154,12 @@ py check_decks.py        # audit data/master.csv against the decks
 - The CAUTION card's file list shows filenames; RESULT lists deck labels (master.csv by
   name). Copy does this; add, edit, and delete still list filenames until they're
   switched.
-- Lookup's key line is two lines: actions (A = add it / E = edit / D = delete /
-  C = copy / M = move), then a fixed navigation line (ENTER / ESC / Q). Navigation keys are in capitals.
+- Key lines are actions on top, navigation below. Lookup: `A = add` always (found or
+  not), plus `E = edit    D = delete    C = copy    M = move` for found built-in cards,
+  then `ENTER = look up another    ESC = menu    Q = quit`. After an edit, delete, copy,
+  or move from a lookup: `ENTER = back to lookup    ESC = menu    Q = quit` (next_step).
+  After adding from a lookup: `A = add another` above that same line. ESC = menu leaves
+  the lookup. Navigation keys are in capitals.
 - Printed prompts don't say "sync"; code names can.
 - Use `...` in examples to stand for other text that's on the screen.
 
@@ -134,7 +171,8 @@ py check_decks.py        # audit data/master.csv against the decks
   snippets, outermost bracket first.
 - For each snippet: first show it in context (the whole function if it's not huge,
   otherwise about 10 lines either side) so placement and indentation are clear, then
-  ask "Questions?" and stop. Then show the snippets themselves one by one and explain
+  ask "Questions?" and stop. The in-context step is just the code: no recap of what the
+  existing code already does (that was explained when it was written). Then show the snippets themselves one by one and explain
   them part by part, pausing again. I type every character myself (no copy/paste),
   so expect the odd typo.
 - In explanations, give variables extra attention: where each one comes from (parameter,
@@ -146,6 +184,13 @@ py check_decks.py        # audit data/master.csv against the decks
   shown as `ENTER = continue`. ENTER (or a single `.` if the app won't send an empty
   message) means go on: no "tell me when you're ready" or "ok, done" back-and-forth.
 - Before anything needing approval, say first whether it is new or a change.
+- Label each snippet: **New** (lines that don't exist yet; say where to insert them),
+  **Change** (existing lines edited or replaced: Before is exactly what's in the file
+  now, After is what should be there), or **Delete** (lines removed with nothing in
+  their place). For a change, say explicitly which lines to delete, by line number.
+  Show whole units in Before/After (a whole docstring, not part of one).
+- When several spots in a file change, list them bottom-up so the line numbers above
+  stay right while I type.
 - After I type a change, check the file: compile it, read it, and run it on a scratch
   copy of the data before moving on.
 - Test plans: a two-column table, Step | Expected result.
@@ -163,4 +208,5 @@ py check_decks.py        # audit data/master.csv against the decks
   aren't cosmetic; they go in with the code change they belong to.
 - Git on Windows converts line endings (autocrlf). CRLF/LF differences seen from Claude's
   side aren't real changes; check with `GIT_OPTIONAL_LOCKS=0` and `-c core.autocrlf=true`.
-- The someday list (in priority order) is kept in Claude's memory, not here.
+- The plan, decisions, branch order, and someday list are kept in the project's
+  claude/bookmarks.md, not here.
