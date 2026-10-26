@@ -6,12 +6,22 @@ but never any mezmerize file, so nothing can import in a circle.
 """
 import csv
 import os
+import re
 import textwrap
 
 CARD_WIDTH = 60                                                     # Width of the flashcard display
 TOP_MARGIN = 2                                                      # Number of blank lines at the top of the screen
 DATA_FOLDER = "data"                                                # Folder containing category decks
 COLUMN_GAP = 12                                                     # Spaces between columns in two-column lists
+
+ORANGE = "\x1b[38;5;208m"                                           # a deck that holds this card
+CYAN = "\x1b[96m"                                                   # things reported: RESULT:, NO CHANGES
+GREEN = "\x1b[92m"                                                  # a key that can be pressed
+RESET = "\x1b[0m"                                                   # back to the normal color
+NUMBER_COLOR = ""                                                   # menu numbers: "" = plain; GREEN to try
+# a key (ENTER, ESC, or one capital letter), then any "or <key>", then " = "
+KEY_PATTERN = re.compile(r"\b(?:ENTER|ESC|[A-Z])(?=(?: or (?:ENTER|ESC|[A-Z]))* = )")
+os.system("")                                                       # switch on color codes in the Windows console
 
 BUILTIN_DECKS = [
     ("AI Security", "ai.csv"),
@@ -35,16 +45,25 @@ BUILTIN_DECKS = [
 # 1h. get_key
 # 1i. read_key
 # 1j. input_or_esc
+
 # 2. Loading decks
 # 2a. load_flashcards
 # 2b. load_all_builtin
+
 # 3. say_goodbye
+
+# 4. Color
+# 4a. colored
+# 4b. color_keys
 
 
 # 1. Helper functions
 # 1a. Create a whole-word text wrapping function
-def print_wrapped(lead, text, width=CARD_WIDTH):
-    """Print lead + text. Long text wraps by whole words, lined up under the text."""
+def print_wrapped(lead, text, width=CARD_WIDTH, lead_color="", text_color=""):
+    """
+    Print lead + text. Long text wraps by whole words, lined up under the text.
+    lead_color and text_color are applied after wrapping; commas stay plain.
+    """
     wrapper = textwrap.TextWrapper(
         width=width,
         initial_indent=lead,                                        # first line starts with the lead
@@ -52,7 +71,11 @@ def print_wrapped(lead, text, width=CARD_WIDTH):
         break_long_words=True,                                      # only if one word is longer than the line
         break_on_hyphens=True,                                      # may break after a hyphen already in the word
     )
-    print(wrapper.fill(text) or lead)
+    for line in (wrapper.fill(text) or lead).split("\n"):
+        rest = line[len(lead):]                                     # the text part of this line
+        if text_color:
+            rest = re.sub("[^,]+", f"{text_color}\\g<0>{RESET}", rest)  # color all but the commas
+        print(colored(line[:len(lead)], lead_color) + rest)
 
 # 1b. Clear the terminal screen
 def clear_screen(margin=True):
@@ -238,3 +261,17 @@ def say_goodbye():
     print("Thank you for using Mezmerize Acronym Finder! Goodbye! 👋".center(CARD_WIDTH))
     print("Made with 💭 by TristanTango73".center(CARD_WIDTH))
     print("\n\n")
+
+
+# 4. Color
+# 4a. Wrap text in a color, then back to normal
+def colored(text, color):
+    """Return text in color, then back to normal. An empty color leaves the text plain."""
+    if not color:
+        return text
+    return f"{color}{text}{RESET}"
+
+# 4b. Color just the keys in a key line (ENTER, ESC, Q, A, ...), never the words after =
+def color_keys(text):
+    """Return text with every key before an = (or an 'or' chain of keys) in GREEN."""
+    return KEY_PATTERN.sub(f"{GREEN}\\g<0>{RESET}", text)
