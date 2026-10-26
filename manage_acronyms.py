@@ -236,7 +236,7 @@ def confirm_add(entry, label, files):
         clear_screen()
         print_mode_banner("ADD AN ACRONYM")
         print()
-        show_caution([(heading, files)], entry=entry, decks=[label],
+        show_caution([(heading, files)], entry=entry, labels=[label],
                      title="PENDING WRITE", caution=state == "ask")
 
     whole_label = label.replace(" ", "\u00a0")                          # keep the deck name on one line
@@ -358,23 +358,23 @@ def add_acronyms():
 
 # 4. Manage Elements
 # 4a. Show a full single card without options
-def show_full_card(card, title=None, decks=None):
+def show_full_card(card, title=None, labels=None):
     """
     Show every field at once. An optional title is centered in the top rule.
-    deck lists every deck in scope; without it, the card's own deck is shown.
+    labels lists every deck in scope; without it, the card's own deck is shown.
     """
     if title:
         print(f" {title} ".center(CARD_WIDTH, "="))
     else:
         print("=" * CARD_WIDTH)
-    print_decks(decks or [card.get("deck", "")])
+    print_decks(labels or [card.get("deck", "")])
     print(f"ACRONYM:     {card['acronym']}")
     print_wrapped("FULL NAME:   ", card["full_name"])
     print_wrapped("DESCRIPTION: ", card["description"])
     print("=" * CARD_WIDTH)
 
 # 4b. Show the CAUTION card: a titled star box with the card's fields and the files that will change
-def show_caution(sections, entry=None, decks=None, title="CAUTION", caution=True):
+def show_caution(sections, entry=None, labels=None, title="CAUTION", caution=True):
     """
     Print the CAUTION card. sections is a list of (heading, files) pairs: one heading,
     then its files lined up at column 13. caution=False draws a plain star line instead
@@ -384,8 +384,8 @@ def show_caution(sections, entry=None, decks=None, title="CAUTION", caution=True
         print(f" ⚠️  {title}  ⚠️ ".center(CARD_WIDTH, "*"))
     else:
         print("*" * CARD_WIDTH)
-    if decks:
-        print_decks(decks)
+    if labels:
+        print_decks(labels)
     if entry:
         print(f"ACRONYM:     {entry['acronym']}")
         print_wrapped("FULL NAME:   ", entry["full_name"] or "(blank)")
@@ -682,7 +682,7 @@ def ask_for_edits(card, labels):
     print("Nothing is saved until you approve it on the next screen.")
     print()
 
-    show_full_card(card, title="CURRENT", decks=labels)
+    show_full_card(card, title="CURRENT", labels=labels)
     print(" EDITING ".center(CARD_WIDTH, "="))
     print_decks(labels)
 
@@ -706,8 +706,8 @@ def confirm_edits(card, new_entry, filenames, labels):
         clear_screen()
         print_mode_banner("EDIT AN ACRONYM")
         print()
-        show_full_card(card, title="PREVIOUS" if confirmed else "CURRENT", decks=labels)
-        show_caution([(heading, filenames + [MASTER_FILE])], entry=new_entry, decks=labels,
+        show_full_card(card, title="PREVIOUS" if confirmed else "CURRENT", labels=labels)
+        show_caution([(heading, filenames + [MASTER_FILE])], entry=new_entry, labels=labels,
                      title="PENDING WRITE", caution=state == "ask")
 
     where = labels[0].replace(" ", "\u00a0") if len(labels) == 1 else f"({len(labels)}) decks"
@@ -769,7 +769,7 @@ def confirm_delete(card, filenames, labels):
         clear_screen()
         print_mode_banner("DELETE AN ACRONYM")
         print()
-        show_caution([(heading, filenames)], entry=card, decks=labels,
+        show_caution([(heading, filenames)], entry=card, labels=labels,
                      title="PENDING DELETE", caution=state == "ask")
 
     where = labels[0].replace(" ", "\u00a0") if len(labels) == 1 else f"({len(labels)}) decks"
@@ -961,10 +961,10 @@ def confirm_copy(card, label, filename, different, master_too):
         print()
         show_full_card(card, title="COPIED FROM" if confirmed else "COPYING FROM")
         if different:
-            show_caution([(heading, files)], entry=different[0], decks=[label],
+            show_caution([(heading, files)], entry=different[0], labels=[label],
                          title="VERSION CONFLICT", caution=state == "ask")
         else:
-            show_caution([(heading, files)], entry=card, decks=[label],
+            show_caution([(heading, files)], entry=card, labels=[label],
                          title="PENDING COPY", caution=state == "ask")
 
     whole_label = label.replace(" ", "\u00a0")                      # keep deck names on one line
@@ -1035,10 +1035,10 @@ def confirm_move(card, label, filename, source_file, different):
         else:
             show_full_card(card, title="MOVING FROM")
         if different:
-            show_caution(sections, entry=different[0], decks=[label],
+            show_caution(sections, entry=different[0], labels=[label],
                          title="VERSION CONFLICT", caution=state == "ask")
         else:
-            show_caution(sections, entry=card, decks=[label],
+            show_caution(sections, entry=card, labels=[label],
                          title="PENDING MOVE", caution=state == "ask")
 
     whole_target = label.replace(" ", "\u00a0")                         # keep deck names on one line
