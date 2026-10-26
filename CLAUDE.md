@@ -32,6 +32,11 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
 - Two-test rule for mez_common: code goes there only if (1) more than one program needs it
   and (2) it depends on nothing else of ours.
 - Code that reads, writes, or compares cards without printing a screen goes in mez_cards.
+  Anything that prints is screen code and stays upstairs.
+- Names in code: `label` is a deck label ("Cybersecurity"), `filename` its CSV
+  ("cybersec.csv"), and `decks` a list of (label, filename) pairs, as in BUILTIN_DECKS.
+  Lists are `labels` and `filenames`. `lead` is the text in front of a wrapped line
+  (print_wrapped, wrap_choices).
 
 ## Data rules
 
@@ -85,8 +90,8 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
 
 - Nothing wider than CARD_WIDTH. Choice prompts wrap between choices (wrap_choices),
   never splitting a key from its name.
-- Key bars sit flush left. Lookup key lines use 4 spaces between choices; confirm-screen
-  key lines use 5 (`ENTER = save it     ESC = forget it`).
+- Key bars sit flush left. Navigation lines (lookup, after a result, Deck Lists) use 4
+  spaces between choices; confirm-screen key lines use 5 (`ENTER = save it     ESC = forget it`).
   Exception: the D / A scope prompt ("You chose Delete.") is indented 5 on purpose.
 - Deck labels in a wrapped list use non-breaking spaces ("\u00a0") so a name never
   splits across lines.
@@ -153,10 +158,16 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
   what (screen, question, keys, verb), the helper does how (draw, ask, redraw, ESC
   RESULT). Questions are passed without surrounding newlines. The master screen
   (R / K / ESC plus typing) keeps its own code.
-- Lines under a RESULT (files, notes) are indented 9 spaces, under the first word.
-- The CAUTION card's file list shows filenames; RESULT lists deck labels (master.csv by
-  name). Copy does this; add, edit, and delete still list filenames until they're
-  switched.
+- Success RESULTs say what happened to the acronym and end in a colon, then list the
+  deck labels one per line at column 11, 2 in from the RESULT text (list_labels):
+  `RESULT:  Saved. PII was edited and re-sorted in:`. Follow-up sentences sit at
+  column 9, under the first word: Delete's `It's still in:` (with labels), `It was also
+  erased from master.csv` / `(copied first to master.bak).`, or `It stays in master.csv
+  as backlog.`; Move's `to:` (with the label) and `Both decks were re-sorted.`
+- Each verb gets its own preposition: `added to and re-sorted in:`, `relocated from:`
+  ... `to:`.
+- The CAUTION card's file list shows filenames; RESULT shows deck labels. master.csv is
+  named only in Delete's follow-up lines.
 - Key lines are actions on top, navigation below. Lookup: `A = add` always (found or
   not), plus `E = edit    D = delete    C = copy    M = move` for found built-in cards,
   then `ENTER = look up another    ESC = menu    Q = quit`. After an edit, delete, copy,
@@ -200,7 +211,9 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
 - Tell me when to commit, with a GitHub Desktop summary and description.
   One commit = one thing. I commit and push in GitHub Desktop.
 - Each new feature gets its own branch: branch, build, test, then merge into main.
-- Each file has a numbered index at the top; keep it matching the section headers.
+- Each file has a numbered index at the top; keep it matching the section headers,
+  with a blank line before each numbered section (manage_acronyms does; the other
+  files will follow).
 - No blank line after a module docstring.
 - Imports in three groups with a blank line between: standard library, third-party, ours.
 - Two blank lines before each numbered section header (# 1., # 2., ...) and after
