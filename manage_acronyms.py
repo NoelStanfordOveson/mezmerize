@@ -118,7 +118,7 @@ def choose_target_deck():
     for number, (label, filename) in enumerate(BUILTIN_DECKS, start=1):
         print(f"{number}. {label}")
     print()
-    print("ESC = back     Q = quit")
+    print("ESC = back    Q = quit")
 
     choice = read_key(deck_keys + ["esc", "q"])
     if choice == "esc":
@@ -308,7 +308,7 @@ def add_to_deck(label, filename):
 def add_another():
     """Return 'enter' (add another), 'esc' (deck list), or 'q' (quit)."""
     print()
-    print("ENTER = add another     ESC = deck list     Q = quit", end="", flush=True)
+    print("ENTER = add another    ESC = deck list    Q = quit", end="", flush=True)
     return read_key(("enter", "esc", "q"))
 
 # 3g. Add the acronym from a lookup
@@ -948,11 +948,11 @@ def choose_destination(card, verb, doing):
         print()
         print_wrapped("", f"{card['acronym']} is already in every deck. There's nowhere to {verb.lower()} it.")
         print()
-        print("ENTER or ESC = back     Q = quit", end="", flush=True)
+        print("ENTER or ESC = back    Q = quit", end="", flush=True)
         return "quit" if read_key(("enter", "esc", "q")) == "q" else "back"
 
     print()
-    print("ESC = back     Q = quit")
+    print("ESC = back    Q = quit")
     choice = read_key(list(choices) + ["esc", "q"])
     if choice == "esc":
         return "back"
@@ -1118,7 +1118,7 @@ def main():
         print("1. Look up or edit/delete an acronym (all decks)")
         print("2. Add acronyms to a deck")
         print()
-        print("ESC = back     Q = quit")
+        print("ESC = back    Q = quit")
 
         choice = read_key(("1", "2", "esc", "q"))
         if choice == "esc":
