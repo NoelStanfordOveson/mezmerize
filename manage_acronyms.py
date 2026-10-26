@@ -958,7 +958,7 @@ def confirm_copy(card, label, filename, different, master_too):
         question = (f"A different version of {card['acronym']} already exists in "
                     f"{whole_label}. Copy anyway?")
     else:
-        question = f"Copy this card to {whole_label} from {whole_source} now?"
+        question = f"Copy this card from {whole_source} to {whole_label} now?"
     return ask_or_cancel(draw, question, "ENTER = copy it     ESC = forget it", "copied")
 
 # 7c. Copy one card, exactly as it is, into another built-in deck
@@ -1032,7 +1032,7 @@ def confirm_move(card, label, filename, source_file, different):
         question = (f"A different version of {card['acronym']} already exists in "
                     f"{whole_target}. Move anyway?")
     else:
-        question = f"Move this card to {whole_target} from {whole_source} now?"
+        question = f"Move this card from {whole_source} to {whole_target} now?"
     return ask_or_cancel(draw, question, "ENTER = move it     ESC = forget it", "moved")
 
 # 8b. Move one card, exactly as it is, from its deck into another built-in deck
