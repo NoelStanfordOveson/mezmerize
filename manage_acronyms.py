@@ -37,6 +37,7 @@ from mez_cards import (MASTER_FILE, BACKUP_FILE, FIELDS, read_rows, write_sorted
 # 4g. choose_edit_scope
 # 4h. pick_from_matches
 # 4i. ask_this_or_all
+# 4j. print_decks
 # 5. Edit
 # 5a. ask_for_edits
 # 5b. confirm_edits
@@ -357,13 +358,16 @@ def add_acronyms():
 
 # 4. Manage Elements
 # 4a. Show a full single card without options
-def show_full_card(card, title=None):
-    """Show every field at once. An optional title is centered in the top rule."""
+def show_full_card(card, title=None, decks=None):
+    """
+    Show every field at once. An optional title is centered in the top rule.
+    deck lists every deck in scope; without it, the card's own deck is shown.
+    """
     if title:
         print(f" {title} ".center(CARD_WIDTH, "="))
     else:
         print("=" * CARD_WIDTH)
-    print(f"DECK:        {card.get('deck', '')}")
+    print_decks(decks or [card.get("deck", "")])
     print(f"ACRONYM:     {card['acronym']}")
     print_wrapped("FULL NAME:   ", card["full_name"])
     print_wrapped("DESCRIPTION: ", card["description"])
@@ -381,8 +385,7 @@ def show_caution(sections, entry=None, decks=None, title="CAUTION", caution=True
     else:
         print("*" * CARD_WIDTH)
     if decks:
-        names = ", ".join(label.replace(" ", "\u00a0") for label in decks)
-        print_wrapped("DECK:        " if len(decks) == 1 else "DECKS:       ", names)
+        print_decks(decks)
     if entry:
         print(f"ACRONYM:     {entry['acronym']}")
         print_wrapped("FULL NAME:   ", entry["full_name"] or "(blank)")
@@ -657,27 +660,35 @@ def ask_this_or_all(card, decks, verb="Edit"):
         return card, decks
     return card, [(card["deck"], deck_file_for(card["deck"]))]
 
+# 4j. Print the DECK: line, or DECKS: with every label when there are multiple
+def print_decks(labels):
+    """Print DECK: <label>, or DECKS: with the labels comma-separated, each kept whole."""
+    names = ", ".join(label.replace(" ", "\u00a0") for label in labels)
+    print_wrapped("DECK:        " if len(labels) == 1 else "DECKS:       ", names)
+
 
 # 5. Edit
 # 5a. Show the edit screen and collect the new values
-def ask_for_edits(card):
+def ask_for_edits(card, labels):
     """
     Show the hint, the CURRENT card, and an EDITING card with each field pre-filled.
-    Return the edited entry as a dict.
+    labels are the decks being edited. Return the edited entry as a dict, or None
+    if the acronym was left blank (cancel).
     """
     clear_screen()
     print_mode_banner("EDIT AN ACRONYM")
     print("Edit each field, then ENTER. ← → Home End move the cursor.")
-    print("ESC clears a field. Nothing is saved until you approve it")
-    print("on the next screen.")
+    print("ESC clears a field. To cancel: clear ACRONYM, then ENTER.")
+    print("Nothing is saved until you approve it on the next screen.")
     print()
-    show_full_card(card, title="CURRENT")
-    print(" EDITING ".center(CARD_WIDTH, "="))
-    print(f"DECK:        {card['deck']}")
 
-    acronym = ""
-    while not acronym:                                                  # a card must have an acronym
-        acronym = input_prefilled("ACRONYM:     ", card["acronym"])
+    show_full_card(card, title="CURRENT", decks=labels)
+    print(" EDITING ".center(CARD_WIDTH, "="))
+    print_decks(labels)
+
+    acronym = input_prefilled("ACRONYM:     ", card["acronym"])
+    if not acronym:
+        return None                                                     # blank acronym: cancel the edit
     full_name = input_prefilled("FULL NAME:   ", card["full_name"])
     description = input_prefilled("DESCRIPTION: ", card["description"])
 
@@ -695,7 +706,7 @@ def confirm_edits(card, new_entry, filenames, labels):
         clear_screen()
         print_mode_banner("EDIT AN ACRONYM")
         print()
-        show_full_card(card, title="PREVIOUS" if confirmed else "CURRENT")
+        show_full_card(card, title="PREVIOUS" if confirmed else "CURRENT", decks=labels)
         show_caution([(heading, filenames + [MASTER_FILE])], entry=new_entry, decks=labels,
                      title="PENDING WRITE", caution=state == "ask")
 
@@ -721,13 +732,17 @@ def edit_card(card, decks):
             return None
         loaded.append((filename, rows, position))
 
-    new_entry = ask_for_edits(card)
+    labels = [label for label, filename in decks]
+    new_entry = ask_for_edits(card, labels)
+    if new_entry is None:
+        print("\nRESULT:  Nothing was saved.")
+        print("         NO CHANGES were made.")
+        return None
     if all(new_entry[field] == card[field] for field in FIELDS):
         print("\nRESULT:  No changes made. Nothing was saved.")
         return None
 
     filenames = [filename for label, filename in decks]
-    labels = [label for label, filename in decks]
     if not confirm_edits(card, new_entry, filenames, labels):
         return None
 
