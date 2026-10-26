@@ -17,7 +17,9 @@ from mez_cards import (MASTER_FILE, BACKUP_FILE, FIELDS, read_rows, write_sorted
 # 1a. Windows keystroke records (classes)
 # 1b. prefill
 # 1c. input_prefilled
+
 # 2. choose_target_deck
+
 # 3. Interactive
 # 3a. ask_for_entry
 # 3b. ok_to_add
@@ -27,6 +29,7 @@ from mez_cards import (MASTER_FILE, BACKUP_FILE, FIELDS, read_rows, write_sorted
 # 3f. add_another
 # 3g. add_from_lookup
 # 3h. add_acronyms
+
 # 4. Manage Elements
 # 4a. show_full_card
 # 4b. show_caution
@@ -38,22 +41,28 @@ from mez_cards import (MASTER_FILE, BACKUP_FILE, FIELDS, read_rows, write_sorted
 # 4h. pick_from_matches
 # 4i. ask_this_or_all
 # 4j. print_decks
+# 4k. list_labels
+
 # 5. Edit
 # 5a. ask_for_edits
 # 5b. confirm_edits
 # 5c. edit_card
+
 # 6. Delete
 # 6a. confirm_delete
 # 6b. type_to_confirm
 # 6c. confirm_removal_in_master
 # 6d. delete_card
+
 # 7. Copy
 # 7a. choose_destination
 # 7b. confirm_copy
 # 7c. copy_card
+
 # 8. Move
 # 8a. confirm_move
 # 8b. move_card
+
 # 9. Main program loop
 
 
@@ -271,9 +280,9 @@ def save_entry(entry, label, filename):
             master_rows[backlog] = entry                                # fill in the description
         write_sorted(MASTER_FILE, master_rows)
 
-    print(f"\nRESULT:  Saved. {entry['acronym']} was added and re-sorted:")
-    for name in files:
-        print(f"         {name}")
+    print()
+    print_wrapped("RESULT:  ", f"Saved. {entry['acronym']} was added to and re-sorted in:")
+    list_labels([label])
     return True
 
 # 3e. Keep adding acronyms to one deck
@@ -666,6 +675,12 @@ def print_decks(labels):
     names = ", ".join(label.replace(" ", "\u00a0") for label in labels)
     print_wrapped("DECK:        " if len(labels) == 1 else "DECKS:       ", names)
 
+# 4k. List deck labels under a RESULT, indented 2 under its text
+def list_labels(labels):
+    """Print each deck label on its own line at column 11, 2 in from the RESULT text."""
+    for label in labels:
+        print(f"{'':<11}{label}")
+
 
 # 5. Edit
 # 5a. Show the edit screen and collect the new values
@@ -751,9 +766,9 @@ def edit_card(card, decks):
         write_sorted(filename, rows)
     update_master(card, new_entry)
 
-    print(f"\nRESULT:  Saved. {new_entry['acronym']} was updated and re-sorted in:")
-    for filename in filenames + [MASTER_FILE]:
-        print(f"         {filename}")
+    print()
+    print_wrapped("RESULT:  ", f"Saved. {new_entry['acronym']} was edited and re-sorted in:")
+    list_labels(labels)
     return new_entry
 
 
@@ -887,14 +902,17 @@ def delete_card(card, decks):
     if master_choice == "remove":
         master_rows.pop(master_position)
         write_sorted(MASTER_FILE, master_rows)
-        filenames.append(f"{MASTER_FILE} (copied first to {BACKUP_FILE})")
 
-    print(f"\nRESULT:  Deleted. {card['acronym']} was removed from:")
-    for filename in filenames:
-        print(f"         {filename}")
+    print()
+    print_wrapped("RESULT:  ", f"Deleted. {card['acronym']} was removed from:")
+    list_labels(labels)
     if remaining:
-        print(f"         Still in: {', '.join(label for label, filename in remaining)}")
-    elif master_choice == "keep" and master_position is not None:
+        print("         It's still in:")
+        list_labels([label for label, filename in remaining])
+    elif master_choice == "remove":
+        print(f"         It was also erased from {MASTER_FILE}")
+        print(f"         (copied first to {BACKUP_FILE}).")
+    elif master_position is not None:
         print(f"         It stays in {MASTER_FILE} as backlog.")
     return True
 
@@ -999,15 +1017,13 @@ def copy_card(card):
     entry = {field: card[field] for field in FIELDS}
     rows.append(entry)
     write_sorted(filename, rows)
-    added_to = [label]
     if master_too:
         master_rows.append(entry)
         write_sorted(MASTER_FILE, master_rows)
-        added_to.append(MASTER_FILE)
 
-    print(f"\nRESULT:  Copied card {card['acronym']} to:")
-    for name in added_to:
-        print(f"         {name}")
+    print()
+    print_wrapped("RESULT:  ", f"Copied. {card['acronym']} was added to and re-sorted in:")
+    list_labels([label])
     return label
 
 
@@ -1083,8 +1099,12 @@ def move_card(card):
     source_rows.pop(position)
     write_sorted(source_file, source_rows)
 
-    print(f"\nRESULT:  Moved card {card['acronym']} from {card['deck']} to:")
-    print(f"         {label}")
+    print()
+    print_wrapped("RESULT:  ", f"Moved. {card['acronym']} was relocated from:")
+    list_labels([card["deck"]])
+    print("         to:")
+    list_labels([label])
+    print("         Both decks were re-sorted.")
     return label
 
 
