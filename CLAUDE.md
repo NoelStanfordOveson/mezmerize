@@ -98,11 +98,11 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
   screen: it's set for you and never typed into. Edit's typing screen stays ALL CAPS
   because it's drawn inside a card.
 - Screens never address the user as "you".
-- Confirm questions have one shape: action + this card + to/from/in + deck + now?
+- Confirm questions have one shape: action + this card + from/to/in + deck + now?
   The action is what's about to happen at that point in the flow:
-  `Add this card to Cybersecurity now?`, `Copy this card to GRC/Frameworks from
-  Cybersecurity now?`, `Move this card to ... from ... now?`, `Delete this card from
-  Cybersecurity now?`. Edit is the one exception: its question comes after the typing,
+  `Add this card to Cybersecurity now?`, `Copy this card from Cybersecurity to
+  GRC/Frameworks now?`, `Move this card from ... to ... now?` (from / to: the card's
+  journey), `Delete this card from Cybersecurity now?`. Edit is the one exception: its question comes after the typing,
   so it asks to save: `Save edits to Cybersecurity now?`. No "deck" before a single deck
   name. With several decks the question gives the count and the card's DECKS: line names
   them: `Save edits to (2) decks now?`.
@@ -131,6 +131,9 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
 - Every value in a card lines up at column 13. Field labels and file headings are 12
   characters or fewer. DECK: for one deck, DECKS: for several (labels comma-separated,
   wrapped like DESCRIPTION).
+- File headings list the work in the order it happens (a move shows COPY TO: above
+  REMOVE FROM:, since the target is written first), while questions follow the card's
+  journey (from / to).
 - File headings are instructions before the card is answered and after ESC, and past
   tense after ENTER: WRITE TO: / WRITTEN TO: (add, edit), DELETE FROM: / ERASED FROM:
   (delete, master), COPY TO: / COPIED TO: (copy), COPY TO: + REMOVE FROM: / MOVED TO: +
