@@ -24,7 +24,7 @@ BUILTIN_DECKS = [
     ("IS Management", "mgmt.csv"),
 ]
 
-
+# 1. Helper functions
 # 1a. print_wrapped
 # 1b. clear_screen
 # 1c. print_mode_banner
@@ -43,16 +43,16 @@ BUILTIN_DECKS = [
 
 # 1. Helper functions
 # 1a. Create a whole-word text wrapping function
-def print_wrapped(label, text, width=CARD_WIDTH):
-    """Print label + text. Long text wraps by whole words, lined up under the text."""
+def print_wrapped(lead, text, width=CARD_WIDTH):
+    """Print lead + text. Long text wraps by whole words, lined up under the text."""
     wrapper = textwrap.TextWrapper(
         width=width,
-        initial_indent=label,                                       # first line starts with the label
-        subsequent_indent=" " * len(label),                         # extra lines line up under the text
+        initial_indent=lead,                                        # first line starts with the lead
+        subsequent_indent=" " * len(lead),                          # extra lines line up under the text
         break_long_words=True,                                      # only if one word is longer than the line
         break_on_hyphens=True,                                      # may break after a hyphen already in the word
     )
-    print(wrapper.fill(text) or label)
+    print(wrapper.fill(text) or lead)
 
 # 1b. Clear the terminal screen
 def clear_screen(margin=True):
