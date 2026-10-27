@@ -9,7 +9,7 @@ from ctypes import wintypes
 
 from mez_common import (BUILTIN_DECKS, clear_screen, print_mode_banner, print_wrapped,
                         CARD_WIDTH, overwrite_line, read_key, input_or_esc, say_goodbye,
-                        load_all_builtin, COLUMN_GAP)
+                        load_all_builtin, COLUMN_GAP, ORANGE, colored, color_words)
 from mez_cards import (MASTER_FILE, BACKUP_FILE, FIELDS, read_rows, write_sorted, deck_file_for,
                        version_of, find_row, decks_with_acronym, decks_with_version, update_master)
 
@@ -139,7 +139,7 @@ def ask_for_entry(label, acronym=None):
     """
     print("\nEnter the new acronym.     (ESC = back to the deck list)\n")
 
-    print(f"DECK:        {label}")
+    print_decks([label], holds=False)                                   # not in this deck yet
     if acronym is None:
         acronym = input_or_esc("Acronym:     ", required=True)
         if acronym is None:
@@ -189,7 +189,8 @@ def ok_to_add(entry, label, deck_rows, master_rows):
     if find_row(deck_rows, entry) is not None:                          # exact version already in this deck
         whole_label = label.replace(" ", "\u00a0")
         print()
-        print_wrapped("", f"{acronym} already in {whole_label}, exactly as entered.")
+        print_wrapped("", f"{acronym} already in {whole_label}, exactly as entered.",
+                      words=[whole_label], words_color=ORANGE)
         print("\nRESULT:  Nothing was added.")
         print("         NO CHANGES were made.")
         return False
@@ -199,14 +200,15 @@ def ok_to_add(entry, label, deck_rows, master_rows):
         print()
         if len(others) == 1:
             whole_other = others[0].replace(" ", "\u00a0")
-            print_wrapped("", f"{acronym} already in {whole_other}, exactly as entered.")
+            print_wrapped("", f"{acronym} already in {whole_other}, exactly as entered.",
+                          words=[whole_other], words_color=ORANGE)
         else:
             print_wrapped("", f"{acronym} already in ({len(others)}) decks, exactly as entered:")
             width = max(len(other) for other in others) + COLUMN_GAP    # longest label plus the gap
             for start in range(0, len(others), 2):                      # two labels per line
                 left = others[start]
                 right = others[start +1] if start + 1 < len(others) else ""
-                print(f"  {left:<{width}}{right}")
+                print(f"  {colored(f'{left:<{width}}', ORANGE)}{colored(right, ORANGE)}")
         print()
         print("Tip: use C = copy from a lookup next time, if applicable.")
         print()
@@ -383,18 +385,19 @@ def show_full_card(card, title=None, labels=None):
     print("=" * CARD_WIDTH)
 
 # 4b. Show the CAUTION card: a titled star box with the card's fields and the files that will change
-def show_caution(sections, entry=None, labels=None, title="CAUTION", caution=True):
+def show_caution(sections, entry=None, labels=None, holds=False, title="CAUTION", caution=True):
     """
     Print the CAUTION card. sections is a list of (heading, files) pairs: one heading,
     then its files lined up at column 13. caution=False draws a plain star line instead
     of the title (used once the card is answered). The caller prints its own question.
+    holds=True colors the deck names orange (the decks hold this card right now).
     """
     if caution:
         print(f" ⚠️  {title}  ⚠️ ".center(CARD_WIDTH, "*"))
     else:
         print("*" * CARD_WIDTH)
     if labels:
-        print_decks(labels)
+        print_decks(labels, holds)
     if entry:
         print(f"ACRONYM:     {entry['acronym']}")
         print_wrapped("FULL NAME:   ", entry["full_name"] or "(blank)")
@@ -408,15 +411,16 @@ def show_caution(sections, entry=None, labels=None, title="CAUTION", caution=Tru
     print("*" * CARD_WIDTH)
 
 # 4c. Draw a confirm screen, ask, then redraw it without its title; on ESC, show the RESULT
-def ask_or_cancel(draw, question, keys, verb):
+def ask_or_cancel(draw, question, keys, verb, words=()):
     """
     Draw the screen with draw("ask"), ask the question, then redraw it with
     draw("confirmed") for ENTER, draw("cancelled") for ESC. Return True for ENTER.
     On ESC, print the "Nothing was <verb>." RESULT and return False.
+    words (deck labels that hold the card) are colored orange in the question.
     """
     draw("ask")
     print()
-    print_wrapped("", question)
+    print_wrapped("", question, words=words, words_color=ORANGE)
     print()
 
     answer = overwrite_line(keys)
@@ -467,7 +471,8 @@ def lookup_acronym(flashcards, deck_name):
         if not matches:
             if elsewhere:
                 print(f'\nNo card found for "{query}" in this deck.')
-                print_wrapped("Found in: ", ", ".join(label.replace(" ", "\u00a0") for label in elsewhere)) # replace space with non-breaking one
+                print_wrapped("Found in: ", ", ".join(label.replace(" ", "\u00a0") for label in elsewhere),
+                              lead_color=ORANGE, text_color=ORANGE)     # non-breaking spaces keep names whole
                 print(f"          ({len(elsewhere)} total)")
             else:
                 print(f'\nNo card found for "{query}".')
@@ -485,7 +490,8 @@ def lookup_acronym(flashcards, deck_name):
                     identical = len(decks_with_version(matches[0]))
                     if identical > 1:
                         counts += f", {identical} identical"
-                print_wrapped("Also in: ", ", ".join(label.replace(" ", "\u00a0") for label in elsewhere))
+                print_wrapped("Also in: ", ", ".join(label.replace(" ", "\u00a0") for label in elsewhere),
+                              lead_color=ORANGE, text_color=ORANGE)
                 print(f"         ({counts})")
             print()
             for number, card in enumerate(matches, start=1):
@@ -641,7 +647,8 @@ def pick_from_matches(editable, verb="Edit", allow_all=True):
     extras.append("ESC = cancel")
 
     lead = f"{verb} which?  "
-    print("\n\n" + wrap_choices(lead, choices))
+    labels = [card["deck"] for number, card in editable]
+    print("\n\n" + color_words(wrap_choices(lead, choices), labels, ORANGE))
     print(wrap_choices(" " * len(lead), extras), end="", flush=True)
 
     choice = read_key(keys + ["esc"])
@@ -670,16 +677,23 @@ def ask_this_or_all(card, decks, verb="Edit"):
     return card, [(card["deck"], deck_file_for(card["deck"]))]
 
 # 4j. Print the DECK: line, or DECKS: with every label when there are multiple
-def print_decks(labels):
-    """Print DECK: <label>, or DECKS: with the labels comma-separated, each kept whole."""
+def print_decks(labels, holds=True):
+    """
+    Print DECK: <label>, or DECKS: with the labels comma-separated, each kept whole.
+    The lead is always orange; the names are orange only when the decks hold the card.
+    """
     names = ", ".join(label.replace(" ", "\u00a0") for label in labels)
-    print_wrapped("DECK:        " if len(labels) == 1 else "DECKS:       ", names)
+    print_wrapped("DECK:        " if len(labels) == 1 else "DECKS:       ", names,
+                  lead_color=ORANGE, text_color=ORANGE if holds else "")
 
 # 4k. List deck labels under a RESULT, indented 2 under its text
-def list_labels(labels):
-    """Print each deck label on its own line at column 11, 2 in from the RESULT text."""
+def list_labels(labels, holds=True):
+    """
+    Print each deck label on its own line at column 11, 2 in from the RESULT text.
+    Orange when the deck holds the card now (holds=True), plain when it doesn't.
+    """
     for label in labels:
-        print(f"{'':<11}{label}")
+        print(f"{'':<11}{colored(label, ORANGE if holds else '')}")
 
 
 # 5. Edit
@@ -723,11 +737,12 @@ def confirm_edits(card, new_entry, filenames, labels):
         print()
         show_full_card(card, title="PREVIOUS" if confirmed else "CURRENT", labels=labels)
         show_caution([(heading, filenames + [MASTER_FILE])], entry=new_entry, labels=labels,
-                     title="PENDING WRITE", caution=state == "ask")
+                     holds=True, title="PENDING WRITE", caution=state == "ask")
 
     where = labels[0].replace(" ", "\u00a0") if len(labels) == 1 else f"({len(labels)}) decks"
     return ask_or_cancel(draw, f"Save edits to {where} now?",
-                         "ENTER = save it     ESC = forget it", "saved")
+                         "ENTER = save it     ESC = forget it", "saved",
+                         words=[labels[0].replace(" ", "\u00a0")])
 
 # 5c. Edit one card in every deck in the scope, then update master.csv
 def edit_card(card, decks):
@@ -784,12 +799,13 @@ def confirm_delete(card, filenames, labels):
         clear_screen()
         print_mode_banner("DELETE AN ACRONYM")
         print()
-        show_caution([(heading, filenames)], entry=card, labels=labels,
+        show_caution([(heading, filenames)], entry=card, labels=labels, holds=True,
                      title="PENDING DELETE", caution=state == "ask")
 
     where = labels[0].replace(" ", "\u00a0") if len(labels) == 1 else f"({len(labels)}) decks"
     return ask_or_cancel(draw, f"Delete this card from {where} now?",
-                         "ENTER = delete it     ESC = forget it", "deleted")
+                         "ENTER = delete it     ESC = forget it", "deleted",
+                         words=[labels[0].replace(" ", "\u00a0")])
 
 # 6b. Have the acronym typed exactly; give a friendly hint and ask again until it matches
 def type_to_confirm(acronym):
@@ -905,7 +921,7 @@ def delete_card(card, decks):
 
     print()
     print_wrapped("RESULT:  ", f"Deleted. {card['acronym']} was removed from:")
-    list_labels(labels)
+    list_labels(labels, holds=False)
     if remaining:
         print("         It's still in:")
         list_labels([label for label, filename in remaining])
@@ -934,10 +950,11 @@ def choose_destination(card, verb, doing):
 
     choices = {}
     for label, filename in BUILTIN_DECKS:
+        held = colored(f"{label:<23}", ORANGE)                          # pad first, then color
         if label == card["deck"]:
-            print(f"   {label:<23}({doing} from here)")
+            print(f"   {held}({doing} from here)")
         elif label in same_card:
-            print(f"   {label:<23}(already has it)")
+            print(f"   {held}(already has it)")
         else:
             number = str(len(choices) + 1)
             choices[number] = (label, filename)
@@ -992,7 +1009,8 @@ def confirm_copy(card, label, filename, different, master_too):
                     f"{whole_label}. Copy anyway?")
     else:
         question = f"Copy this card from {whole_source} to {whole_label} now?"
-    return ask_or_cancel(draw, question, "ENTER = copy it     ESC = forget it", "copied")
+    return ask_or_cancel(draw, question, "ENTER = copy it     ESC = forget it", "copied",
+                         words=[whole_source])
 
 # 7c. Copy one card, exactly as it is, into another built-in deck
 def copy_card(card):
@@ -1064,7 +1082,8 @@ def confirm_move(card, label, filename, source_file, different):
                     f"{whole_target}. Move anyway?")
     else:
         question = f"Move this card from {whole_source} to {whole_target} now?"
-    return ask_or_cancel(draw, question, "ENTER = move it     ESC = forget it", "moved")
+    return ask_or_cancel(draw, question, "ENTER = move it     ESC = forget it", "moved",
+                         words=[whole_source])
 
 # 8b. Move one card, exactly as it is, from its deck into another built-in deck
 def move_card(card):
@@ -1101,7 +1120,7 @@ def move_card(card):
 
     print()
     print_wrapped("RESULT:  ", f"Moved. {card['acronym']} was relocated from:")
-    list_labels([card["deck"]])
+    list_labels([card["deck"]], holds=False)
     print("         to:")
     list_labels([label])
     print("         Both decks were re-sorted.")

@@ -3,7 +3,7 @@ import random
 
 from mez_common import (BUILTIN_DECKS, CARD_WIDTH, DATA_FOLDER, clear_screen, csv_path,
                         input_or_esc, load_all_builtin, load_flashcards, overwrite_line,
-                        print_mode_banner, print_wrapped, read_key, say_goodbye)
+                        print_mode_banner, print_wrapped, read_key, say_goodbye, ORANGE)
 from manage_acronyms import lookup_acronym
 
 # 1. show_card
@@ -19,7 +19,7 @@ def show_card(card, number=None, total=None):
         print(f" Card {number} of {total} ".center(CARD_WIDTH, "="))
     else:
         print("=" * CARD_WIDTH)
-    print(f"DECK:        {card.get('deck', '')}")
+    print_wrapped("DECK:        ", card.get("deck", ""), lead_color=ORANGE, text_color=ORANGE)
     print(f"ACRONYM:     {card['acronym']}")
     if overwrite_line("ENTER = reveal     ESC = menu") == "esc":
         return "esc"

@@ -55,14 +55,17 @@ BUILTIN_DECKS = [
 # 4. Color
 # 4a. colored
 # 4b. color_keys
+# 4c. color_words
 
 
 # 1. Helper functions
 # 1a. Create a whole-word text wrapping function
-def print_wrapped(lead, text, width=CARD_WIDTH, lead_color="", text_color=""):
+def print_wrapped(lead, text, width=CARD_WIDTH, lead_color="", text_color="",
+                  words=(), words_color=""):
     """
     Print lead + text. Long text wraps by whole words, lined up under the text.
     lead_color and text_color are applied after wrapping; commas stay plain.
+    Each of the words (deck labels) is colored words_color wherever it appears.
     """
     wrapper = textwrap.TextWrapper(
         width=width,
@@ -75,6 +78,7 @@ def print_wrapped(lead, text, width=CARD_WIDTH, lead_color="", text_color=""):
         rest = line[len(lead):]                                     # the text part of this line
         if text_color:
             rest = re.sub("[^,]+", f"{text_color}\\g<0>{RESET}", rest)  # color all but the commas
+        rest = color_words(rest, words, words_color)                # color certain words in this line
         print(colored(line[:len(lead)], lead_color) + rest)
 
 # 1b. Clear the terminal screen
@@ -267,7 +271,7 @@ def say_goodbye():
 # 4a. Wrap text in a color, then back to normal
 def colored(text, color):
     """Return text in color, then back to normal. An empty color leaves the text plain."""
-    if not color:
+    if not color or not text:
         return text
     return f"{color}{text}{RESET}"
 
@@ -275,3 +279,10 @@ def colored(text, color):
 def color_keys(text):
     """Return text with every key before an = (or an 'or' chain of keys) in GREEN."""
     return KEY_PATTERN.sub(f"{GREEN}\\g<0>{RESET}", text)
+
+# 4c. Color certain words (deck labels) inside text that's already wrapped
+def color_words(text, words, color):
+    """Return text with each of the words in color. Use after wrapping."""
+    for word in words:
+        text = text.replace(word, colored(word, color))
+    return text
