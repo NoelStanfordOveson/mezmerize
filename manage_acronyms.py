@@ -247,7 +247,7 @@ def confirm_add(entry, label, files):
         clear_screen()
         print_mode_banner("ADD AN ACRONYM")
         print()
-        show_caution([(heading, files)], entry=entry, labels=[label],
+        show_caution([(heading, files)], entry=entry, labels=[label], holds=state == "confirmed",
                      title="PENDING WRITE", caution=state == "ask")
 
     whole_label = label.replace(" ", "\u00a0")                          # keep the deck name on one line
@@ -369,16 +369,17 @@ def add_acronyms():
 
 # 4. Manage Elements
 # 4a. Show a full single card without options
-def show_full_card(card, title=None, labels=None):
+def show_full_card(card, title=None, labels=None, holds=True):
     """
     Show every field at once. An optional title is centered in the top rule.
     labels lists every deck in scope; without it, the card's own deck is shown.
+    holds=False shows the deck names plain (the card is no longer there).
     """
     if title:
         print(f" {title} ".center(CARD_WIDTH, "="))
     else:
         print("=" * CARD_WIDTH)
-    print_decks(labels or [card.get("deck", "")])
+    print_decks(labels or [card.get("deck", "")], holds)
     print(f"ACRONYM:     {card['acronym']}")
     print_wrapped("FULL NAME:   ", card["full_name"])
     print_wrapped("DESCRIPTION: ", card["description"])
@@ -799,7 +800,7 @@ def confirm_delete(card, filenames, labels):
         clear_screen()
         print_mode_banner("DELETE AN ACRONYM")
         print()
-        show_caution([(heading, filenames)], entry=card, labels=labels, holds=True,
+        show_caution([(heading, filenames)], entry=card, labels=labels, holds=state != "confirmed",
                      title="PENDING DELETE", caution=state == "ask")
 
     where = labels[0].replace(" ", "\u00a0") if len(labels) == 1 else f"({len(labels)}) decks"
@@ -996,10 +997,10 @@ def confirm_copy(card, label, filename, different, master_too):
         print()
         show_full_card(card, title="COPIED FROM" if confirmed else "COPYING FROM")
         if different:
-            show_caution([(heading, files)], entry=different[0], labels=[label],
+            show_caution([(heading, files)], entry=different[0], labels=[label], holds=confirmed,
                          title="VERSION CONFLICT", caution=state == "ask")
         else:
-            show_caution([(heading, files)], entry=card, labels=[label],
+            show_caution([(heading, files)], entry=card, labels=[label], holds=confirmed,
                          title="PENDING COPY", caution=state == "ask")
 
     whole_label = label.replace(" ", "\u00a0")                      # keep deck names on one line
@@ -1065,14 +1066,14 @@ def confirm_move(card, label, filename, source_file, different):
         print()
         if confirmed:                                                   # the source deck no longer has it
             gone = {"deck": card["deck"], "acronym": "(not found)", "full_name": "", "description": ""}
-            show_full_card(gone, title="PREVIOUS")
+            show_full_card(gone, title="PREVIOUS", holds=False)
         else:
             show_full_card(card, title="MOVING FROM")
         if different:
-            show_caution(sections, entry=different[0], labels=[label],
+            show_caution(sections, entry=different[0], labels=[label], holds=confirmed,
                          title="VERSION CONFLICT", caution=state == "ask")
         else:
-            show_caution(sections, entry=card, labels=[label],
+            show_caution(sections, entry=card, labels=[label], holds=confirmed,
                          title="PENDING MOVE", caution=state == "ask")
 
     whole_target = label.replace(" ", "\u00a0")                         # keep deck names on one line
