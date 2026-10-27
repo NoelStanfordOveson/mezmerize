@@ -3,7 +3,7 @@ import random
 
 from mez_common import (BUILTIN_DECKS, CARD_WIDTH, DATA_FOLDER, clear_screen, csv_path,
                         input_or_esc, load_all_builtin, load_flashcards, overwrite_line,
-                        print_mode_banner, print_wrapped, read_key, say_goodbye, ORANGE)
+                        print_mode_banner, print_wrapped, read_key, say_goodbye, ORANGE, color_keys)
 from manage_acronyms import lookup_acronym
 
 # 1. show_card
@@ -62,7 +62,7 @@ def choose_deck():
         print("A. All Built-in Decks")
         print("C. My own CSV file")
         print()
-        print("ESC = back     Q = quit")
+        print(color_keys("ESC = back     Q = quit"))
 
         choice = read_key(deck_keys + ["a", "c", "esc", "q"])
 
@@ -92,7 +92,7 @@ def choose_deck():
 
         if choice == "c":
             print(f"\nType a deck name from the {DATA_FOLDER} folder (.csv is appended for you),")
-            print("or a full path such as C:\\Decks\\mine.csv     (ESC = cancel)")
+            print(color_keys("or a full path such as C:\\Decks\\mine.csv     (ESC = cancel)"))
 
             name = input_or_esc("Deckname or Full Pathname: ")
             if name is None or not name.strip():
@@ -133,7 +133,7 @@ def main():
             print("2. Random quiz mode")
             print("3. Look up a specific acronym")
             print()
-            print("ESC = Choose a different deck     Q = quit")
+            print(color_keys("ESC = Choose a different deck     Q = quit"))
 
             choice = read_key(("1", "2", "3", "esc", "q"))
 

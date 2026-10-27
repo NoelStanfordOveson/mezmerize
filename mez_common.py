@@ -1,6 +1,5 @@
 """
 mez_common: the shared toolbox for the mezmerize programs.
-
 This is the foundation floor. It may import Python's own modules,
 but never any mezmerize file, so nothing can import in a circle.
 """
@@ -97,8 +96,8 @@ def print_mode_banner(title, width=CARD_WIDTH):
 
 # 1d. Clear the hint line
 def overwrite_line(text):
-    """Print text, stay on the line, then erase it after the keypress."""
-    print(text, end="", flush=True)
+    """Print text (keys in green), stay on the line, then erase it after the keypress."""
+    print(color_keys(text), end="", flush=True)
     action = read_enter_or_esc()
     print("\r" + " " * len(text) + "\r", end="", flush=True)
     return action
@@ -176,9 +175,10 @@ def input_or_esc(prompt, required=False, width=None):
     """
     Like input(), but ESC cancels.
     If width is given, long text wraps by whole words, lined up under the prompt.
+    Keys in the prompt (ESC = cancel) print green; the prompt is measured in plain.
     Returns the typed text when ENTER is pressed, or None for ESC
     """
-    print(prompt, end="", flush=True)
+    print(color_keys(prompt), end="", flush=True)
     text = ""
     line_start = 0                                                  # where the current screen line starts in text
     indent = " " * len(prompt)                                      # wrapped lines line up under the typing

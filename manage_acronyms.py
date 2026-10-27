@@ -9,7 +9,7 @@ from ctypes import wintypes
 
 from mez_common import (BUILTIN_DECKS, clear_screen, print_mode_banner, print_wrapped,
                         CARD_WIDTH, overwrite_line, read_key, input_or_esc, say_goodbye,
-                        load_all_builtin, COLUMN_GAP, ORANGE, CYAN, colored, color_words)
+                        load_all_builtin, COLUMN_GAP, ORANGE, CYAN, colored, color_keys, color_words)
 from mez_cards import (MASTER_FILE, BACKUP_FILE, FIELDS, read_rows, write_sorted, deck_file_for,
                        version_of, find_row, decks_with_acronym, decks_with_version, update_master)
 
@@ -122,7 +122,7 @@ def choose_target_deck():
     for number, (label, filename) in enumerate(BUILTIN_DECKS, start=1):
         print(f"{number}. {label}")
     print()
-    print("ESC = back    Q = quit")
+    print(color_keys("ESC = back    Q = quit"))
 
     choice = read_key(deck_keys + ["esc", "q"])
     if choice == "esc":
@@ -141,7 +141,7 @@ def ask_for_entry(label, acronym=None):
     If an acronym is passed in (from a lookup), show it instead of asking.
     Returns a dict, or None if ESC was pressed at any prompt.
     """
-    print("\nEnter the new acronym.     (ESC = back to the deck list)\n")
+    print(color_keys("\nEnter the new acronym.     (ESC = back to the deck list)\n"))
 
     print_decks([label], holds=False)                                   # not in this deck yet
     if acronym is None:
@@ -174,14 +174,14 @@ def ok_to_add(entry, label, deck_rows, master_rows):
     def add_anyway():
         """Ask Y / N and leave the chosen answer on the line. Return True for Y."""
         prompt = "Add anyway?  Y = yes     N or ESC = no"
-        print(prompt, end="", flush=True)
+        print(color_keys(prompt), end="", flush=True)
         answer = read_key(("y", "n", "esc"))
 
         if answer == "y":
             chosen = "Add anyway?  Y = yes"
         else:
             chosen = "Add anyway?              N or ESC = no"
-        print("\r" + " " * len(prompt) + "\r" + chosen)
+        print("\r" + " " * len(prompt) + "\r" + color_keys(chosen))
 
         if answer != 'y':
             print(f"\n{RESULT_LEAD}Nothing was added.")
@@ -214,7 +214,7 @@ def ok_to_add(entry, label, deck_rows, master_rows):
                 right = others[start +1] if start + 1 < len(others) else ""
                 print(f"  {colored(f'{left:<{width}}', ORANGE)}{colored(right, ORANGE)}")
         print()
-        print("Tip: use C = copy from a lookup next time, if applicable.")
+        print(color_keys("Tip: use C = copy from a lookup next time, if applicable."))
         print()
         return add_anyway()
 
@@ -315,7 +315,7 @@ def add_to_deck(label, filename):
 def add_another():
     """Return 'enter' (add another), 'esc' (deck list), or 'q' (quit)."""
     print()
-    print("ENTER = add another    ESC = deck list    Q = quit", end="", flush=True)
+    print(color_keys("ENTER = add another    ESC = deck list    Q = quit"), end="", flush=True)
     return read_key(("enter", "esc", "q"))
 
 # 3g. Add the acronym from a lookup
@@ -347,8 +347,8 @@ def add_from_lookup(acronym):
             added.append(entry)
 
         print()
-        print("A = add another")
-        print("ENTER = back to lookup    ESC = menu    Q = quit", end="", flush=True)
+        print(color_keys("A = add another"))
+        print(color_keys("ENTER = back to lookup    ESC = menu    Q = quit"), end="", flush=True)
 
         choice = read_key(("a", "enter", "esc", "q"))
         if choice == "a":
@@ -446,7 +446,7 @@ def lookup_acronym(flashcards, deck_name):
     def next_step():
         """After an edit, delete, copy, or move: None to stay, 'back' for ESC, 'quit' for Q."""
         print()
-        print("ENTER = back to lookup    ESC = menu    Q = quit", end="", flush=True)
+        print(color_keys("ENTER = back to lookup    ESC = menu    Q = quit"), end="", flush=True)
         choice = read_key(("enter", "esc", "q"))
         if choice == "esc":
             return "back"
@@ -511,8 +511,8 @@ def lookup_acronym(flashcards, deck_name):
             actions += ["E = edit", "D = delete", "C = copy", "M = move"]
 
         print()
-        print("    ".join(actions))
-        print("ENTER = look up another    ESC = menu    Q = quit", end="", flush=True)
+        print(color_keys("    ".join(actions)))
+        print(color_keys("ENTER = look up another    ESC = menu    Q = quit"), end="", flush=True)
 
         action = read_key(keys)
         if action == "a":
@@ -655,7 +655,7 @@ def pick_from_matches(editable, verb="Edit", allow_all=True):
     lead = f"{verb} which?  "
     labels = [card["deck"] for number, card in editable]
     print("\n\n" + color_words(wrap_choices(lead, choices), labels, ORANGE))
-    print(wrap_choices(" " * len(lead), extras), end="", flush=True)
+    print(color_keys(wrap_choices(" " * len(lead), extras)), end="", flush=True)
 
     choice = read_key(keys + ["esc"])
     if choice == "esc":
@@ -672,8 +672,8 @@ def ask_this_or_all(card, decks, verb="Edit"):
     print(f"\n\nYou chose {verb}.")
     print()
     lead = "     "
-    print(wrap_choices(lead, ["D = in this deck only", f"A = in all decks ({len(decks)} identical)"]))
-    print(wrap_choices(lead, ["ESC = cancel"]), end="", flush=True)
+    print(color_keys(wrap_choices(lead, ["D = in this deck only", f"A = in all decks ({len(decks)} identical)"])))
+    print(color_keys(wrap_choices(lead, ["ESC = cancel"])), end="", flush=True)
 
     choice = read_key(("d", "a", "esc"))
     if choice == "esc":
@@ -870,8 +870,8 @@ def confirm_removal_in_master(card):
     print_wrapped("", f"{card['acronym']} is not in any other deck. Remove it from "
                   f"{MASTER_FILE} too, or keep it there as backlog?")
     print()
-    print(wrap_choices("", ["R = remove from master", "K = keep in master (backlog)",
-                            "ESC = cancel"]), end="", flush=True)
+    print(color_keys(wrap_choices("", ["R = remove from master", "K = keep in master (backlog)",
+                                       "ESC = cancel"])), end="", flush=True)
 
     choice = read_key(("r", "k", "esc"))
     if choice == "esc":
@@ -975,11 +975,11 @@ def choose_destination(card, verb, doing):
         print()
         print_wrapped("", f"{card['acronym']} is already in every deck. There's nowhere to {verb.lower()} it.")
         print()
-        print("ENTER or ESC = back    Q = quit", end="", flush=True)
+        print(color_keys("ENTER or ESC = back    Q = quit"), end="", flush=True)
         return "quit" if read_key(("enter", "esc", "q")) == "q" else "back"
 
     print()
-    print("ESC = back    Q = quit")
+    print(color_keys("ESC = back    Q = quit"))
     choice = read_key(list(choices) + ["esc", "q"])
     if choice == "esc":
         return "back"
@@ -1150,7 +1150,7 @@ def main():
         print("1. Look up or edit/delete an acronym (all decks)")
         print("2. Add acronyms to a deck")
         print()
-        print("ESC = back    Q = quit")
+        print(color_keys("ESC = back    Q = quit"))
 
         choice = read_key(("1", "2", "esc", "q"))
         if choice == "esc":

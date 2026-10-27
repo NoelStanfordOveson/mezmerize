@@ -3,7 +3,7 @@ import flashcards
 import manage_acronyms
 import manage_decks
 
-from mez_common import clear_screen, print_mode_banner, print_wrapped, read_key, say_goodbye
+from mez_common import clear_screen, print_mode_banner, print_wrapped, read_key, say_goodbye, color_keys
 
 
 # Menu label and the function that runs that program
@@ -25,7 +25,7 @@ def choose_program():
     for number, (label, run) in enumerate(PROGRAMS, start=1):
         print_wrapped(f"{number}. ", label)
     print()
-    print("ESC or Q = quit")
+    print(color_keys("ESC or Q = quit"))
 
     choice = read_key(program_keys + ["esc", "q"])                          # waits for 1-3, ESC or Q
     if choice in ("esc", "q"):
