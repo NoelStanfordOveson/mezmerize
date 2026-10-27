@@ -17,9 +17,10 @@ ORANGE = "\x1b[38;5;208m"                                           # a deck tha
 CYAN = "\x1b[96m"                                                   # things reported: RESULT:, NO CHANGES
 GREEN = "\x1b[92m"                                                  # a key that can be pressed
 RESET = "\x1b[0m"                                                   # back to the normal color
-NUMBER_COLOR = ""                                                   # menu numbers: "" = plain; GREEN to try
+CHOICE_COLOR = GREEN                                                # menu numbers: "" = plain; GREEN to try
 # a key (ENTER, ESC, or one capital letter), then any "or <key>", then " = "
 KEY_PATTERN = re.compile(r"\b(?:ENTER|ESC|[A-Z])(?=(?: or (?:ENTER|ESC|[A-Z]))* = )")
+NUMBER_PATTERN = re.compile(r"\b[0-9]+(?= = )")                     # a number key: 1 = Cybersecurity
 os.system("")                                                       # switch on color codes in the Windows console
 
 BUILTIN_DECKS = [
@@ -55,6 +56,7 @@ BUILTIN_DECKS = [
 # 4a. colored
 # 4b. color_keys
 # 4c. color_words
+# 4d. menu_key
 
 
 # 1. Helper functions
@@ -277,8 +279,14 @@ def colored(text, color):
 
 # 4b. Color just the keys in a key line (ENTER, ESC, Q, A, ...), never the words after =
 def color_keys(text):
-    """Return text with every key before an = (or an 'or' chain of keys) in GREEN."""
-    return KEY_PATTERN.sub(f"{GREEN}\\g<0>{RESET}", text)
+    """
+    Return text with every key before an = (or an 'or' chain of keys) in GREEN,
+    and every number before an = (1 = Cybersecurity) in CHOICE_COLOR.
+    """
+    text = KEY_PATTERN.sub(f"{GREEN}\\g<0>{RESET}", text)
+    if CHOICE_COLOR:
+        text = NUMBER_PATTERN.sub(f"{CHOICE_COLOR}\\g<0>{RESET}", text)
+    return text
 
 # 4c. Color certain words (deck labels) inside text that's already wrapped
 def color_words(text, words, color):
@@ -286,3 +294,8 @@ def color_words(text, words, color):
     for word in words:
         text = text.replace(word, colored(word, color))
     return text
+
+# 4d. A menu key with its period ("1.", "A.") in CHOICE_COLOR
+def menu_key(key):
+    """Return key followed by a period. colored CHOICE_COLOR ("" = plain)."""
+    return colored(f"{key}.", CHOICE_COLOR)

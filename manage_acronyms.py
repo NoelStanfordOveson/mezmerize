@@ -1,6 +1,5 @@
 """
 manage_acronyms: look up, add, edit, and delete acronyms.
-
 A program floor: the screens, prompts, and keys for managing cards. The card
 logic itself (reading, comparing, writing) lives in mez_cards, one floor down.
 """
@@ -9,7 +8,8 @@ from ctypes import wintypes
 
 from mez_common import (BUILTIN_DECKS, clear_screen, print_mode_banner, print_wrapped,
                         CARD_WIDTH, overwrite_line, read_key, input_or_esc, say_goodbye,
-                        load_all_builtin, COLUMN_GAP, ORANGE, CYAN, colored, color_keys, color_words)
+                        load_all_builtin, COLUMN_GAP, ORANGE, CYAN, colored, color_keys,
+                        color_words, menu_key)
 from mez_cards import (MASTER_FILE, BACKUP_FILE, FIELDS, read_rows, write_sorted, deck_file_for,
                        version_of, find_row, decks_with_acronym, decks_with_version, update_master)
 
@@ -120,7 +120,7 @@ def choose_target_deck():
     print_mode_banner("ADD AN ACRONYM - Deck List")
     print("\nWhich deck gets the new acronym?\n")
     for number, (label, filename) in enumerate(BUILTIN_DECKS, start=1):
-        print(f"{number}. {label}")
+        print(f"{menu_key(number)} {label}")
     print()
     print(color_keys("ESC = back    Q = quit"))
 
@@ -654,7 +654,7 @@ def pick_from_matches(editable, verb="Edit", allow_all=True):
 
     lead = f"{verb} which?  "
     labels = [card["deck"] for number, card in editable]
-    print("\n\n" + color_words(wrap_choices(lead, choices), labels, ORANGE))
+    print("\n\n" + color_keys(color_words(wrap_choices(lead, choices), labels, ORANGE)))
     print(color_keys(wrap_choices(" " * len(lead), extras)), end="", flush=True)
 
     choice = read_key(keys + ["esc"])
@@ -969,7 +969,7 @@ def choose_destination(card, verb, doing):
             number = str(len(choices) + 1)
             choices[number] = (label, filename)
             note = colored(f"(has a different {card['acronym']})", CYAN) if label in same_acronym else ""
-            print(f"{number}. {label:<23}{note}".rstrip())
+            print(f"{menu_key(number)} {label:<23}{note}".rstrip())
 
     if not choices:
         print()
@@ -1147,8 +1147,8 @@ def main():
         clear_screen()
         print_mode_banner("MANAGE ACRONYMS")
         print("\nWhat would you like to do?\n")
-        print("1. Look up or edit/delete an acronym (all decks)")
-        print("2. Add acronyms to a deck")
+        print(f"{menu_key(1)} Look up or edit/delete an acronym (all decks)")
+        print(f"{menu_key(2)} Add acronyms to a deck")
         print()
         print(color_keys("ESC = back    Q = quit"))
 

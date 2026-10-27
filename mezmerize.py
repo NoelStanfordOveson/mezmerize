@@ -3,7 +3,8 @@ import flashcards
 import manage_acronyms
 import manage_decks
 
-from mez_common import clear_screen, print_mode_banner, print_wrapped, read_key, say_goodbye, color_keys
+from mez_common import (clear_screen, print_mode_banner, print_wrapped, read_key, say_goodbye,
+                        color_keys, CHOICE_COLOR)
 
 
 # Menu label and the function that runs that program
@@ -23,7 +24,7 @@ def choose_program():
     print("\nWhat would you like to do?\n")
 
     for number, (label, run) in enumerate(PROGRAMS, start=1):
-        print_wrapped(f"{number}. ", label)
+        print_wrapped(f"{number}. ", label, lead_color=CHOICE_COLOR)
     print()
     print(color_keys("ESC or Q = quit"))
 

@@ -3,7 +3,8 @@ import random
 
 from mez_common import (BUILTIN_DECKS, CARD_WIDTH, DATA_FOLDER, clear_screen, csv_path,
                         input_or_esc, load_all_builtin, load_flashcards, overwrite_line,
-                        print_mode_banner, print_wrapped, read_key, say_goodbye, ORANGE, color_keys)
+                        print_mode_banner, print_wrapped, read_key, say_goodbye, ORANGE,
+                        color_keys, menu_key)
 from manage_acronyms import lookup_acronym
 
 # 1. show_card
@@ -57,10 +58,10 @@ def choose_deck():
 
         for number, (label, filename) in enumerate(BUILTIN_DECKS, start=1):
             exists = " " if os.path.exists(csv_path(filename)) else " (file not found yet)"
-            print(f"{number}. {label}{exists}")
+            print(f"{menu_key(number)} {label}{exists}")
 
-        print("A. All Built-in Decks")
-        print("C. My own CSV file")
+        print(f"{menu_key('A')} All Built-in Decks")
+        print(f"{menu_key('C')} My own CSV file")
         print()
         print(color_keys("ESC = back     Q = quit"))
 
@@ -129,9 +130,9 @@ def main():
             print(f"\nDeck: {deck_name}")
             print(f"Loaded {len(flashcards)} flashcards! 🎉\n")
             print("What would you like to do?")
-            print("1. Review all cards in order")
-            print("2. Random quiz mode")
-            print("3. Look up a specific acronym")
+            print(f"{menu_key(1)} Review all cards in order")
+            print(f"{menu_key(2)} Random quiz mode")
+            print(f"{menu_key(3)} Look up a specific acronym")
             print()
             print(color_keys("ESC = Choose a different deck     Q = quit"))
 
