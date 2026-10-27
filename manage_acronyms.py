@@ -9,9 +9,13 @@ from ctypes import wintypes
 
 from mez_common import (BUILTIN_DECKS, clear_screen, print_mode_banner, print_wrapped,
                         CARD_WIDTH, overwrite_line, read_key, input_or_esc, say_goodbye,
-                        load_all_builtin, COLUMN_GAP, ORANGE, colored, color_words)
+                        load_all_builtin, COLUMN_GAP, ORANGE, CYAN, colored, color_words)
 from mez_cards import (MASTER_FILE, BACKUP_FILE, FIELDS, read_rows, write_sorted, deck_file_for,
                        version_of, find_row, decks_with_acronym, decks_with_version, update_master)
+
+RESULT_LEAD = colored("RESULT:  ", CYAN)                                # every RESULT line starts with this
+NO_CHANGES = colored("NO CHANGES", CYAN)                                # as in "NO CHANGES were made."
+
 
 # 1. Pre-filled typing (Windows console)
 # 1a. Windows keystroke records (classes)
@@ -180,8 +184,8 @@ def ok_to_add(entry, label, deck_rows, master_rows):
         print("\r" + " " * len(prompt) + "\r" + chosen)
 
         if answer != 'y':
-            print("\nRESULT:  Nothing was added.")
-            print("         NO CHANGES were made.")
+            print(f"\n{RESULT_LEAD}Nothing was added.")
+            print(f"         {NO_CHANGES} were made.")
             return False
         return True
 
@@ -191,8 +195,8 @@ def ok_to_add(entry, label, deck_rows, master_rows):
         print()
         print_wrapped("", f"{acronym} already in {whole_label}, exactly as entered.",
                       words=[whole_label], words_color=ORANGE)
-        print("\nRESULT:  Nothing was added.")
-        print("         NO CHANGES were made.")
+        print(f"\n{RESULT_LEAD}Nothing was added.")
+        print(f"         {NO_CHANGES} were made.")
         return False
 
     others = [other for other, _ in decks_with_version(entry)]          # exact version in other decks
@@ -283,7 +287,8 @@ def save_entry(entry, label, filename):
         write_sorted(MASTER_FILE, master_rows)
 
     print()
-    print_wrapped("RESULT:  ", f"Saved. {entry['acronym']} was added to and re-sorted in:")
+    print_wrapped("RESULT:  ", f"Saved. {entry['acronym']} was added to and re-sorted in:",
+                  lead_color=CYAN)
     list_labels([label])
     return True
 
@@ -428,8 +433,8 @@ def ask_or_cancel(draw, question, keys, verb, words=()):
     draw("confirmed" if answer == "enter" else "cancelled")
     if answer == "enter":
         return True
-    print(f"\nRESULT:  Nothing was {verb}.")
-    print("         NO CHANGES were made.")
+    print(f"\n{RESULT_LEAD}Nothing was {verb}.")
+    print(f"         {NO_CHANGES} were made.")
     return False
 
 # 4d. Look up a flashcard by acronym
@@ -757,8 +762,9 @@ def edit_card(card, decks):
         rows = read_rows(filename)
         position = find_row(rows, card)
         if position is None:                                            # file changed since lookup
-            print(f"\nRESULT:  Can't edit. {card['acronym']} is no longer in {label}.")
-            print("         NO CHANGES were made. To find the mismatch, use")
+            cant = colored("Can't edit.", CYAN)
+            print(f"\n{RESULT_LEAD}{cant} {card['acronym']} is no longer in {label}.")
+            print(f"         {NO_CHANGES} were made. To find the mismatch, use")
             print("         Manage decks and deck health on the main menu.")
             return None
         loaded.append((filename, rows, position))
@@ -766,11 +772,11 @@ def edit_card(card, decks):
     labels = [label for label, filename in decks]
     new_entry = ask_for_edits(card, labels)
     if new_entry is None:
-        print("\nRESULT:  Nothing was saved.")
-        print("         NO CHANGES were made.")
+        print(f"\n{RESULT_LEAD}Nothing was saved.")
+        print(f"         {NO_CHANGES} were made.")
         return None
     if all(new_entry[field] == card[field] for field in FIELDS):
-        print("\nRESULT:  No changes made. Nothing was saved.")
+        print(f"\n{RESULT_LEAD}No changes made. Nothing was saved.")
         return None
 
     filenames = [filename for label, filename in decks]
@@ -783,7 +789,8 @@ def edit_card(card, decks):
     update_master(card, new_entry)
 
     print()
-    print_wrapped("RESULT:  ", f"Saved. {new_entry['acronym']} was edited and re-sorted in:")
+    print_wrapped("RESULT:  ", f"Saved. {new_entry['acronym']} was edited and re-sorted in:",
+                  lead_color=CYAN)
     list_labels(labels)
     return new_entry
 
@@ -854,8 +861,8 @@ def confirm_removal_in_master(card):
 
     def cancelled():
         draw("cancelled")
-        print("\nRESULT:  Nothing was deleted.")
-        print("         NO CHANGES were made.")
+        print(f"\n{RESULT_LEAD}Nothing was deleted.")
+        print(f"         {NO_CHANGES} were made.")
         return None
 
     draw("ask")
@@ -892,8 +899,9 @@ def delete_card(card, decks):
         rows = read_rows(filename)
         position = find_row(rows, card)
         if position is None:                                            # file changed since lookup
-            print(f"\nRESULT:  Can't delete. {card['acronym']} is no longer in {label}.")
-            print("         NO CHANGES were made. To find the mismatch, use")
+            cant = colored("Can't delete.", CYAN)
+            print(f"\n{RESULT_LEAD}{cant} {card['acronym']} is no longer in {label}.")
+            print(f"         {NO_CHANGES} were made. To find the mismatch, use")
             print("         Manage decks and deck health on the main menu.")
             return False
         loaded.append((filename, rows, position))
@@ -921,7 +929,8 @@ def delete_card(card, decks):
         write_sorted(MASTER_FILE, master_rows)
 
     print()
-    print_wrapped("RESULT:  ", f"Deleted. {card['acronym']} was removed from:")
+    print_wrapped("RESULT:  ", f"Deleted. {card['acronym']} was removed from:",
+                  lead_color=CYAN)
     list_labels(labels, holds=False)
     if remaining:
         print("         It's still in:")
@@ -953,13 +962,13 @@ def choose_destination(card, verb, doing):
     for label, filename in BUILTIN_DECKS:
         held = colored(f"{label:<23}", ORANGE)                          # pad first, then color
         if label == card["deck"]:
-            print(f"   {held}({doing} from here)")
+            print(f"   {held}{colored(f'({doing} from here)', CYAN)}")
         elif label in same_card:
-            print(f"   {held}(already has it)")
+            print(f"   {held}{colored('(already has it)', CYAN)}")
         else:
             number = str(len(choices) + 1)
             choices[number] = (label, filename)
-            note = f"(has a different {card['acronym']})" if label in same_acronym else ""
+            note = colored(f"(has a different {card['acronym']})", CYAN) if label in same_acronym else ""
             print(f"{number}. {label:<23}{note}".rstrip())
 
     if not choices:
@@ -1041,7 +1050,8 @@ def copy_card(card):
         write_sorted(MASTER_FILE, master_rows)
 
     print()
-    print_wrapped("RESULT:  ", f"Copied. {card['acronym']} was added to and re-sorted in:")
+    print_wrapped("RESULT:  ", f"Copied. {card['acronym']} was added to and re-sorted in:",
+                  lead_color=CYAN)
     list_labels([label])
     return label
 
@@ -1102,8 +1112,9 @@ def move_card(card):
     source_rows = read_rows(source_file)
     position = find_row(source_rows, card)
     if position is None:                                                # file changed since lookup
-        print(f"\nRESULT:  Can't move. {card['acronym']} is no longer in {card['deck']}.")
-        print("         NO CHANGES were made. To find the mismatch, use")
+        cant = colored("Can't move.", CYAN)
+        print(f"\n{RESULT_LEAD}{cant} {card['acronym']} is no longer in {card['deck']}.")
+        print(f"         {NO_CHANGES} were made. To find the mismatch, use")
         print("         Manage decks and deck health on the main menu.")
         return None
 
@@ -1120,7 +1131,8 @@ def move_card(card):
     write_sorted(source_file, source_rows)
 
     print()
-    print_wrapped("RESULT:  ", f"Moved. {card['acronym']} was relocated from:")
+    print_wrapped("RESULT:  ", f"Moved. {card['acronym']} was relocated from:",
+                  lead_color=CYAN)
     list_labels([card["deck"]], holds=False)
     print("         to:")
     list_labels([label])
