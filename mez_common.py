@@ -14,7 +14,7 @@ DATA_FOLDER = "data"                                                # Folder con
 COLUMN_GAP = 12                                                     # Spaces between columns in two-column lists
 
 ORANGE = "\x1b[38;5;208m"                                           # a deck that holds this card
-CYAN = "\x1b[96m"                                                   # things reported: RESULT:, NO CHANGES
+BLUE = "\x1b[38;5;39m"                                              # things reported: RESULT:, NO CHANGES
 GREEN = "\x1b[92m"                                                  # a key that can be pressed
 RESET = "\x1b[0m"                                                   # back to the normal color
 CHOICE_COLOR = "\x1b[38;5;71m"                                      # menu choices: sage green; "" = plain

@@ -8,13 +8,13 @@ from ctypes import wintypes
 
 from mez_common import (BUILTIN_DECKS, clear_screen, print_mode_banner, print_wrapped,
                         CARD_WIDTH, overwrite_line, read_key, input_or_esc, say_goodbye,
-                        load_all_builtin, COLUMN_GAP, ORANGE, CYAN, colored, color_keys,
+                        load_all_builtin, COLUMN_GAP, ORANGE, BLUE, colored, color_keys,
                         color_words, menu_key)
 from mez_cards import (MASTER_FILE, BACKUP_FILE, FIELDS, read_rows, write_sorted, deck_file_for,
                        version_of, find_row, decks_with_acronym, decks_with_version, update_master)
 
-RESULT_LEAD = colored("RESULT:  ", CYAN)                                # every RESULT line starts with this
-NO_CHANGES = colored("NO CHANGES", CYAN)                                # as in "NO CHANGES were made."
+RESULT_LEAD = colored("RESULT:  ", BLUE)                                # every RESULT line starts with this
+NO_CHANGES = colored("NO CHANGES", BLUE)                                # as in "NO CHANGES were made."
 
 
 # 1. Pre-filled typing (Windows console)
@@ -288,7 +288,7 @@ def save_entry(entry, label, filename):
 
     print()
     print_wrapped("RESULT:  ", f"Saved. {entry['acronym']} was added to and re-sorted in:",
-                  lead_color=CYAN)
+                  lead_color=BLUE)
     list_labels([label])
     return True
 
@@ -762,7 +762,7 @@ def edit_card(card, decks):
         rows = read_rows(filename)
         position = find_row(rows, card)
         if position is None:                                            # file changed since lookup
-            cant = colored("Can't edit.", CYAN)
+            cant = colored("Can't edit.", BLUE)
             print(f"\n{RESULT_LEAD}{cant} {card['acronym']} is no longer in {label}.")
             print(f"         {NO_CHANGES} were made. To find the mismatch, use")
             print("         Manage decks and deck health on the main menu.")
@@ -790,7 +790,7 @@ def edit_card(card, decks):
 
     print()
     print_wrapped("RESULT:  ", f"Saved. {new_entry['acronym']} was edited and re-sorted in:",
-                  lead_color=CYAN)
+                  lead_color=BLUE)
     list_labels(labels)
     return new_entry
 
@@ -899,7 +899,7 @@ def delete_card(card, decks):
         rows = read_rows(filename)
         position = find_row(rows, card)
         if position is None:                                            # file changed since lookup
-            cant = colored("Can't delete.", CYAN)
+            cant = colored("Can't delete.", BLUE)
             print(f"\n{RESULT_LEAD}{cant} {card['acronym']} is no longer in {label}.")
             print(f"         {NO_CHANGES} were made. To find the mismatch, use")
             print("         Manage decks and deck health on the main menu.")
@@ -930,7 +930,7 @@ def delete_card(card, decks):
 
     print()
     print_wrapped("RESULT:  ", f"Deleted. {card['acronym']} was removed from:",
-                  lead_color=CYAN)
+                  lead_color=BLUE)
     list_labels(labels, holds=False)
     if remaining:
         print("         It's still in:")
@@ -962,13 +962,13 @@ def choose_destination(card, verb, doing):
     for label, filename in BUILTIN_DECKS:
         held = colored(f"{label:<23}", ORANGE)                          # pad first, then color
         if label == card["deck"]:
-            print(f"   {held}{colored(f'({doing} from here)', CYAN)}")
+            print(f"   {held}{colored(f'({doing} from here)', BLUE)}")
         elif label in same_card:
-            print(f"   {held}{colored('(already has it)', CYAN)}")
+            print(f"   {held}{colored('(already has it)', BLUE)}")
         else:
             number = str(len(choices) + 1)
             choices[number] = (label, filename)
-            note = colored(f"(has a different {card['acronym']})", CYAN) if label in same_acronym else ""
+            note = colored(f"(has a different {card['acronym']})", BLUE) if label in same_acronym else ""
             print(f"{menu_key(number)} {label:<23}{note}".rstrip())
 
     if not choices:
@@ -1051,7 +1051,7 @@ def copy_card(card):
 
     print()
     print_wrapped("RESULT:  ", f"Copied. {card['acronym']} was added to and re-sorted in:",
-                  lead_color=CYAN)
+                  lead_color=BLUE)
     list_labels([label])
     return label
 
@@ -1112,7 +1112,7 @@ def move_card(card):
     source_rows = read_rows(source_file)
     position = find_row(source_rows, card)
     if position is None:                                                # file changed since lookup
-        cant = colored("Can't move.", CYAN)
+        cant = colored("Can't move.", BLUE)
         print(f"\n{RESULT_LEAD}{cant} {card['acronym']} is no longer in {card['deck']}.")
         print(f"         {NO_CHANGES} were made. To find the mismatch, use")
         print("         Manage decks and deck health on the main menu.")
@@ -1132,7 +1132,7 @@ def move_card(card):
 
     print()
     print_wrapped("RESULT:  ", f"Moved. {card['acronym']} was relocated from:",
-                  lead_color=CYAN)
+                  lead_color=BLUE)
     list_labels([card["deck"]], holds=False)
     print("         to:")
     list_labels([label])
