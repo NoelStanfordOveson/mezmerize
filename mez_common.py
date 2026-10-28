@@ -17,7 +17,7 @@ ORANGE = "\x1b[38;5;208m"                                           # a deck tha
 CYAN = "\x1b[96m"                                                   # things reported: RESULT:, NO CHANGES
 GREEN = "\x1b[92m"                                                  # a key that can be pressed
 RESET = "\x1b[0m"                                                   # back to the normal color
-CHOICE_COLOR = GREEN                                                # menu numbers: "" = plain; GREEN to try
+CHOICE_COLOR = "\x1b[38;5;71m"                                      # menu choices: sage green; "" = plain
 # a key (ENTER, ESC, or one capital letter), then any "or <key>", then " = "
 KEY_PATTERN = re.compile(r"\b(?:ENTER|ESC|[A-Z])(?=(?: or (?:ENTER|ESC|[A-Z]))* = )")
 NUMBER_PATTERN = re.compile(r"\b[0-9]+(?= = )")                     # a number key: 1 = Cybersecurity

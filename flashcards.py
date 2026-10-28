@@ -22,14 +22,14 @@ def show_card(card, number=None, total=None):
         print("=" * CARD_WIDTH)
     print_wrapped("DECK:        ", card.get("deck", ""), lead_color=ORANGE, text_color=ORANGE)
     print(f"ACRONYM:     {card['acronym']}")
-    if overwrite_line("ENTER = reveal     ESC = menu") == "esc":
+    if overwrite_line("ENTER = reveal    ESC = menu") == "esc":
         return "esc"
 
     print_wrapped("FULL NAME:   ", card["full_name"])
     print_wrapped("DESCRIPTION: ", card["description"])
     print("=" * CARD_WIDTH)
 
-    return overwrite_line("ENTER = next card     ESC = menu")
+    return overwrite_line("ENTER = next card    ESC = menu")
 
 
 # 2. Turn what the user typed into a full path to a CSV file
@@ -61,9 +61,9 @@ def choose_deck():
             print(f"{menu_key(number)} {label}{exists}")
 
         print(f"{menu_key('A')} All Built-in Decks")
-        print(f"{menu_key('C')} My own CSV file")
+        print(f"{menu_key('C')} Load a custom CSV deck")
         print()
-        print(color_keys("ESC = back     Q = quit"))
+        print(color_keys("ESC = back    Q = quit"))
 
         choice = read_key(deck_keys + ["a", "c", "esc", "q"])
 
@@ -134,7 +134,7 @@ def main():
             print(f"{menu_key(2)} Random quiz mode")
             print(f"{menu_key(3)} Look up a specific acronym")
             print()
-            print(color_keys("ESC = Choose a different deck     Q = quit"))
+            print(color_keys("ESC = Choose a different deck    Q = quit"))
 
             choice = read_key(("1", "2", "3", "esc", "q"))
 

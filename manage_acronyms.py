@@ -1147,7 +1147,7 @@ def main():
         clear_screen()
         print_mode_banner("MANAGE ACRONYMS")
         print("\nWhat would you like to do?\n")
-        print(f"{menu_key(1)} Look up or edit/delete an acronym (all decks)")
+        print(f"{menu_key(1)} Look up and manage acronyms (all decks)")
         print(f"{menu_key(2)} Add acronyms to a deck")
         print()
         print(color_keys("ESC = back    Q = quit"))
