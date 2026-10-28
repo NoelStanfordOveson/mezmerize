@@ -19,8 +19,9 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
 
 ## Architecture (floors: each file imports only from floors below it)
 
-- `mez_common.py` (bottom): shared constants (CARD_WIDTH = 60, COLUMN_GAP, DATA_FOLDER, BUILTIN_DECKS)
-  and helpers used by more than one program (screen, keys, input, CSV paths, loading decks).
+- `mez_common.py` (bottom): shared constants (CARD_WIDTH = 60, COLUMN_GAP, DATA_FOLDER, BUILTIN_DECKS,
+  the colors) and helpers used by more than one program (screen, keys, input, CSV paths,
+  loading decks, color: colored, color_keys, color_words, menu_key).
 - `mez_cards.py` (middle): card logic, no screens. Reads and writes the CSVs (read_rows,
   write_sorted), identifies cards and finds them in decks (version_of, find_row,
   decks_with_version, decks_with_acronym), and keeps master.csv current (update_master).
@@ -90,8 +91,9 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
 
 - Nothing wider than CARD_WIDTH. Choice prompts wrap between choices (wrap_choices),
   never splitting a key from its name.
-- Key bars sit flush left. Navigation lines (lookup, after a result, Deck Lists) use 4
-  spaces between choices; confirm-screen key lines use 5 (`ENTER = save it     ESC = forget it`).
+- Key bars sit flush left. Navigation lines (lookup, after a result, Deck Lists, menus,
+  the study card) use 4 spaces between choices; confirm-screen key lines and `Add anyway?`
+  use 5 (`ENTER = save it     ESC = forget it`). manage_decks still uses 5 (later).
   Exception: the D / A scope prompt ("You chose Delete.") is indented 5 on purpose.
 - Deck labels in a wrapped list use non-breaking spaces ("\u00a0") so a name never
   splits across lines.
@@ -177,6 +179,31 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
 - Printed prompts don't say "sync"; code names can.
 - Use `...` in examples to stand for other text that's on the screen.
 
+## Colors
+
+- Three color families, each with one job. Constants in mez_common: ORANGE (palette 208),
+  CYAN, GREEN (bright, keys), CHOICE_COLOR (sage green, palette 71, menu choices). Change a
+  color in one line; `""` means plain (colored() leaves text alone).
+- Color is a highlight, never a whole line. Measure, wrap, and pad the plain text first;
+  color last. print_wrapped takes lead_color, text_color (commas stay plain), and
+  words= / words_color (color_words: labels inside wrapped text). overwrite_line and
+  input_or_esc color their keys themselves and measure the plain text.
+- **Orange = a deck that holds this card right now.** The `DECK:` / `DECKS:` lead is always
+  orange; deck names are orange only where the card lives. `holds=` on print_decks,
+  list_labels, show_full_card (default True) and show_caution (default False).
+  While a question is up, cards show where the card is now; after ENTER the redraw shows
+  the new truth (deleted deck plain, Add/Copy/Move targets orange, Move's PREVIOUS card
+  plain); after ESC nothing changes. RESULT lists: Delete's `removed from:` and Move's
+  `from:` plain, the rest orange. Names in sentences and questions are colored with
+  `words=` (the source deck, never the target). Lookup `Found in:` / `Also in:` orange.
+- **Cyan = things reported:** RESULT_LEAD (every `RESULT:`), NO_CHANGES, `Can't edit` /
+  `Can't delete` / `Can't move`, and the Copy/Move Deck List notes.
+- **Green = a key to press:** color_keys() colors just the key (ENTER, ESC, Q, A, E, ...),
+  never `or` or the words after `=`. Menu choices (`1.`, `A.`, and `1 = Cybersecurity`)
+  use CHOICE_COLOR through menu_key() and NUMBER_PATTERN.
+- manage_decks has no color yet (it comes with its print routines). The printer
+  (later) gets plain text.
+
 ## How to work with me
 
 - I'm learning Python and type every code change myself. Don't edit code files directly.
@@ -203,8 +230,12 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
   now, After is what should be there), or **Delete** (lines removed with nothing in
   their place). For a change, say explicitly which lines to delete, by line number.
   Show whole units in Before/After (a whole docstring, not part of one).
-- When several spots in a file change, list them bottom-up so the line numbers above
-  stay right while I type.
+- When several spots in a file change, give them highest line numbers first, so the
+  numbers above stay right while I type (say "highest line numbers first", not
+  "bottom-up"). Inside one code box, list lines in file order. Give new import lines
+  first (they don't move other lines, and Pylance stops flagging names).
+- Name the file at the top of each part. Before and After go in separate code boxes,
+  with nothing (markers, notes) to the right of the code: long lines scroll off.
 - After I type a change, check the file: compile it, read it, and run it on a scratch
   copy of the data before moving on.
 - Test plans: a two-column table, Step | Expected result.
