@@ -91,6 +91,8 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
 
 - Nothing wider than CARD_WIDTH. Choice prompts wrap between choices (wrap_choices),
   never splitting a key from its name.
+- The last key line before a keypress prints with `end="", flush=True`, so the cursor
+  waits at the end of that line.
 - Key bars sit flush left. Navigation lines (lookup, after a result, Deck Lists, menus,
   the study card) use 4 spaces between choices; confirm-screen key lines and `Add anyway?`
   use 5 (`ENTER = save it     ESC = forget it`). manage_decks still uses 5 (later).
@@ -182,8 +184,10 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
 ## Colors
 
 - Three color families, each with one job. Constants in mez_common: ORANGE (palette 208),
-  CYAN, GREEN (bright, keys), CHOICE_COLOR (sage green, palette 71, menu choices). Change a
-  color in one line; `""` means plain (colored() leaves text alone).
+  BLUE (palette 39, reports), GREEN (bright, keys), CHOICE_COLOR (sage green, palette 71,
+  menu choices). Change a color in one line; `""` means plain (colored() leaves text alone).
+  Palette colors are written `\x1b[38;5;Nm` (N = 0-255); GREEN still uses the old short
+  code `\x1b[92m`. A bare short number is not a palette number (`\x1b[39m` = default color).
 - Color is a highlight, never a whole line. Measure, wrap, and pad the plain text first;
   color last. print_wrapped takes lead_color, text_color (commas stay plain), and
   words= / words_color (color_words: labels inside wrapped text). overwrite_line and
@@ -196,8 +200,9 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
   plain); after ESC nothing changes. RESULT lists: Delete's `removed from:` and Move's
   `from:` plain, the rest orange. Names in sentences and questions are colored with
   `words=` (the source deck, never the target). Lookup `Found in:` / `Also in:` orange.
-- **Cyan = things reported:** RESULT_LEAD (every `RESULT:`), NO_CHANGES, `Can't edit` /
-  `Can't delete` / `Can't move`, and the Copy/Move Deck List notes.
+- **Blue = things reported** (cyan looked too close to green): RESULT_LEAD (every
+  `RESULT:`), NO_CHANGES, `Can't edit` / `Can't delete` / `Can't move`, and the Copy/Move
+  Deck List notes.
 - **Green = a key to press:** color_keys() colors just the key (ENTER, ESC, Q, A, E, ...),
   never `or` or the words after `=`. Menu choices (`1.`, `A.`, and `1 = Cybersecurity`)
   use CHOICE_COLOR through menu_key() and NUMBER_PATTERN.
