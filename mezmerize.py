@@ -26,7 +26,7 @@ def choose_program():
     for number, (label, run) in enumerate(PROGRAMS, start=1):
         print_wrapped(f"{number}. ", label, lead_color=CHOICE_COLOR)
     print()
-    print(color_keys("ESC or Q = quit"))
+    print(color_keys("ESC or Q = quit"), end="", flush=True)
 
     choice = read_key(program_keys + ["esc", "q"])                          # waits for 1-3, ESC or Q
     if choice in ("esc", "q"):

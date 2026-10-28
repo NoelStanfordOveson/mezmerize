@@ -122,7 +122,7 @@ def choose_target_deck():
     for number, (label, filename) in enumerate(BUILTIN_DECKS, start=1):
         print(f"{menu_key(number)} {label}")
     print()
-    print(color_keys("ESC = back    Q = quit"))
+    print(color_keys("ESC = back    Q = quit"), end="", flush=True)
 
     choice = read_key(deck_keys + ["esc", "q"])
     if choice == "esc":
@@ -979,7 +979,7 @@ def choose_destination(card, verb, doing):
         return "quit" if read_key(("enter", "esc", "q")) == "q" else "back"
 
     print()
-    print(color_keys("ESC = back    Q = quit"))
+    print(color_keys("ESC = back    Q = quit"), end="", flush=True)
     choice = read_key(list(choices) + ["esc", "q"])
     if choice == "esc":
         return "back"
@@ -1150,7 +1150,7 @@ def main():
         print(f"{menu_key(1)} Look up and manage acronyms (all decks)")
         print(f"{menu_key(2)} Add acronyms to a deck")
         print()
-        print(color_keys("ESC = back    Q = quit"))
+        print(color_keys("ESC = back    Q = quit"), end="", flush=True)
 
         choice = read_key(("1", "2", "esc", "q"))
         if choice == "esc":

@@ -63,7 +63,7 @@ def choose_deck():
         print(f"{menu_key('A')} All Built-in Decks")
         print(f"{menu_key('C')} Load a custom CSV deck")
         print()
-        print(color_keys("ESC = back    Q = quit"))
+        print(color_keys("ESC = back    Q = quit"), end="", flush=True)
 
         choice = read_key(deck_keys + ["a", "c", "esc", "q"])
 
@@ -134,7 +134,7 @@ def main():
             print(f"{menu_key(2)} Random quiz mode")
             print(f"{menu_key(3)} Look up a specific acronym")
             print()
-            print(color_keys("ESC = Choose a different deck    Q = quit"))
+            print(color_keys("ESC = Choose a different deck    Q = quit"), end="", flush=True)
 
             choice = read_key(("1", "2", "3", "esc", "q"))
 
