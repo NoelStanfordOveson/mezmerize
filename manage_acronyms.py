@@ -853,8 +853,14 @@ def confirm_removal_in_master(card):
             heading = "KEPT IN:"
         else:
             heading = "DELETE FROM:"
+
         clear_screen()
         print_mode_banner("DELETE AN ACRONYM - Master")
+        if state == "ask":                                              # the hint disappears once the question is answered
+            print_wrapped("", f"{card['acronym']} is in no other deck. The master list keeps "
+                          "every card in use, plus a backlog of cards not in any deck. "
+                          f"Keep {card['acronym']} there as backlog, or remove it\u2014a removal "
+                          "can't be undone. Nothing is deleted until this is answered.")
         print()
         show_caution([(heading, [MASTER_FILE])], entry=card,
                      title="PENDING FINAL DELETE", caution=state == "ask")
@@ -867,11 +873,9 @@ def confirm_removal_in_master(card):
 
     draw("ask")
     print()
-    print_wrapped("", f"{card['acronym']} is not in any other deck. Remove it from "
-                  f"{MASTER_FILE} too, or keep it there as backlog?")
+    print("Remove this card from the master list now?")
     print()
-    print(color_keys(wrap_choices("", ["R = remove from master", "K = keep in master (backlog)",
-                                       "ESC = cancel"])), end="", flush=True)
+    print(color_keys("R = remove it     K = keep it (backlog)     ESC = cancel"), end="", flush=True)
 
     choice = read_key(("r", "k", "esc"))
     if choice == "esc":
