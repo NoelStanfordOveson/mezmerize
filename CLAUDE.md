@@ -166,12 +166,19 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
   deck labels one per line at column 11, 2 in from the RESULT text (list_labels):
   `RESULT:  Saved. PII was edited and re-sorted in:`. Follow-up sentences sit at
   column 9, under the first word: Delete's `It's still in:` (with labels), `It was also
-  erased from master.csv` / `(copied first to master.bak).`, or `It stays in master.csv
-  as backlog.`; Move's `to:` (with the label) and `Both decks were re-sorted.`
+  erased from the master list` / `(copied first to master.bak).`, or `It stays in the
+  master list as backlog.`; Move's `to:` (with the label) and `Both decks were re-sorted.`
 - Each verb gets its own preposition: `added to and re-sorted in:`, `relocated from:`
   ... `to:`.
-- The CAUTION card's file list shows filenames; RESULT shows deck labels. master.csv is
-  named only in Delete's follow-up lines.
+- The CAUTION card's file list shows filenames; RESULT shows deck labels.
+- Words on screen: decks are "decks"; master.csv is "the master list" in every prompt,
+  hint, and message, and `master.csv` only on a card's file line. No "CSV" in menus or
+  messages; only the custom-deck prompt mentions .csv, since it asks for the file.
+- The master screen (PENDING FINAL DELETE) opens with a hint under the banner while the
+  question is up: the acronym is in no other deck, what the master list is, keep or
+  remove, a removal can't be undone, nothing is deleted until it's answered. Question:
+  `Remove this card from the master list now?`; keys `R = remove it     K = keep it
+  (backlog)     ESC = cancel`. The redraw after R / K / ESC drops the hint.
 - Key lines are actions on top, navigation below. Lookup: `A = add` always (found or
   not), plus `E = edit    D = delete    C = copy    M = move` for found built-in cards,
   then `ENTER = look up another    ESC = menu    Q = quit`. After an edit, delete, copy,
