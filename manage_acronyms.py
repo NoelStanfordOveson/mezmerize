@@ -940,10 +940,10 @@ def delete_card(card, decks):
         print("         It's still in:")
         list_labels([label for label, filename in remaining])
     elif master_choice == "remove":
-        print(f"         It was also erased from {MASTER_FILE}")
+        print("         It was also erased from the master list")
         print(f"         (copied first to {BACKUP_FILE}).")
     elif master_position is not None:
-        print(f"         It stays in {MASTER_FILE} as backlog.")
+        print("         It stays in the master list as backlog.")
     return True
 
 

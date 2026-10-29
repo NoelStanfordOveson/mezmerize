@@ -61,7 +61,7 @@ def choose_deck():
             print(f"{menu_key(number)} {label}{exists}")
 
         print(f"{menu_key('A')} All Built-in Decks")
-        print(f"{menu_key('C')} Load a custom CSV deck")
+        print(f"{menu_key('C')} Load a custom deck")
         print()
         print(color_keys("ESC = back    Q = quit"), end="", flush=True)
 
