@@ -1,10 +1,12 @@
 acronym,full_name,description
 API,Application Programming Interface,A set of rules that allows different software applications to communicate with each other.
+CAPTCHA,Completely Automated Public Turing test to tell Computers and Humans Apart,
 CD,Continuous Delivery/Deployment,"A 2 part process that refers to the integration, testing, and delivery of code changes."
 CDN,Content Delivery Network,A geographically distributed network of proxy servers and corresponding data centers.
 CI,Continuous Integration,The practice of automatically and frequently integrating code changes into a shared source code repository.
 CI/CD,Continuous Integration and Continuous Delivery/Deployment,"A software development practice that automates application building, testing, and deployment to deliver changes quickly and reliably."
 CIA,"Confidentiality, Integrity, Availability","A foundational cybersecurity model—Confidentiality, Integrity, and Availability—used to guide security controls and assess information—system risks."
+CSS,Cascading Style Sheets,
 CSV,Comma-Separated Values,"A plain-text file format used to store tabular data, in which each line represents a row and individual values are separated by commas."
 DAST,Dynamic Application Security Testing,A black-box security testing tool that evaluates a running application externally to identify runtime vulnerabilities.
 FPU,Floating Point Unit,"Colloquially known as a math coprocessor, it is a part of a computer system specially designed to carry out operations on floating-point numbers."

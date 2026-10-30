@@ -32,6 +32,7 @@ BIA,Business Impact Analysis,"The process of identifying critical business funct
 CA,Central Authority,"The Zscaler cloud’s central control-plane component, which monitors service infrastructure, coordinates authentication, manages ZPA policies, and distributes configuration, software and database updates, and threat intelligence."
 CaaS,Container as a Service,"A cloud service model that provides a managed platform for deploying, running, and managing containers and orchestration systems such as Kubernetes."
 CAG,Context-Augmented Generation,
+CAPTCHA,Completely Automated Public Turing test to tell Computers and Humans Apart,
 CASB,Cloud Access Security Broker,A security solution that mediates access between users and cloud services to enforce organizational policies and protect cloud applications and data.
 CCE,Common Configuration Enumeration,"Provides unique identifiers for system configuration issues, facilitating fast and accurate correlation of configuration data across multiple information sources and tools."
 CCENT,Cisco Certified Entry Network Technician,"A Cisco certification validating the skills to install, operate, and troubleshoot small branch office networks. (Retired in 2020.)"
@@ -64,6 +65,7 @@ CSF,Cybersecurity Framework 2.0,"This NIST high-level, U.S. government cybersecu
 CSP,Content Security Policy,"A web security standard that lets websites restrict which resources browsers can load and execute and how pages can be embedded, helping prevent cross-site scripting (XSS), code injection, and clickjacking."
 CSPM,Cloud Security Posture Management,"Tools and processes that continuously monitor cloud environments for misconfigurations, compliance violations, and security risks, then guide or automate remediation."
 CSRC,Computer Security Resource Center,"Operated by NIST, it provides cybersecurity publications, frameworks, standards, guidelines, and project resources."
+CSS,Cascading Style Sheets,
 CSV,Comma-Separated Values,"A plain-text file format used to store tabular data, in which each line represents a row and individual values are separated by commas."
 CTEM,Continuous Threat Exposure Management,"A cybersecurity operating model that continuously identifies attacker-exploitable exposures, prioritizes those that matter most, and drives their remediation."
 CTF,Capture The Flag,"A hands-on cybersecurity competition where participants solve challenges in areas such as web security, digital forensics, network analysis, and vulnerability exploitation to uncover hidden “flags”—text strings that verify successful completion."
@@ -76,9 +78,11 @@ DCS,Distributed Control System,"An plant-wide industrial control system that dis
 DFARS,Defense Federal Acquisition Regulation Supplement,"A set of DoD acquisition regulations that supplements FAR with additional requirements for defense contractors, including cybersecurity requirements for protecting defense information."
 DFIR,Digital Forensics and Incident Response,"A cybersecurity discipline that investigates security incidents, preserves and analyzes digital evidence, determines root cause and scope, and coordinates containment, eradication, and recovery."
 DISA,Defense Information Systems Agency,
+DKIM,DomainKeys Identified Mail,
 DLP,Data Loss Prevention,Detects the unauthorized transmission or disclosure of sensitive data and prevents its occurrence.
 e-PHI,Electronic Protected Health Information,"PHI that is created, received, maintained, or transmitted electronically."
 E2EE,End-To-End Encryption,A security model in which information is encrypted on the sender’s device and can be decrypted only on the intended recipient’s device.
+EBD,Entity-Based Detection,
 EDR,Endpoint Detection and Response,"Cybersecurity technology that continuously monitors endpoint devices to detect, investigate, and respond to cyber threats in real time."
 EF,Exposure Factor,The subjective potential percentage of loss to a specific asset if a specific threat is realized.
 EIG,Enhanced Identity Governance,"The practice of improving visibility, control, and governance of identities, accounts, roles, and access privileges across an organization."
@@ -86,6 +90,7 @@ EIGRP,Enhanced Interior Gateway Routing Protocol,A Cisco-developed dynamic routi
 EPP,Endpoint Protection Platform,"A centrally managed security solution that prevents malware and other threats from compromising endpoint devices through antivirus, behavioral analysis, policy enforcement, and other preventive controls."
 ERM,Enterprise Risk Management,"An organization-wide discipline for identifying, assessing, managing, and monitoring risks that could affect strategic, operational, financial, legal, and technology-related objectives; it encompasses IRM, which addresses risks to information assets, including cybersecurity risks arising from threats, vulnerabilities, and attacks against those assets."
 ERP,Enterprise Resource Planning,"Business management software used by an organization to collect, store, manage, and interpret data from many business activities."
+ES,Splunk Enterprise Security,
 ESA,Enterprise Security Architecture,"A strategic framework that integrates an organization’s people, processes, technologies, policies, and security controls to protect business operations, systems, data, and infrastructure while supporting confidentiality, integrity, availability, and regulatory compliance."
 ESA,Email Security Appliance,"Cisco’s secure email gateway, formerly known as ESA, filters inbound and outbound email to block spam, phishing, and malware while providing encryption, DLP, and policy enforcement."
 ESC,Endpoint Security Client,"Software installed on endpoint devices that communicates with a central security platform to enforce policies, monitor activity, and help prevent, detect, and respond to threats."
@@ -115,6 +120,7 @@ ICS,Industrial Control Systems,"The hardware, software, and networks that monito
 IdP,Identity Provider,A service that stores and manages user identities.
 IDS,Intrusion Detection System,
 IGA,Identity Governance and Administration,
+IOC,Indicators Of Compromise,
 IoT,Internet of Things,"Physical objects embedded with sensors, processing ability, software, etc., which connect and exchange data with other devices over the Internet."
 IPS,Intrusion Prevention System,"A security technology that monitors network traffic to detect and automatically block malicious activity in real time by dropping packets, blocking IP addresses, or terminating suspicious connections."
 IRM,Information Risk Management,"A process for identifying, assessing, and managing risks to an organization’s information assets—including cybersecurity risks—to protect their confidentiality, integrity, and availability while supporting business objectives."
@@ -171,6 +177,7 @@ PLC,Programmable Logic Controller,"A core ICS foundational component, rugged ind
 PoP,Point of Presence,"A physical location where installed network infrastructure serves as an interface between communicating entities, allowing users to connect to a service provider’s network or cloud services."
 RADIUS,Remote Authentication Dial-In User Service,"A network access protocol that provides centralized AAA for users and devices accessing VPNs, wireless networks, routers, and switches, traditionally using UDP and password hashing in order to hide credentials without encrypting the entire packet."
 RAG,Retrieval-Augmented Generation,An AI architecture that improves a large language model’s responses by retrieving relevant external information before generating an answer.
+RBA,Risk Based Alerting?,
 RBAC,Role-Based Access Control,
 REST,Representational State Transfer,"REST is an architectural style for web services using APIs that define constraints for distributed, Internet-scale hypermedia systems commonly using HTTP methods such as GET, POST, PUT, and DELETE."
 RFB,Remote Frame Buffer,"An open, simple protocol used by VNC to transmit a remote computer’s screen and relay keyboard and mouse input between systems."
@@ -188,11 +195,14 @@ SDP,Software-Defined Perimeter,A security architecture that authenticates users 
 SEG,Secure Email Gateway,An email security solution that inspects inbound and outbound messages to detect threats and enforce organizational policies.
 SEG,Secure Email Gateway,"Cisco System’s email security platform, formerly known as ESA, that performs an SEG role by inspecting inbound and outbound messages to detect threats and enforce organizational policies."
 SGT,Security Group Tag,"A label that identifies a user, device, or workload by its security role or group rather than its IP address."
+SIA,Security Impact Analysis,
 SIEM,Security Information and Event Management,"A security platform that centralizes, normalizes, correlates, and analyzes log and event data across an organization's environment to detect threats, support incident investigation and response, and provide security visibility through alerts, dashboards, and reports."
+SIM,Security Information Management,
 SOAR,"Security Orchestration, Automation, and Response",A Cisco Splunk security platform that automates and coordinates incident investigation and response across multiple tools using predefined workflows called playbooks.
 SOC,Security Operations Center,"A dedicated site and centralized team that monitors, detects, investigates, and responds to cybersecurity threats across an organization’s IT environment."
 SOC 2,System and Organization Controls 2,"An attestation report that evaluates based on a Type whether a service organization’s controls are designed and operating effectively to protect customer data, based on criteria developed by the AICPA."
 SP,Special Publication,An official guidance document published by the NIST.
+SPF,Sender Policy Framework,
 SPIFFE,Secure Production Identity Framework For Everyone,"An open standard that provides cryptographically verifiable identities for workloads and services, enabling mutual authentication and Zero Trust communication."
 SPIRE,SPIFFE Runtime Environment,"The reference implementation of SPIFFE that provides workload attestation, identity issuance, certificate management, and authentication for Zero Trust service-to-service communication."
 SQL,Structured Query Language,
@@ -205,6 +215,7 @@ SWA,Secure Web Appliance,"A Cisco Systems on-premises web security appliance tha
 SWG,Secure Web Gateway,"A security capability that inspects, filters, and controls web traffic to protect users and prevent malware, phishing, access to malicious websites, data loss, and other web threats."
 TACACS+,Terminal Access Controller Access-Control System +,"A centralized AAA protocol developed by Cisco Systems that controls and audits administrative access to network infrastructure devices such as routers, switches, firewalls, and wireless controllers."
 TCP,Transmission Control Protocol,
+TDIR,"Threat Detection, Investigation, and Response",
 TDR,Threat Detection and Response,"The continuous process of detecting, investigating, containing, and remediating cyber threats to minimize their organizational impact."
 TP,Transformation Procedure,An authorized procedure in the Clark-Wilson integrity model that operates on CDIs or converts approved UDI into valid CDI.
 UDI,Unconstrained Data Item,"Represents data that has not been validated against the Clark–Wilson integrity model’s constraints, such as arbitrary user input."

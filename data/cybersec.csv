@@ -17,14 +17,17 @@ DCS,Distributed Control System,"An plant-wide industrial control system that dis
 DFARS,Defense Federal Acquisition Regulation Supplement,"A set of DoD acquisition regulations that supplements FAR with additional requirements for defense contractors, including cybersecurity requirements for protecting defense information."
 DFIR,Digital Forensics and Incident Response,"A cybersecurity discipline that investigates security incidents, preserves and analyzes digital evidence, determines root cause and scope, and coordinates containment, eradication, and recovery."
 DLP,Data Loss Prevention,Detects the unauthorized transmission or disclosure of sensitive data and prevents its occurrence.
+EBD,Entity-Based Detection,
 EDR,Endpoint Detection and Response,"Cybersecurity technology that continuously monitors endpoint devices to detect, investigate, and respond to cyber threats in real time."
 EIG,Enhanced Identity Governance,"The practice of improving visibility, control, and governance of identities, accounts, roles, and access privileges across an organization."
 EPP,Endpoint Protection Platform,"A centrally managed security solution that prevents malware and other threats from compromising endpoint devices through antivirus, behavioral analysis, policy enforcement, and other preventive controls."
 ERM,Enterprise Risk Management,"An organization-wide discipline for identifying, assessing, managing, and monitoring risks that could affect strategic, operational, financial, legal, and technology-related objectives; it encompasses IRM, which addresses risks to information assets, including cybersecurity risks arising from threats, vulnerabilities, and attacks against those assets."
+ES,Splunk Enterprise Security,
 ESA,Email Security Appliance,"Cisco’s secure email gateway, formerly known as ESA, filters inbound and outbound email to block spam, phishing, and malware while providing encryption, DLP, and policy enforcement."
 ESC,Endpoint Security Client,"Software installed on endpoint devices that communicates with a central security platform to enforce policies, monitor activity, and help prevent, detect, and respond to threats."
 IAM,Identity and Access Management,A framework of policies and technologies to ensure that the right users have the appropriate access to technology resources.
 ICS,Industrial Control Systems,"The hardware, software, and networks that monitor and control physical processes in industrial and critical infrastructure environments, where security protects against cyber threats while preserving safety, availability, and reliability."
+IOC,Indicators Of Compromise,
 IPS,Intrusion Prevention System,"A security technology that monitors network traffic to detect and automatically block malicious activity in real time by dropping packets, blocking IP addresses, or terminating suspicious connections."
 IRM,Information Risk Management,"A process for identifying, assessing, and managing risks to an organization’s information assets—including cybersecurity risks—to protect their confidentiality, integrity, and availability while supporting business objectives."
 ITDR,Identity Threat Detection and Response,"A cybersecurity capability that detects, investigates, and responds to attacks targeting identities, credentials, accounts, and authentication systems."
@@ -46,11 +49,14 @@ RBAC,Role-Based Access Control,
 RMF,Risk Management Framework,"Commonly refers to the NIST Risk Management Framework, a structured process for identifying, assessing, mitigating, and continuously monitoring security and privacy risks throughout a system’s lifecycle."
 SCADA,Supervisory Control and Data Acquisition,"As a wide area solution, it comprises the hardware, software, and networks used for centralized monitoring and control of geographically distributed industrial processes through data collection, alarms, and supervisory commands, with security focused on preserving safety, availability, and reliability."
 SEG,Secure Email Gateway,An email security solution that inspects inbound and outbound messages to detect threats and enforce organizational policies.
+SIA,Security Impact Analysis,
+SIM,Security Information Management,
 SOAR,"Security Orchestration, Automation, and Response",A Cisco Splunk security platform that automates and coordinates incident investigation and response across multiple tools using predefined workflows called playbooks.
 SOC,Security Operations Center,"A dedicated site and centralized team that monitors, detects, investigates, and responds to cybersecurity threats across an organization’s IT environment."
 SSE,Security Service Edge,"A cloud-delivered Cisco Systems security architecture that integrates multiple security controls into a unified service to secure user access to applications, internet resources, and data from anywhere."
 SWA,Secure Web Appliance,"A Cisco Systems on-premises web security appliance that provides SWG capabilities to inspect, filter, and control web traffic."
 SWG,Secure Web Gateway,"A security capability that inspects, filters, and controls web traffic to protect users and prevent malware, phishing, access to malicious websites, data loss, and other web threats."
+TDIR,"Threat Detection, Investigation, and Response",
 TDR,Threat Detection and Response,"The continuous process of detecting, investigating, containing, and remediating cyber threats to minimize their organizational impact."
 TP,Transformation Procedure,An authorized procedure in the Clark-Wilson integrity model that operates on CDIs or converts approved UDI into valid CDI.
 UDI,Unconstrained Data Item,"Represents data that has not been validated against the Clark–Wilson integrity model’s constraints, such as arbitrary user input."
