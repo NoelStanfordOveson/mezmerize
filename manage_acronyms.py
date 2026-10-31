@@ -821,11 +821,11 @@ def type_to_confirm(acronym):
     Keep asking until the acronym is typed exactly, letter case included.
     Return True when it matches, False for ESC.
     """
-    prompt = f"Type {acronym} exactly, matching case (ESC = cancel): "
+    prompt = f"Type {acronym} exactly, matching case (ESC = keep it): "
     while True:
         typed = input_or_esc(prompt, required=True)
         if typed is None:
-            return False                                                # ESC: cancel the whole delete
+            return False                                                # ESC: keep it
         typed = typed.strip()
         if typed == acronym:
             return True
@@ -843,8 +843,9 @@ def type_to_confirm(acronym):
 # 6c. Last deck copy: ask whether to remove it from master.csv too, or keep it there as backlog
 def confirm_removal_in_master(card):
     """
-    Show the PENDING FINAL DELETE card for master.csv. Return 'remove'
-    (R, then the acronym typed exactly), 'keep' (K), or None for ESC
+    Show the PENDING FINAL DELETE card for master.csv. Return True to remove it
+    (R, then the acronym typed exactly). K or ESC keeps it as backlog; print that
+    RESULT and return False.
     """
     def draw(state):
         if state == "confirmed":
@@ -853,45 +854,45 @@ def confirm_removal_in_master(card):
             heading = "KEPT IN:"
         else:
             heading = "DELETE FROM:"
+
         clear_screen()
         print_mode_banner("DELETE AN ACRONYM - Master")
+        if state == "ask":                                              # the hint disappears once the question is answered
+            print_wrapped("", f"{card['acronym']} is orphaned, left only in the master list. "
+                          "Keep it there as backlog, or remove it\u2014a removal "
+                          f"can't be undone. R\u00a0will ask for {card['acronym']} to be typed exactly first.")
         print()
         show_caution([(heading, [MASTER_FILE])], entry=card,
                      title="PENDING FINAL DELETE", caution=state == "ask")
 
-    def cancelled():
-        draw("cancelled")
-        print(f"\n{RESULT_LEAD}Nothing was deleted.")
-        print(f"         {NO_CHANGES} were made.")
-        return None
+    def kept():
+        draw("kept")
+        print()
+        print_wrapped("RESULT:  ", f"Kept. {card['acronym']} stays in the master list as backlog.",
+                      lead_color=BLUE)
+        return False
 
     draw("ask")
     print()
-    print_wrapped("", f"{card['acronym']} is not in any other deck. Remove it from "
-                  f"{MASTER_FILE} too, or keep it there as backlog?")
+    print("Remove this card from the master list now?")
     print()
-    print(color_keys(wrap_choices("", ["R = remove from master", "K = keep in master (backlog)",
-                                       "ESC = cancel"])), end="", flush=True)
+    print(color_keys("R = remove it     K or ESC = keep it (backlog)"), end="", flush=True)
 
-    choice = read_key(("r", "k", "esc"))
-    if choice == "esc":
-        return cancelled()
-    if choice == "k":
-        draw("kept")
-        return "keep"
+    if read_key(("r", "k", "esc")) != "r":
+        return kept()
     print()
     print()
     if type_to_confirm(card["acronym"]):
         draw("confirmed")
-        return "remove"
-    return cancelled()
+        return True
+    return kept()
 
 # 6d. Delete one card from every deck in the scope; then remove it from master.csv if asked
 def delete_card(card, decks):
     """
     Delete a card from each built-in deck in decks, a list of (label, filename) pairs.
-    If that was the last deck copy, ask whether to remove it from master.csv as well.
-    Nothing is written until every question is answered.
+    The decks are written as soon as the delete is confirmed. If that left the card
+    orphaned (in no deck, only in master.csv), ask about master.csv next.
     Return True if the card was deleted, False if nothing changed.
     """
     loaded = []
@@ -911,22 +912,13 @@ def delete_card(card, decks):
     if not confirm_delete(card, filenames, labels):
         return False
 
-    remaining = [deck for deck in decks_with_version(card) if deck not in decks]
-    master_rows = read_rows(MASTER_FILE)
-    master_position = find_row(master_rows, card)
-
-    master_choice = "keep"
-    if not remaining and master_position is not None:                   # last deck copy, and master has it
-        master_choice = confirm_removal_in_master(card)
-        if master_choice is None:
-            return False
-
-    for filename, rows, position in loaded:
+    for filename, rows, position in loaded:                             # ENTER confirmed: write the decks now
         rows.pop(position)
         write_sorted(filename, rows)
-    if master_choice == "remove":
-        master_rows.pop(master_position)
-        write_sorted(MASTER_FILE, master_rows)
+
+    remaining = decks_with_version(card)                                # decks that still have it
+    master_rows = read_rows(MASTER_FILE)
+    master_position = find_row(master_rows, card)
 
     print()
     print_wrapped("RESULT:  ", f"Deleted. {card['acronym']} was removed from:",
@@ -935,11 +927,20 @@ def delete_card(card, decks):
     if remaining:
         print("         It's still in:")
         list_labels([label for label, filename in remaining])
-    elif master_choice == "remove":
-        print(f"         It was also erased from {MASTER_FILE}")
-        print(f"         (copied first to {BACKUP_FILE}).")
-    elif master_position is not None:
-        print(f"         It stays in {MASTER_FILE} as backlog.")
+    elif master_position is not None:                                   # orphaned: only master.csv has it
+        print_wrapped(" " * 9, "It's now left orphaned in the master list, making it a backlog card. "
+                      f"{card['acronym']} can remain there to work on later, or be removed. "
+                      "That choice comes next.")
+        print()
+        print(color_keys("ENTER = continue to the master list"), end="", flush=True)
+        read_key(("enter",))
+        if confirm_removal_in_master(card):
+            master_rows.pop(master_position)
+            write_sorted(MASTER_FILE, master_rows)
+            print()
+            print_wrapped("RESULT:  ", f"Removed. {card['acronym']} was erased from the master list",
+                          lead_color=BLUE)
+            print(f"         (copied first to {BACKUP_FILE}).")
     return True
 
 

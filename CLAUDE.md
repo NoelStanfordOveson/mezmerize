@@ -51,10 +51,15 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
 - `master.csv` holds every version in use, plus a backlog not yet in any deck.
   After an edit: add the new version if missing; remove the old version only if no deck
   still uses it. Never remove backlog entries.
-- Deleting removes a version from master.csv only when the last deck copy goes, and only
-  after R + typing the acronym exactly (capitals included; friendly hints, retry until it
-  matches or ESC). K keeps it in master as backlog. Nothing is written until every question
-  is answered.
+- Deleting is written step by step: each confirmed step is written before the next
+  question. ENTER on PENDING DELETE writes the decks and shows their RESULT. If that left
+  the card orphaned (in no deck, only in master.csv), the RESULT says so (`It's now left
+  orphaned in the master list, making it a backlog card. ... That choice comes next.`)
+  and `ENTER = continue to the master list` is the only key. Then the master screen:
+  R + typing the acronym exactly (capitals included; friendly hints, retry until it
+  matches) removes it; K, ESC, or ESC while typing keeps it as backlog. Each answer gets
+  its own RESULT: `Kept. ZZT stays in the master list as backlog.` or `Removed. ZZT was
+  erased from the master list` / `(copied first to master.bak).`
 - Adding (from the menu or from any lookup's A = add) refuses only the exact same version
   already in the chosen deck ("<acronym> already in <deck>, exactly as entered."). These
   are shown first, then "Add anyway?  Y = yes     N or ESC = no": the exact version in
@@ -166,12 +171,20 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
   deck labels one per line at column 11, 2 in from the RESULT text (list_labels):
   `RESULT:  Saved. PII was edited and re-sorted in:`. Follow-up sentences sit at
   column 9, under the first word: Delete's `It's still in:` (with labels), `It was also
-  erased from master.csv` / `(copied first to master.bak).`, or `It stays in master.csv
-  as backlog.`; Move's `to:` (with the label) and `Both decks were re-sorted.`
+  erased from the master list` / `(copied first to master.bak).`, or `It stays in the
+  master list as backlog.`; Move's `to:` (with the label) and `Both decks were re-sorted.`
 - Each verb gets its own preposition: `added to and re-sorted in:`, `relocated from:`
   ... `to:`.
-- The CAUTION card's file list shows filenames; RESULT shows deck labels. master.csv is
-  named only in Delete's follow-up lines.
+- The CAUTION card's file list shows filenames; RESULT shows deck labels.
+- Words on screen: decks are "decks"; master.csv is "the master list" in every prompt,
+  hint, and message, and `master.csv` only on a card's file line. No "CSV" in menus or
+  messages; only the custom-deck prompt mentions .csv, since it asks for the file.
+- The master screen (PENDING FINAL DELETE) opens with a hint under the banner while the
+  question is up: the card is orphaned (only in the master list), keep it as backlog or
+  remove it, a removal can't be undone, and R asks for the acronym to be typed first.
+  Question: `Remove this card from the master list now?`; keys `R = remove it     K or
+  ESC = keep it (backlog)` (the deck delete is already done, so ESC can only mean keep).
+  The redraw after an answer drops the hint.
 - Key lines are actions on top, navigation below. Lookup: `A = add` always (found or
   not), plus `E = edit    D = delete    C = copy    M = move` for found built-in cards,
   then `ENTER = look up another    ESC = menu    Q = quit`. After an edit, delete, copy,
