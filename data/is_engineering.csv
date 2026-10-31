@@ -4,8 +4,8 @@ ACL,Access Control List,"A set of rules that allows or blocks network traffic ba
 ACS,Access Control Server,"A Cisco Systems AAA and policy management platform that centrally controlled identity-based access to network devices, VPNs, wireless networks, and other infrastructure resources using RADIUS and TACACS+."
 ADFS,Active Directory Federation Services,"A Microsoft identity and access management service that provides SSO and federated authentication, enabling users to access applications and services across trusted organizations with one set of credentials."
 AFH,Adaptive Frequency Hopping,Communicating devices continuously monitor their environment for interference and adjust the channel map to address it.
-ASA,Adaptive Security Appliance,"A Cisco security appliance and operating system that secures traffic between networks through stateful firewalling, VPN connectivity, NAT, and access control."
-ASA,Firewall Adaptive Security Appliance,"A Cisco Systems Secure Firewall ASA security appliance and operating system that secures traffic between networks through stateful firewalling, VPN connectivity, NAT, and access control."
+ASA,Adaptive Security Appliance,"A Cisco Systems security appliance and operating system (name deprecated) that secures traffic between networks through stateful firewalling, VPN connectivity, NAT, and access control."
+ASA,Adaptive Security Appliance,"A Cisco Systems Secure Firewall ASA security appliance and operating system that secures traffic between networks through stateful firewalling, VPN connectivity, NAT, and access control."
 BEC,Business Email Compromise,"A major email attack threat in which an attacker impersonates a trusted person to trick someone into transferring funds, changing payment details, disclosing sensitive data, or taking other unauthorized actions."
 BGP,Border Gateway Protocol,A path-vector exterior gateway protocol that exchanges routing information between autonomous systems and selects paths based on policies and AS-path attributes.
 CCE,Common Configuration Enumeration,"Provides unique identifiers for system configuration issues, facilitating fast and accurate correlation of configuration data across multiple information sources and tools."
@@ -22,7 +22,7 @@ FHSS,Frequency Hopping Spread Spectrum,A method of transmitting radio signals by
 FIM,Federated Identity Management,"A common set of policies, practices, and protocols that manage and verify the identities of users and devices accessing applications and resources across organizations."
 FMC,Firepower Management Center,"Cisco Systems' centralized platform for configuring and monitoring FTD devices, managing security policies, configuring and monitoring IDS/IPS, and analyzing security events."
 FMC,Firewall Management Center,"Cisco Systems' Secure FMC is a centralized platform for configuring and monitoring FTD devices, managing security policies, configuring and monitoring IDS/IPS, and analyzing security events."
-FTD,Firepower Threat Defense,"Cisco Systems' NGFW software combines firewall capabilities, IDS/IPS, application visibility and control, malware protections, and advanced threat detection in a single platform."
+FTD,Firepower Threat Defense,"Cisco Systems' NGFW software (old name) combines firewall capabilities, IDS/IPS, application visibility and control, malware protections, and advanced threat detection in a single platform."
 FTD,Firewall Threat Defense,"Cisco Systems' Secure FTD (NGFW) software combines firewall capabilities, IDS/IPS, application visibility and control, malware protection, and advanced threat detection in a single platform."
 FTP,File Transfer Protocol,
 grep,Global Regular Expression Print,Designed to search through text input for lines that match a specified pattern.
@@ -82,3 +82,4 @@ VRF,Virtual Routing and Forwarding,A technology that allows multiple instances o
 WAF,Web Application Firewall,A security control that inspects HTTP/HTTPS traffic to protect web applications from attacks that traditional network firewalls may not detect.
 WCCP,Web Cache Communication Protocol,
 WSA,Web Security Appliance,"Cisco’s previous SWG, now called SWA, provides URL filtering, malware protection, web traffic inspection, and policy enforcement to protect users from internet threats."
+ZTNA,Zero Trust Network Access,"Only grants access to authorized applications and resources through continuous verification of user identity, device, and context, following the Zero Trust principle: ""Never trust, always verify."""

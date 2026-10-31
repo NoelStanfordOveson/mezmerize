@@ -18,8 +18,8 @@ AICPA,American Institute of Certified Public Accountants,The AICPA’s Trust Ser
 ALE,Annualized Loss Expectancy,ALE = SLE * ARO
 API,Application Programming Interface,A set of rules that allows different software applications to communicate with each other.
 ARO,Annualized Rate of Occurrence,An estimate of how often a threat would be successful in exploiting a vulnerability.
-ASA,Adaptive Security Appliance,"A Cisco Systems security appliance and operating system that secures traffic between networks through stateful firewalling, VPN connectivity, NAT, and access control."
-ASA,Firewall Adaptive Security Appliance,"A Cisco Systems Secure Firewall ASA security appliance and operating system that secures traffic between networks through stateful firewalling, VPN connectivity, NAT, and access control."
+ASA,Adaptive Security Appliance,"A Cisco Systems security appliance and operating system (name deprecated) that secures traffic between networks through stateful firewalling, VPN connectivity, NAT, and access control."
+ASA,Adaptive Security Appliance,"A Cisco Systems Secure Firewall ASA security appliance and operating system that secures traffic between networks through stateful firewalling, VPN connectivity, NAT, and access control."
 ATT&CK,"Adversarial Tactics, Techniques, & Common Knowledge","A cybersecurity framework and knowledge base maintained by MITRE that catalogs real-world attacker tactics and techniques to support threat detection, hunting, incident response, and security architecture."
 AV,Asset Value,"Represents the total value of an asset, calculated based on the potential financial impact of a security incident—crucial for risk management and security assessments."
 AWS,Amazon Web Services,"A cloud computing platform, AWS provides on-demand infrastructure, platform, and security services for building, deploying, and securing applications without managing physical data centers."
@@ -101,7 +101,7 @@ FMC,Firepower Management Center,"Cisco Systems' centralized platform for configu
 FMC,Firewall Management Center,"Cisco Systems' Secure FMC is a centralized platform for configuring and monitoring FTD devices, managing security policies, configuring and monitoring IDS/IPS, and analyzing security events."
 FPU,Floating Point Unit,"Colloquially known as a math coprocessor, it is a part of a computer system specially designed to carry out operations on floating-point numbers."
 FTD,Firewall Threat Defense,"Cisco Systems' Secure FTD (NGFW) software combines firewall capabilities, IDS/IPS, application visibility and control, malware protection, and advanced threat detection in a single platform."
-FTD,Firepower Threat Defense,"Cisco Systems' NGFW software combines firewall capabilities, IDS/IPS, application visibility and control, malware protections, and advanced threat detection in a single platform."
+FTD,Firepower Threat Defense,"Cisco Systems' NGFW software (old name) combines firewall capabilities, IDS/IPS, application visibility and control, malware protections, and advanced threat detection in a single platform."
 FWaaS,Firewall as a Service,"A cloud-delivered firewall that provides network filtering, threat prevention, and access control without on-premises hardware."
 GDPR,General Data Protection Regulation,Data privacy protection framework applying to the European Union.
 gen AI,generative AI,"A type of AI that creates new content, such as text, images, code, audio, or video, by learning patterns from large amounts of training data."
@@ -244,3 +244,4 @@ ZTCA,Zero Trust Cyber Associate,A Zscaler certification validating expertise in 
 ZTE,Zero Trust Exchange,
 ZTMM,Zero Trust Maturity Model,A CISA framework that helps organizations assess and improve their adoption of Zero Trust Architecture.
 ZTNA,Zero Trust Network Access,"Only grants access to authorized applications and resources through continuous verification of user identity, device, and context, following the Zero Trust principle: 'Never trust, always verify.'"
+ZTNA,Zero Trust Network Access,"Only grants access to authorized applications and resources through continuous verification of user identity, device, and context, following the Zero Trust principle: ""Never trust, always verify."""
