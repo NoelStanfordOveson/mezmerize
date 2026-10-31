@@ -858,9 +858,9 @@ def confirm_removal_in_master(card):
         clear_screen()
         print_mode_banner("DELETE AN ACRONYM - Master")
         if state == "ask":                                              # the hint disappears once the question is answered
-            print_wrapped("", f"{card['acronym']} is orphaned: only in the master list. "
+            print_wrapped("", f"{card['acronym']} is orphaned (only in the master list). "
                           "Keep it there as backlog, or remove it\u2014a removal "
-                          f"can't be undone. R will ask for {card['acronym']} to be typed exactly first.")
+                          f"can't be undone. R\u00a0will ask for {card['acronym']} to be typed exactly first.")
         print()
         show_caution([(heading, [MASTER_FILE])], entry=card,
                      title="PENDING FINAL DELETE", caution=state == "ask")
