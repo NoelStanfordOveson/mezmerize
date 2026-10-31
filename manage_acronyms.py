@@ -825,10 +825,10 @@ def type_to_confirm(acronym):
     while True:
         typed = input_or_esc(prompt, required=True)
         if typed is None:
-            return False                                                # ESC: cancel the whole delete
+            return False                                                # ESC: keep it
         typed = typed.strip()
         if typed == acronym:
-            return True                                                 # ESC: keep it
+            return True
 
         if typed.casefold() == acronym.casefold():
             hint = f"Close! But the capital letters don't match. Type {acronym} exactly as shown."
