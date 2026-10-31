@@ -35,13 +35,15 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
 - Code that reads, writes, or compares cards without printing a screen goes in mez_cards.
   Anything that prints is screen code and stays upstairs.
 - Names in code: `label` is a deck label ("Cybersecurity"), `filename` its CSV
-  ("cybersec.csv"), and `decks` a list of (label, filename) pairs, as in BUILTIN_DECKS.
+  ("cybersecurity.csv"), and `decks` a list of (label, filename) pairs, as in BUILTIN_DECKS.
   Lists are `labels` and `filenames`. `lead` is the text in front of a wrapped line
   (print_wrapped, wrap_choices).
 
 ## Data rules
 
-- Decks are CSVs in `data/` with the header `acronym,full_name,description`.
+- Decks are CSVs in `data/` with the header `acronym,full_name,description`. Each file is
+  named after its deck label: lowercase, spaces and slashes as underscores
+  (`IS Engineering` -> `is_engineering.csv`, `GRC/Frameworks` -> `grc_frameworks.csv`).
   Read with utf-8-sig; written sorted by acronym, utf-8, LF line endings.
 - A card's **version** is (acronym, full name, description). Acronym and full name are
   compared ignoring capitals; description must match exactly.
