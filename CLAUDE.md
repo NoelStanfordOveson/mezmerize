@@ -93,6 +93,11 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
   mezmerize-use and its data commits go straight to main; pull it before each session and
   after each merge. The build folder never commits data: card changes made while testing
   get discarded. Someday the decks may move out of the repo altogether.
+- Hand edits to the CSVs (Notepad++): open them from `mezmerize-use\data` (check the
+  path; the build folder has identical-looking files). Change the deck and master.csv
+  identically, character for character: the app matches versions exactly, so a one-word
+  difference leaves a master version that no edit or delete can reach. The app's Edit
+  keeps them matched automatically.
 
 ## UI conventions
 
@@ -274,6 +279,11 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
   layout) get their own commit. Comments, the index, and other internal tidy-ups
   aren't cosmetic; they go in with the code change they belong to.
 - Git on Windows converts line endings (autocrlf). CRLF/LF differences seen from Claude's
-  side aren't real changes; check with `GIT_OPTIONAL_LOCKS=0` and `-c core.autocrlf=true`.
+  side aren't real changes; check with `-c core.autocrlf=true`.
+- Claude reaches these folders through a bridge that can't delete files, so every git
+  command Claude runs starts with `GIT_OPTIONAL_LOCKS=0` (read-only: git then writes no
+  `.git/index.lock`). If GitHub Desktop ever says "A lock file already exists", delete the
+  0-byte `.git\index.lock` in File Explorer (hidden items on), and nothing else in `.git`.
+  Never rename a lock file out of the way.
 - The plan, decisions, branch order, and someday list are kept in the project's
   claude/bookmarks.md, not here.
