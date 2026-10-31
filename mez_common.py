@@ -24,14 +24,14 @@ NUMBER_PATTERN = re.compile(r"\b[0-9]+(?= = )")                     # a number k
 os.system("")                                                       # switch on color codes in the Windows console
 
 BUILTIN_DECKS = [
-    ("AI Security", "ai.csv"),
-    ("Certifications", "certs.csv"),
-    ("Cloud Security", "cloud.csv"),
-    ("Cybersecurity", "cybersec.csv"),
-    ("DevSecOps", "devsec.csv"),
-    ("GRC/Frameworks", "grc.csv"),
-    ("IS Engineering", "engineer.csv"),
-    ("IS Management", "mgmt.csv"),
+    ("AI Security", "ai_security.csv"),
+    ("Certifications", "certifications.csv"),
+    ("Cloud Security", "cloud_security.csv"),
+    ("Cybersecurity", "cybersecurity.csv"),
+    ("DevSecOps", "devsecops.csv"),
+    ("GRC/Frameworks", "grc_frameworks.csv"),
+    ("IS Engineering", "is_engineering.csv"),
+    ("IS Management", "is_management.csv"),
 ]
 
 # 1. Helper functions
