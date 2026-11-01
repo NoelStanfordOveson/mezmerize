@@ -4,13 +4,14 @@ CAPTCHA,Completely Automated Public Turing test to tell Computers and Humans Apa
 CD,Continuous Delivery/Deployment,"A 2 part process that refers to the integration, testing, and delivery of code changes."
 CDN,Content Delivery Network,A geographically distributed network of proxy servers and corresponding data centers.
 CI,Continuous Integration,The practice of automatically and frequently integrating code changes into a shared source code repository.
-CI/CD,Continuous Integration and Continuous Delivery/Deployment,"A software development practice that automates application building, testing, and deployment to deliver changes quickly and reliably."
+CI/CD,Continuous Integration and Continuous Delivery,"A software development practice that automates application building, testing, and deployment to deliver changes quickly and reliably."
 CIA,"Confidentiality, Integrity, Availability","A foundational cybersecurity model—Confidentiality, Integrity, and Availability—used to guide security controls and assess information—system risks."
 CSS,Cascading Style Sheets,
 CSV,Comma-Separated Values,"A plain-text file format used to store tabular data, in which each line represents a row and individual values are separated by commas."
 DAST,Dynamic Application Security Testing,A black-box security testing tool that evaluates a running application externally to identify runtime vulnerabilities.
 FPU,Floating Point Unit,"Colloquially known as a math coprocessor, it is a part of a computer system specially designed to carry out operations on floating-point numbers."
 JSON,JavaScript Object Notation,A lightweight format for storing and transporting data.
+OPA,Open Policy Agent,"An open-source, general-purpose policy engine that unifies policy enforcement across the technology stack through declarative policy as code, separating policy decisions from application and infrastructure logic."
 REST,Representational State Transfer,"REST is an architectural style for web services using APIs that define constraints for distributed, Internet-scale hypermedia systems commonly using HTTP methods such as GET, POST, PUT, and DELETE."
 SPIFFE,Secure Production Identity Framework For Everyone,"An open standard that provides cryptographically verifiable identities for workloads and services, enabling mutual authentication and Zero Trust communication."
 SPIRE,SPIFFE Runtime Environment,"The reference implementation of SPIFFE that provides workload attestation, identity issuance, certificate management, and authentication for Zero Trust service-to-service communication."

@@ -27,6 +27,7 @@ ESA,Email Security Appliance,"Cisco’s secure email gateway, formerly known as 
 ESC,Endpoint Security Client,"Software installed on endpoint devices that communicates with a central security platform to enforce policies, monitor activity, and help prevent, detect, and respond to threats."
 IAM,Identity and Access Management,A framework of policies and technologies to ensure that the right users have the appropriate access to technology resources.
 ICS,Industrial Control Systems,"The hardware, software, and networks that monitor and control physical processes in industrial and critical infrastructure environments, where security protects against cyber threats while preserving safety, availability, and reliability."
+IGA,Identity Governance and Administration,"A cybersecurity discipline that governs digital identities and access through user provisioning, identity lifecycle management, access reviews, policy enforcement, and compliance oversight, ensuring the right people have the right access at the right times and for the right reasons."
 IOC,Indicators Of Compromise,
 IPS,Intrusion Prevention System,"A security technology that monitors network traffic to detect and automatically block malicious activity in real time by dropping packets, blocking IP addresses, or terminating suspicious connections."
 IRM,Information Risk Management,"A process for identifying, assessing, and managing risks to an organization’s information assets—including cybersecurity risks—to protect their confidentiality, integrity, and availability while supporting business objectives."
@@ -45,9 +46,10 @@ PDP,Policy Decision Point,"The Zero Trust component that evaluates access reques
 PEP,Policy Enforcement Point,"The Zero Trust component that enforces the PDP’s decisions by allowing, blocking, or terminating access to a resource."
 PII,Personally Identifiable Information,"Any information that can identify, distinguish, or trace an individual, alone or combined with other information."
 PLC,Programmable Logic Controller,"A core ICS foundational component, rugged industrial computers are used in automation and to monitor inputs from sensors, switches, etc., in order to execute programmed logic, and to control outputs such as motors, valves, and relays in real time."
-RBAC,Role-Based Access Control,
+RBAC,Role-Based Access Control,An access control model that assigns permissions to roles and grants users those permissions through role membership.
 RMF,Risk Management Framework,"Commonly refers to the NIST Risk Management Framework, a structured process for identifying, assessing, mitigating, and continuously monitoring security and privacy risks throughout a system’s lifecycle."
 SCADA,Supervisory Control and Data Acquisition,"As a wide area solution, it comprises the hardware, software, and networks used for centralized monitoring and control of geographically distributed industrial processes through data collection, alarms, and supervisory commands, with security focused on preserving safety, availability, and reliability."
+SDP,Software-Defined Perimeter,A security architecture that authenticates users and devices before granting identity-based access to protected applications and resources.
 SEG,Secure Email Gateway,An email security solution that inspects inbound and outbound messages to detect threats and enforce organizational policies.
 SIA,Security Impact Analysis,
 SIM,Security Information Management,
@@ -60,7 +62,8 @@ TDIR,"Threat Detection, Investigation, and Response",
 TDR,Threat Detection and Response,"The continuous process of detecting, investigating, containing, and remediating cyber threats to minimize their organizational impact."
 TP,Transformation Procedure,An authorized procedure in the Clark-Wilson integrity model that operates on CDIs or converts approved UDI into valid CDI.
 UDI,Unconstrained Data Item,"Represents data that has not been validated against the Clark–Wilson integrity model’s constraints, such as arbitrary user input."
-WSA,Web Security Appliance,"Cisco’s previous SWG, now called SWA, provides URL filtering, malware protection, web traffic inspection, and policy enforcement to protect users from internet threats."
+UEBA,User and Entity Behavior Analytics,"A cybersecurity capability that uses analytics, machine learning, and behavioral baselines to detect anomalous activity across users, devices, and applications that may signal malicious behavior, compromised accounts, insider threats, or advanced attacks."
+WSA,Web Security Appliance,"A Cisco Systems’ SWG appliance (name deprecated) that inspects HTTP and HTTPS traffic between users and the internet, providing URL filtering, malware detection, data protection, and policy enforcement."
 X.509,PKI Certificate,"A certificate standard that defines the format of public-key certificates used to authenticate identities and support encryption, digital signatures, and secure communications."
 XDR,eXtended Detection and Response,"A cybersecurity platform that collects, correlates, and analyzes security data from multiple sources to detect and respond to threats across an organization’s environment."
 YAML,YAML Ain't Markup Language,
@@ -68,6 +71,7 @@ ZCC,Zscaler Client Connector,A lightweight endpoint agent that connects users’
 ZDX,Zscaler Digital Experience,"A cloud-based digital experience monitoring service that measures user, device, network, and application performance to pinpoint the causes of user-experience issues."
 ZIA,Zscaler Internet Access,An inline security gateway service that applies security and organizational policies to traffic before it reaches its destination.
 ZPA,Zscaler Private Access,"Provides access to specific private applications without placing users on the corporate network, offering an alternative to VPN-based remote access."
+ZTA,Zero Trust Architecture,"Applies Zero Trust principles to enterprise infrastructure and workflows, requiring explicit authentication and authorization before granting resource access, regardless of user, device, or asset location or ownership."
 ZTE,Zero Trust Exchange,
 ZTMM,Zero Trust Maturity Model,A CISA framework that helps organizations assess and improve their adoption of Zero Trust Architecture.
-ZTNA,Zero Trust Network Access,"Only grants access to authorized applications and resources through continuous verification of user identity, device, and context, following the Zero Trust principle: ""Never trust, always verify."""
+ZTNA,Zero Trust Network Access,"The doctrine of only granting access to authorized applications and resources through continuous verification of user identity, device, and context, following the Zero Trust principle: ""Never trust, always verify."""
