@@ -1,12 +1,12 @@
 """
 Compare a master acronym list to the merged built-in flashcard decks.
 
-Put this file next to flashcards.py (the CSV decks live in the data folder), then run:
+Put this file next to study_flashcards.py (the CSV decks live in the data folder), then run:
     py manage_decks.py
     py manage_decks.py master.csv
     py manage_decks.py --master master.csv
 
-Expected CSV columns (same as flashcards.py):
+Expected CSV columns (same as study_flashcards.py):
     acronym, full_name, description
 """
 import argparse
@@ -106,7 +106,7 @@ def load_csv(filename, source_label):
     Load one CSV into a list of card dicts.
 
     Each card keeps:
-      - the three fields flashcards.py uses
+      - the three fields study_flashcards.py uses
       - source: which file it came from (for the report)
       - line: spreadsheet row number (header is line 1)
     """

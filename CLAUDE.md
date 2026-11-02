@@ -12,7 +12,7 @@ editing an existing card is Windows-only (it uses the console's own line editor)
 
 ```bash
 py mezmerize.py          # main menu: study, look up/add/edit/delete/copy/move, check deck health
-py flashcards.py         # study only (review, random quiz, lookup)
+py study_flashcards.py   # study only (review, random quiz, lookup)
 py manage_acronyms.py    # look up, add, edit, delete, copy, or move acronyms
 py manage_decks.py       # deck health: audit data/master.csv against the decks
 ```
@@ -27,7 +27,7 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
   decks_with_version, decks_with_acronym), and keeps master.csv current (update_master).
 - `manage_acronyms.py`: the screens for lookup, add, edit, delete, copy, and move.
   show_caution draws every CAUTION box.
-- `flashcards.py` and `manage_decks.py`: flashcards imports lookup_acronym from manage_acronyms,
+- `study_flashcards.py` and `manage_decks.py`: study_flashcards imports lookup_acronym from manage_acronyms,
   so every lookup in the app is the same function.
 - `mezmerize.py` (top): the menu that calls each program's main().
 - Two-test rule for mez_common: code goes there only if (1) more than one program needs it
@@ -90,7 +90,7 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
   4. the exact same version twice in master.csv;
   5. the exact same version twice in one deck (the same card in two decks is fine: Copy);
   6. rows with a blank field.
-- Single-deck lookup (as in flashcards) also checks the other built-in decks, by acronym.
+- Single-deck lookup (as in study_flashcards) also checks the other built-in decks, by acronym.
   Found here: `Also in:` the other decks, then `(N total)` counting this deck, plus
   `, N identical` when one card was found and other decks hold that exact version.
   Not found here: `Found in:` the other decks, then `(N total)`.

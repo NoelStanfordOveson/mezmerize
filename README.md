@@ -12,4 +12,4 @@ A simple command-line flashcard application in Python to help learn acronyms, th
 ## How to Run
 
 ```bash
-py flashcards.py
+py study_flashcards.py

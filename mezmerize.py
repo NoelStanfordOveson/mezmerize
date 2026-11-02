@@ -1,7 +1,7 @@
 """mezmerize: one menu that runs the mezmerize acronym tools."""
-import flashcards
 import manage_acronyms
 import manage_decks
+import study_flashcards
 
 from mez_common import (clear_screen, print_mode_banner, print_wrapped, read_key, say_goodbye,
                         color_keys, CHOICE_COLOR)
@@ -9,7 +9,8 @@ from mez_common import (clear_screen, print_mode_banner, print_wrapped, read_key
 
 # Menu label and the function that runs that program
 PROGRAMS = [
-    ("Study Mode: Review flashcards in order or quiz at random; all decks or by category", flashcards.main),
+    ("Study Mode: Review flashcards in order or quiz at random; all decks or by category",
+     study_flashcards.main),
     ("Look up and manage acronyms (all decks)", manage_acronyms.main),
     ("Manage decks and deck health", manage_decks.main),
 ]

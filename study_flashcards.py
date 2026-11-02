@@ -166,7 +166,7 @@ def main():
                 return "quit"                                               # leave main() entirely
 
 
-# This runs the program when you type: py flashcards.py
+# This runs the program when you type: py study_flashcards.py
 if __name__ == "__main__":
     try:
         main()
