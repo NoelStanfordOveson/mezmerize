@@ -296,11 +296,11 @@ def main():
 
     report = compare(master_cards, deck_cards)
     sections = [
-        ("IN MASTER, missing from all built-in decks", report["missing_from_decks"]),
-        ("IN A DECK, but not in the master file", report["extra_in_decks"]),
-        ("SAME ACRONYM, different name or description", report["multi_version"]),
-        ("DUPLICATE acronyms in the master file", report["master_dupes"]),
-        ("DUPLICATE acronyms in the merged decks", report["deck_dupes"]),
+        ("IN THE MASTER LIST, no deck uses this version", report["missing_from_decks"]),
+        ("IN A DECK, this version is not in the master list", report["extra_in_decks"]),
+        ("SAME ACRONYM, more than one version: INFORMATION ONLY", report["multi_version"]),
+        ("DUPLICATE versions in the master list", report["master_dupes"]),
+        ("DUPLICATE versions within one deck", report["deck_dupes"]),
         ("INCOMPLETE rows (blank acronym, name, or description)", report["incomplete"]),
     ]
 
