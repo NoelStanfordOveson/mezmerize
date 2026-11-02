@@ -22,6 +22,8 @@ from mez_cards import version_of
 REQUIRED_COLUMNS = ("acronym", "full_name", "description")
 DECK_CHECK_WIDTH = 96                                       # widest the report gets, even in a big window
 ACRONYM_COLUMN = 8                                          # width of the acronym column in the report
+ACRONYM_DIVIDER = "-" * 68                                  # between acronyms in section 3
+VERSION_DIVIDER = " " * 6 + "." * 62                        # between versions of one acronym, under the labels
 
 
 def report_width():
@@ -33,7 +35,11 @@ def wrap_row(row, width):
     """Turn one report row into the screen lines it needs (long lines wrap)."""
     lines = []
     for part in row.split("\n"):
-        indent = " " * (len(part) - len(part.lstrip()) + 4)
+        bar = part.find("  |  ")
+        if bar >= 0:
+            indent = " " * (bar + 5)
+        else:
+            indent = " " * (len(part) - len(part.lstrip()) + 6)
         lines.extend(textwrap.wrap(part, width, subsequent_indent=indent) or [""])
     return lines
 
@@ -196,9 +202,13 @@ def compare(master_cards, deck_cards):
         if len(versions) > 1:
             block = [f"  {all_cards[key][0]['acronym']}"]
             for cards in versions.values():
+                if len(block) > 1:
+                    block.append(VERSION_DIVIDER)
                 block.append(f"      NAME: {cards[0]['full_name']}")
                 block.append(f"      DESC: {cards[0]['description']}")
                 block.append(f"      IN:   {', '.join(place_of(card) for card in cards)}")
+            if multi_version:
+                block.insert(0, ACRONYM_DIVIDER)
             multi_version.append("\n".join(block))
 
     # --- 4. The exact same version twice in the master file ---
