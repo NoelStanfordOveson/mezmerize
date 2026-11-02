@@ -17,6 +17,7 @@ import textwrap
 from collections import defaultdict
 
 from mez_common import BUILTIN_DECKS, clear_screen, csv_path, print_mode_banner, read_key, say_goodbye
+from mez_cards import version_of
 
 REQUIRED_COLUMNS = ("acronym", "full_name", "description")
 DECK_CHECK_WIDTH = 96                                       # widest the report gets, even in a big window
@@ -149,72 +150,78 @@ def index_by_acronym(cards):
         grouped[key_of(card["acronym"])].append(card)
     return grouped
 
-def first_nonempty(cards, field):
+def group_by_version(cards):
+    """
+    Group cards by exact version (see version_of in mez_cards).
+
+    One version can appear more than once (a duplicate in one file,
+    or the same card living in two decks).
+    """
+    grouped = defaultdict(list)
     for card in cards:
-        if card[field]:
-            return card[field]
-    return ""
+        grouped[version_of(card)].append(card)
+    return grouped
+
+def place_of(card):
+    """Say where a card lives: its file and line number, for the report."""
+    return f"{card['source']} line {card['line']}"
 
 def compare(master_cards, deck_cards):
-    master_index = index_by_acronym(master_cards)
-    deck_index = index_by_acronym(deck_cards)
+    master_versions = group_by_version(master_cards)
+    deck_versions = group_by_version(deck_cards)
 
-    master_keys = set(master_index)
-    deck_keys = set(deck_index)
-
-    # --- 1. In master, not in any built-in deck ---
+    # --- 1. In master, no deck uses this version ---
     missing_from_decks = []
-    for key in sorted(master_keys - deck_keys):
-        card = master_index[key][0]
-        missing_from_decks.append(
-            f"  {card['acronym'] or '(blank acronym)':>{ACRONYM_COLUMN}}  |  {card['full_name']}"
-            f"  [master line {card['line']}]"
-        )
+    for card in master_cards:
+        if version_of(card) not in deck_versions:
+            missing_from_decks.append(
+                f"  {card['acronym'] or '(blank acronym)':>{ACRONYM_COLUMN}}  |  {card['full_name']}"
+                f"  [master line {card['line']}]"
+            )
 
-    # --- 2. In a deck, not in master ---
+    # --- 2. In a deck, the master list lacks this version ---
     extra_in_decks = []
-    for key in sorted(deck_keys - master_keys):
-        for card in deck_index[key]:
+    for card in deck_cards:
+        if version_of(card) not in master_versions:
             extra_in_decks.append(
                 f"  {card['acronym'] or '(blank acronym)':>{ACRONYM_COLUMN}}  |  {card['full_name']}"
-                f"  [{card['source']} line {card['line']}]"
+                f"  [{place_of(card)}]"
             )
 
-    # --- 3. Same acronym, different name or description ---
-    mismatches = []
-    for key in sorted(master_keys & deck_keys):
-        master_card = master_index[key][0]
-        # If the same acronym is in several decks, compare against each copy
-        for deck_card in deck_index[key]:
-            name_diff = master_card["full_name"].casefold() != deck_card["full_name"].casefold()
-            desc_diff = master_card["description"].casefold() != deck_card["description"].casefold()
-            if not name_diff and not desc_diff:
-                continue
-            mismatches.append(
-                f"  {master_card['acronym']}\n"
-                f"      MASTER name: {master_card['full_name']}\n"
-                f"      DECK   name: {deck_card['full_name']}  ({deck_card['source']} line {deck_card['line']})\n"
-                f"      MASTER desc: {master_card['description']}\n"
-                f"      DECK   desc: {deck_card['description']}"
-            )
+    # --- 3. Same acronym, more than one version (information only) ---
+    multi_version = []
+    all_cards = index_by_acronym(master_cards + deck_cards)
+    for key in sorted(all_cards):
+        versions = group_by_version(all_cards[key])
+        if len(versions) > 1:
+            block = [f"  {all_cards[key][0]['acronym']}"]
+            for cards in versions.values():
+                block.append(f"      NAME: {cards[0]['full_name']}")
+                block.append(f"      DESC: {cards[0]['description']}")
+                block.append(f"      IN:   {', '.join(place_of(card) for card in cards)}")
+            multi_version.append("\n".join(block))
 
-    # --- 4. Duplicate acronyms inside the master file ---
+    # --- 4. The exact same version twice in the master file ---
     master_dupes = []
-    for key, cards in master_index.items():
+    for cards in master_versions.values():
         if len(cards) > 1:
             lines = ", ".join(str(card["line"]) for card in cards)
             master_dupes.append(
                 f"  {cards[0]['acronym']} appears {len(cards)} times in master (lines {lines})"
             )
 
-    # --- 5. Duplicate acronyms inside the merged decks ---
+    # --- 5. The exact same version twice in one deck ---
     deck_dupes = []
-    for key, cards in deck_index.items():
-        if len(cards) > 1:
-            places = ", ".join(f"{card['source']} line {card['line']}" for card in cards)
-            deck_dupes.append(
-                f"  {cards[0]['acronym']} appears {len(cards)} times: {places}"
-            )
+    for cards in deck_versions.values():
+        by_deck = defaultdict(list)
+        for card in cards:
+            by_deck[card["source"]].append(card)
+        for source, copies in by_deck.items():
+            if len(copies) > 1:
+                lines = ", ".join(str(card["line"]) for card in copies)
+                deck_dupes.append(
+                    f"  {copies[0]['acronym']} appears {len(copies)} times in {source} (lines {lines})"
+                )
 
     # --- 6. Rows that are missing a field ---
     incomplete = []
@@ -229,7 +236,7 @@ def compare(master_cards, deck_cards):
     return {
         "missing_from_decks": missing_from_decks,
         "extra_in_decks": extra_in_decks,
-        "mismatches": mismatches,
+        "multi_version": multi_version,
         "master_dupes": master_dupes,
         "deck_dupes": deck_dupes,
         "incomplete": incomplete,
@@ -291,13 +298,13 @@ def main():
     sections = [
         ("IN MASTER, missing from all built-in decks", report["missing_from_decks"]),
         ("IN A DECK, but not in the master file", report["extra_in_decks"]),
-        ("SAME ACRONYM, different name or description", report["mismatches"]),
+        ("SAME ACRONYM, different name or description", report["multi_version"]),
         ("DUPLICATE acronyms in the master file", report["master_dupes"]),
         ("DUPLICATE acronyms in the merged decks", report["deck_dupes"]),
         ("INCOMPLETE rows (blank acronym, name, or description)", report["incomplete"]),
     ]
 
-    problem_count = sum(len(items) for items in report.values())
+    problem_count = sum(len(items) for name, items in report.items() if name != "multi_version")
     if problem_count == 0:
         verdict = "All master entries match the merged decks. Nice."
     else:
