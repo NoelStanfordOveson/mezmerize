@@ -82,6 +82,14 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
 - Every write to master.csv first copies it to data/master.bak (one step of undo;
   *.bak is in .gitignore).
 - Lookup matches on acronym only.
+- Deck health (manage_decks) checks by version, not by acronym:
+  1. in master.csv, no deck uses this version (backlog);
+  2. in a deck, master.csv lacks this version (a stray: every deck card should have an
+     identical twin in master.csv);
+  3. same acronym, more than one version: INFORMATION ONLY, shown but not counted as a problem;
+  4. the exact same version twice in master.csv;
+  5. the exact same version twice in one deck (the same card in two decks is fine: Copy);
+  6. rows with a blank field.
 - Single-deck lookup (as in flashcards) also checks the other built-in decks, by acronym.
   Found here: `Also in:` the other decks, then `(N total)` counting this deck, plus
   `, N identical` when one card was found and other decks hold that exact version.
@@ -199,6 +207,10 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
   After adding from a lookup: `A = add another` above that same line. ESC = menu leaves
   the lookup. Navigation keys are in capitals.
 - Printed prompts don't say "sync"; code names can.
+- manage_decks report pages can be up to DECK_CHECK_WIDTH wide. Wrapped lines sit under the
+  text: after the label (NAME:, DESC:, IN:) in section 3, after the `|` in sections 1 and 2.
+  Section 3 uses ACRONYM_DIVIDER between acronyms and VERSION_DIVIDER between one acronym's
+  versions; change a symbol or length in those constants. An acronym stays whole on a page.
 - Use `...` in examples to stand for other text that's on the screen.
 
 ## Colors
@@ -233,14 +245,14 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
 
 - I'm learning Python and type every code change myself. Don't edit code files directly.
 - Claude writes and maintains this CLAUDE.md. I review each change and commit it.
-- For a big new or contiguous block, show the whole block first, then break it into
-  snippets, outermost bracket first.
-- For each snippet: first show it in context (the whole function if it's not huge,
-  otherwise about 10 lines either side) so placement and indentation are clear, then
-  ask "Questions?" and stop. The in-context step is just the code: no recap of what the
-  existing code already does (that was explained when it was written). Then show the snippets themselves one by one and explain
-  them part by part, pausing again. I type every character myself (no copy/paste),
-  so expect the odd typo.
+- For a big new or contiguous block, show the whole block first, working outermost bracket
+  first. I work from that block and ask for snippets only if I need them.
+- For each code change: first show the existing code in context (the whole function if it's
+  not huge, otherwise about 10 lines either side) so I can get my bearings, then the
+  afterward, then ask "Questions?" and stop. The in-context step is just the code: no recap
+  of what the existing code already does (that was explained when it was written). I work
+  from the afterward. Explain the code only when I ask, then part by part, pausing again.
+  I type every character myself (no copy/paste), so expect the odd typo.
 - In explanations, give variables extra attention: where each one comes from (parameter,
   assignment, loop, enclosing function, import), where it is first assigned, what it
   holds, and where it is used.
@@ -264,7 +276,8 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
 - After I type a change, check the file: compile it, read it, and run it on a scratch
   copy of the data before moving on.
 - Test plans: a two-column table, Step | Expected result.
-- Tell me when to commit, with a GitHub Desktop summary and description.
+- Tell me when to commit, with a GitHub Desktop summary and description, each in its own
+  code box so I can copy and paste them.
   One commit = one thing. I commit and push in GitHub Desktop.
 - Each new feature gets its own branch: branch, build, test, then merge into main.
 - Each file has a numbered index at the top; keep it matching the section headers,
