@@ -1,36 +1,78 @@
 import os
 import random
+import shutil
+import textwrap
 
 from mez_common import (BUILTIN_DECKS, CARD_WIDTH, DATA_FOLDER, clear_screen, csv_path,
                         input_or_esc, load_all_builtin, load_flashcards, overwrite_line,
                         print_mode_banner, print_wrapped, read_key, say_goodbye, ORANGE,
                         color_keys, menu_key)
+from mez_cards import FIELDS
 from manage_acronyms import lookup_acronym
 
-# 1. show_card
-# 2. resolve_csv_path
-# 3. choose_deck
-# 4. (Main program loop)
+VALUE_COLUMN = 13                                                           # a card's values start here
+BANNER_LINES = 3                                                            # height of the study banner
+SAVE_CURSOR = "\x1b7"                                                       # remember where the cursor is
+RESTORE_CURSOR = "\x1b8"                                                    # go back to that spot
+ERASE_BELOW = "\x1b[J"                                                      # erase from the cursor down
 
 
-# 1. Show a single flashcard with the option to reveal or go back to menu
-def show_card(card, number=None, total=None):
-    """ Show one flashcard, reveal on ENTER, or go back to menu on ESC."""
-    if number is not None and total is not None:
-        print(f" Card {number} of {total} ".center(CARD_WIDTH, "="))
-    else:
-        print("=" * CARD_WIDTH)
+# 1. Show the cards
+# 1a. draw_card(card, number, total, hidden=())
+# 1b. card_height(card)
+# 1c. show_card(card, number, total, hidden)
+# 1d. study_cards(cards, banner, hidden)
+# 2. resolve_csv_path(name)
+# 3. choose_deck()
+# 4. Main program loop
+
+
+# 1. Show the cards
+# 1a. Draw one card
+def draw_card(card, number, total, hidden=()):
+    """Print the whole card. Any field named in hidden stays blank."""
+    shown = {field: "" if field in hidden else card[field] for field in FIELDS}
+    print(f" Card {number} of {total} ".center(CARD_WIDTH, "="))
     print_wrapped("DECK:        ", card.get("deck", ""), lead_color=ORANGE, text_color=ORANGE)
-    print(f"ACRONYM:     {card['acronym']}")
+    print(f"ACRONYM:     {shown['acronym']}")
+    print_wrapped("FULL NAME:   ", shown["full_name"])
+    print_wrapped("DESCRIPTION: ", shown["description"])
+    print("=" * CARD_WIDTH)
+
+# 1b. Measure a card at its full size
+def card_height(card):
+    """Return how many screen lines the card takes once every field is filled in."""
+    lines = 3                                                               # the two rules and ACRONYM:
+    for text in (card.get("deck", ""), card["full_name"], card["description"]):
+        lines += len(textwrap.wrap(text, CARD_WIDTH - VALUE_COLUMN)) or 1   # a blank field still takes a line
+    return lines
+
+# 1c. Show one card, then fill it in on ENTER
+def show_card(card, number, total, hidden):
+    """Show the card with its hidden fields blank; ENTER fills them in, ESC goes back to the menu."""
+    print(SAVE_CURSOR, end="")
+    draw_card(card, number, total, hidden)
     if overwrite_line("ENTER = reveal    ESC = menu") == "esc":
         return "esc"
 
-    print_wrapped("FULL NAME:   ", card["full_name"])
-    print_wrapped("DESCRIPTION: ", card["description"])
-    print("=" * CARD_WIDTH)
-
+    print(RESTORE_CURSOR + ERASE_BELOW, end="")
+    draw_card(card, number, total)
     return overwrite_line("ENTER = next card    ESC = menu")
 
+# 1d. Run through the cards, stacking them down the screen
+def study_cards(cards, banner, hidden):
+    """Stack the cards down the screen; when the next one won't fit, start a new screen."""
+    window_lines = shutil.get_terminal_size(fallback=(CARD_WIDTH, 24)).lines
+    lines_used = window_lines                                               # forces a new screen for the first card
+    for number, card in enumerate(cards, start=1):
+        height = card_height(card)
+        if lines_used + height + 1 > window_lines:
+            clear_screen(margin=False)
+            print_mode_banner(banner)
+            lines_used = BANNER_LINES
+        if show_card(card, number, len(cards), hidden) == "esc":
+            break
+        lines_used += height
 
 # 2. Turn what the user typed into a full path to a CSV file
 def resolve_csv_path(name):
@@ -41,7 +83,6 @@ def resolve_csv_path(name):
     if os.path.isabs(name):
         return name
     return csv_path(name)
-
 
 # 3. Flashcard deck chooser
 def choose_deck():
@@ -130,34 +171,30 @@ def main():
             print(f"\nDeck: {deck_name}")
             print(f"Loaded {len(flashcards)} flashcards! 🎉\n")
             print("What would you like to do?")
-            print(f"{menu_key(1)} Review all cards in order")
-            print(f"{menu_key(2)} Random quiz mode")
-            print(f"{menu_key(3)} Look up a specific acronym")
+            print(f"{menu_key(1)} Look up a specific acronym")
+            print(f"{menu_key(2)} Review all cards in order")
+            print(f"{menu_key(3)} Random quiz by acronym")
+            print(f"{menu_key(4)} Random quiz by full name")
             print()
             print(color_keys("ESC = Choose a different deck    Q = quit"), end="", flush=True)
 
-            choice = read_key(("1", "2", "3", "esc", "q"))
+            choice = read_key(("1", "2", "3", "4", "esc", "q"))
 
             if choice == "1":
-                clear_screen(margin=False)
-                print_mode_banner("STUDY MODE - Review")
-                total = len(flashcards)
-                for number, card in enumerate(flashcards, start=1):
-                    if show_card(card, number=number, total=total) == "esc":
-                        break
-
-            elif choice == "2":
-                clear_screen(margin=False)
-                print_mode_banner("STUDY MODE - Quiz")
-                quiz_cards = random.sample(flashcards, len(flashcards))     # shuffle the cards
-                total = len(quiz_cards)
-                for number, card in enumerate(quiz_cards, start=1):
-                    if show_card(card, number=number, total=total) == "esc":
-                        break
-
-            elif choice == "3":
                 if lookup_acronym(flashcards, deck_name) == "quit":
                     return "quit"
+
+            elif choice == "2":
+                study_cards(flashcards, "STUDY MODE - Review", ("full_name", "description"))
+
+            elif choice == "3":
+                quiz_cards = random.sample(flashcards, len(flashcards))     # shuffle the cards
+                study_cards(quiz_cards, "STUDY MODE - Quiz by Acronym", ("full_name", "description"))
+
+            elif choice == "4":
+                named_cards = [card for card in flashcards if card["full_name"]]    # skip any with no full name
+                quiz_cards = random.sample(named_cards, len(named_cards))   # shuffle the cards
+                study_cards(quiz_cards, "STUDY MODE - Quiz by Full Name", ("acronym", "description"))
 
             elif choice == "esc":
                 break                                                       # back to the deck loop
