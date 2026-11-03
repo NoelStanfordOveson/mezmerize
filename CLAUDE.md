@@ -12,7 +12,7 @@ editing an existing card is Windows-only (it uses the console's own line editor)
 
 ```bash
 py mezmerize.py          # main menu: study, look up/add/edit/delete/copy/move, check deck health
-py study_flashcards.py   # study only (review, random quiz, lookup)
+py study_flashcards.py   # study only (lookup, review, quiz by acronym or by full name)
 py manage_acronyms.py    # look up, add, edit, delete, copy, or move acronyms
 py manage_decks.py       # deck health: audit data/master.csv against the decks
 ```
@@ -207,6 +207,12 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
   After adding from a lookup: `A = add another` above that same line. ESC = menu leaves
   the lookup. Navigation keys are in capitals.
 - Printed prompts don't say "sync"; code names can.
+- Study cards are drawn whole from the start, with the answer fields blank. A blank field
+  takes one line, so the card gives no hint how long the answer is. ENTER fills them in on
+  the same card (draw_card, show_card). Review and Quiz by Acronym hide FULL NAME and
+  DESCRIPTION; Quiz by Full Name hides ACRONYM and DESCRIPTION, and skips cards with no
+  full name. Cards stack down the screen; study_cards measures each at its full size first
+  (card_height), and if it won't fit, clears the screen, redraws the banner, and continues.
 - manage_decks report pages can be up to DECK_CHECK_WIDTH wide. Wrapped lines sit under the
   text: after the label (NAME:, DESC:, IN:) in section 3, after the `|` in sections 1 and 2.
   Section 3 uses ACRONYM_DIVIDER between acronyms and VERSION_DIVIDER between one acronym's
@@ -280,14 +286,16 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
   code box so I can copy and paste them.
   One commit = one thing. I commit and push in GitHub Desktop.
 - Each new feature gets its own branch: branch, build, test, then merge into main.
-- Each file has a numbered index at the top; keep it matching the section headers,
-  with a blank line before each numbered section (manage_acronyms does; the other
-  files will follow).
+- Each file has a numbered index at the top; keep it matching the section headers, and
+  list each function with its arguments (`# 1a. draw_card(card, number, total, hidden=())`)
+  so I can see what it takes from the top of the file. study_flashcards does; the other
+  files will follow, manage_decks included as it's built out.
 - No blank line after a module docstring.
 - Imports in three groups with a blank line between: standard library, third-party, ours.
-- Two blank lines before each numbered section header (# 1., # 2., ...) and after
-  the imports and constants at the top; one blank line between other functions
-  and lettered sub-sections.
+- Two blank lines after the imports and constants at the top, before a numbered section
+  that has lettered sub-sections (# 2., # 2a., # 2b., ...), and always before main.
+  One blank line between numbered sections with no sub-sections, between lettered
+  sub-sections, and between other functions.
 - Cosmetic changes (anything that changes what the screen shows: spacing, wording,
   layout) get their own commit. Comments, the index, and other internal tidy-ups
   aren't cosmetic; they go in with the code change they belong to.
