@@ -11,7 +11,8 @@ from mez_common import (BUILTIN_DECKS, clear_screen, print_mode_banner, print_wr
                         load_all_builtin, COLUMN_GAP, ORANGE, BLUE, colored, color_keys,
                         color_words, menu_key)
 from mez_cards import (MASTER_FILE, BACKUP_FILE, FIELDS, read_rows, write_sorted, deck_file_for,
-                       version_of, find_row, decks_with_acronym, decks_with_version, update_master)
+                       version_of, find_row, decks_with_acronym, decks_with_version, update_master,
+                       deck_notes)
 
 RESULT_LEAD = colored("RESULT:  ", BLUE)                                # every RESULT line starts with this
 NO_CHANGES = colored("NO CHANGES", BLUE)                                # as in "NO CHANGES were made."
@@ -19,33 +20,34 @@ NO_CHANGES = colored("NO CHANGES", BLUE)                                # as in 
 
 # 1. Pre-filled typing (Windows console)
 # 1a. Windows keystroke records (classes)
-# 1b. prefill
-# 1c. input_prefilled
+# 1b. prefill(text)
+# 1c. input_prefilled(prompt, default)
 
-# 2. choose_target_deck
+# 2. choose_target_deck()
 
 # 3. Interactive
-# 3a. ask_for_entry
-# 3b. ok_to_add
-# 3c. confirm_add
-# 3d. save_entry
-# 3e. add_to_deck
-# 3f. add_another
-# 3g. add_from_lookup
-# 3h. add_acronyms
+# 3a. ask_for_entry(label, acronym=None)
+# 3b. ok_to_add(entry, label, deck_rows, master_rows)
+# 3c. confirm_add(entry, label, files)
+# 3d. save_entry(entry, label, filename)
+# 3e. add_to_deck(label, filename)
+# 3f. add_another()
+# 3g. add_from_lookup(acronym)
+# 3h. add_acronyms()
 
 # 4. Manage Elements
-# 4a. show_full_card
-# 4b. show_caution
-# 4c. ask_or_cancel
-# 4d. lookup_acronym
-# 4e. lookup_all_decks
-# 4f. wrap_choices
-# 4g. choose_edit_scope
-# 4h. pick_from_matches
-# 4i. ask_this_or_all
-# 4j. print_decks
-# 4k. list_labels
+# 4a. show_full_card(card, title=None, labels=None, holds=True)
+# 4b. show_caution(sections, entry=None, labels=None, holds=False, title="CAUTION", caution=True)
+# 4c. ask_or_cancel(draw, question, keys, verb, words=())
+# 4d. lookup_acronym(flashcards, deck_name)
+# 4e. lookup_all_decks()
+# 4f. wrap_choices(lead, choices)
+# 4g. choose_edit_scope(matches, verb="Edit")
+# 4h. pick_from_matches(editable, verb="Edit", allow_all=True)
+# 4i. ask_this_or_all(card, decks, verb="Edit")
+# 4j. print_decks(labels, holds=True)
+# 4k. list_labels(labels, holds=True)
+# 4l. show_deck_finder(card)
 
 # 5. Edit
 # 5a. ask_for_edits
@@ -454,15 +456,18 @@ def lookup_acronym(flashcards, deck_name):
             return "quit"
         return None
 
+    redraw = False
     while True:
         clear_screen(margin=False)
         print_mode_banner("LOOKUP")
         print()
 
-        query = input_or_esc("Acronym to look up (ESC = menu): ", required=True)
-        if query is None:
-            return "back"
-        query = query.strip()
+        if not redraw:
+            query = input_or_esc("Acronym to look up (ESC = menu): ", required=True)
+            if query is None:
+                return "back"
+            query = query.strip()
+        redraw = False
 
         query_upper = query.upper()
         matches = [
@@ -504,6 +509,8 @@ def lookup_acronym(flashcards, deck_name):
                 show_full_card(card, title=f"Match {number} of {len(matches)}")
 
         keys = ["enter", "esc", "q", "a"]
+        if matches:
+            keys.append("+")
         actions = ["A = add"]                                           # add is offered on every lookup
 
         if any(deck_file_for(card["deck"]) for card in matches):
@@ -512,9 +519,19 @@ def lookup_acronym(flashcards, deck_name):
 
         print()
         print(color_keys("    ".join(actions)))
-        print(color_keys("ENTER = look up another    ESC = menu    Q = quit"), end="", flush=True)
+        finder = "+ = decks    " if matches else ""
+        print(color_keys(f"{finder}ENTER = new lookup    ESC = menu    Q = quit"), end="", flush=True)
 
         action = read_key(keys)
+        if action == "+":
+            card = matches[0]
+            if len(matches) > 1:
+                picked = pick_from_matches(list(enumerate(matches, start=1)), "Show", allow_all=False)
+                card = picked[0] if picked else None
+            if card is not None and show_deck_finder(card) == "quit":
+                return "quit"
+            redraw = True
+            continue                                                    # same query: redraw the cards
         if action == "a":
             choice, added = add_from_lookup(query)
             for card in added:                                          # show new cards in this lookup
@@ -700,6 +717,35 @@ def list_labels(labels, holds=True):
     """
     for label in labels:
         print(f"{'':<11}{colored(label, ORANGE if holds else '')}")
+
+# 4l. Show the top of a card, then every deck and what it holds
+def show_deck_finder(card):
+    """Cover the card's lower half with the deck list. Return 'back' for + or ESC, 'quit' for Q."""
+    notes = deck_notes(card)
+    clear_screen(margin=False)
+    print_mode_banner("LOOKUP - Deck Finder")
+    print()
+    print("=" * CARD_WIDTH)
+    print_decks([card["deck"]])
+    print(f"ACRONYM:     {card['acronym']}")
+    print_wrapped("FULL NAME:   ", card["full_name"])
+    print("=" * CARD_WIDTH)
+
+    for number, (label, filename) in enumerate(BUILTIN_DECKS, start=1):
+        looking = label == card["deck"]
+        lines = notes[label]
+        if looking:
+            lines = ["looking from here"] + lines
+        key = "  " if looking else menu_key(number)
+        name = colored(f"{label:<23}", ORANGE) if lines else f"{label:<23}"
+        first = colored(f"* {lines[0]}", BLUE) if lines else ""
+        print(f"{key} {name}{first}".rstrip())
+        for line in lines[1:]:
+            print(f"{'':<26}{colored(f'* {line}', BLUE)}")
+
+    print("=" * CARD_WIDTH)
+    print(color_keys("+ or ESC = back to card    Q = quit"), end="", flush=True)
+    return "quit" if read_key(("+", "esc", "q")) == "q" else "back"
 
 
 # 5. Edit

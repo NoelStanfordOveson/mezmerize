@@ -14,13 +14,15 @@ MASTER_FILE = "master.csv"
 BACKUP_FILE = "master.bak"
 FIELDS = ["acronym", "full_name", "description"]
 
-# 1a. read_rows
-# 1b. write_sorted
-# 2a. deck_file_for
-# 2b. version_of
-# 2c. find_row
-# 2d. decks_with_version
-# 2e. decks_with_acronym
+
+# 1a. read_rows(filename)
+# 1b. write_sorted(filename, rows)
+# 2a. deck_file_for(label)
+# 2b. version_of(card)
+# 2c. find_row(rows, card)
+# 2d. decks_with_version(card)
+# 2e. decks_with_acronym(acronym)
+# 2f. Label what each deck holds, compared with this card
 # 3. update_master
 
 
@@ -107,6 +109,32 @@ def decks_with_acronym(acronym):
             found.append(label)
     return found
 
+# 2f. Label what each deck holds, compared with this card
+def deck_notes(card):
+    """
+    Return {label: notes} for every built-in deck.
+    Each other card with this acronym counts once, as its closest match.
+    """
+    wanted = card["acronym"].casefold()
+    name = card["full_name"].casefold()
+    notes = {}
+    for label, filename in BUILTIN_DECKS:
+        found = []
+        for row in read_rows(filename):
+            if row["acronym"].casefold() != wanted:
+                continue
+            if version_of(row) == version_of(card):
+                if label == card["deck"]:                               # the card itself isn't a match
+                    continue
+                note = "identical"
+            elif row["full_name"].casefold() == name:
+                note = "same acronym & name"
+            else:
+                note = "same acronym"
+            if note not in found:
+                found.append(note)
+        notes[label] = found
+    return notes
 
 # 3. Update master.csv: add the new version, drop the old one only if no deck still uses it
 def update_master(old_entry, new_entry):
