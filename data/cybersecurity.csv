@@ -13,9 +13,11 @@ CTEM,Continuous Threat Exposure Management,"A cybersecurity operating model that
 CTF,Capture The Flag,"A hands-on cybersecurity competition where participants solve challenges in areas such as web security, digital forensics, network analysis, and vulnerability exploitation to uncover hidden “flags”—text strings that verify successful completion."
 CVE,Common Vulnerabilities and Exposures,A reference method for publicly known information-security vulnerabilities and exposures.
 CVSS,Common Vulnerability Scoring System,An open framework for rating the severity of security vulnerabilities in computing systems.
+CySA+,CyberSecurity Analyst Plus,"A CompTIA certification validating the skills to detect, analyze, and respond to security threats using threat monitoring, vulnerability management, and incident response techniques."
 DCS,Distributed Control System,"An plant-wide industrial control system that distributes control logic across multiple controllers throughout a manufacturing facility, forming a core OT platform whose compromise can disrupt production, endanger safety, and affect critical infrastructure operations."
 DFARS,Defense Federal Acquisition Regulation Supplement,"A set of DoD acquisition regulations that supplements FAR with additional requirements for defense contractors, including cybersecurity requirements for protecting defense information."
 DFIR,Digital Forensics and Incident Response,"A cybersecurity discipline that investigates security incidents, preserves and analyzes digital evidence, determines root cause and scope, and coordinates containment, eradication, and recovery."
+DKIM,DomainKeys Identified Mail,"An email authentication method that digitally signs outbound messages and lets receiving systems verify the signature using a public key published in DNS, confirming the signing domain’s responsibility for the message and the integrity of its signed content."
 DLP,Data Loss Prevention,Detects the unauthorized transmission or disclosure of sensitive data and prevents its occurrence.
 EBD,Entity-Based Detection,
 EDR,Endpoint Detection and Response,"Cybersecurity technology that continuously monitors endpoint devices to detect, investigate, and respond to cyber threats in real time."
@@ -25,6 +27,7 @@ ERM,Enterprise Risk Management,"An organization-wide discipline for identifying,
 ES,Splunk Enterprise Security,
 ESA,Email Security Appliance,"Cisco’s secure email gateway, formerly known as ESA, filters inbound and outbound email to block spam, phishing, and malware while providing encryption, DLP, and policy enforcement."
 ESC,Endpoint Security Client,"Software installed on endpoint devices that communicates with a central security platform to enforce policies, monitor activity, and help prevent, detect, and respond to threats."
+HSM,Hardware Security Module,"A physical device that securely manages cryptographic keys and performs encryption, decryption, digital-signature, and authentication functions."
 IAM,Identity and Access Management,A framework of policies and technologies to ensure that the right users have the appropriate access to technology resources.
 ICS,Industrial Control Systems,"The hardware, software, and networks that monitor and control physical processes in industrial and critical infrastructure environments, where security protects against cyber threats while preserving safety, availability, and reliability."
 IGA,Identity Governance and Administration,"A cybersecurity discipline that governs digital identities and access through user provisioning, identity lifecycle management, access reviews, policy enforcement, and compliance oversight, ensuring the right people have the right access at the right times and for the right reasons."

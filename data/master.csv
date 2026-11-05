@@ -47,7 +47,7 @@ CDN,Content Delivery Network,A geographically distributed network of proxy serve
 CEH,Certified Ethical Hacker,"An EC-Council certification validating the skills to identify and exploit system vulnerabilities using the same tools and techniques as malicious attackers, in order to assess and strengthen security."
 CGRC,"Certified in Governance, Risk and Compliance","Validates one's ability to manage governance, risk, compliance, security controls, and information system authorization processes within an organization."
 CHD,CardHolder Data,"Payment card information protected under PCI DSS stored or processed that consists of at least the PAN and may also include the cardholder's name, expiration date, and service code."
-CI,ContinuouCs Integration,The practice of automatically and frequently integrating code changes into a shared source code repository.
+CI,Continuous Integration,The practice of automatically and frequently integrating code changes into a shared source code repository.
 CI/CD,Continuous Integration and Continuous Delivery,"A software development practice that automates application building, testing, and deployment to deliver changes quickly and reliably."
 CIA,"Confidentiality, Integrity, Availability","A foundational cybersecurity model—Confidentiality, Integrity, and Availability—used to guide security controls and assess information—system risks."
 CIS,Center for Internet Security,"The CIS Critical Security Controls are a prioritized set of cybersecurity best practices that help organizations defend against common cyberattacks through practical, action-oriented guidance."
@@ -72,13 +72,13 @@ CTF,Capture The Flag,"A hands-on cybersecurity competition where participants so
 CUI,Controlled Unclassified Information,"Unclassified information created or held by the government, or on its behalf, that requires safeguarding or dissemination controls under applicable laws, regulations, or policies."
 CVE,Common Vulnerabilities and Exposures,A reference method for publicly known information-security vulnerabilities and exposures.
 CVSS,Common Vulnerability Scoring System,An open framework for rating the severity of security vulnerabilities in computing systems.
-CySA+,Cybersecurity Analyst,"A CompTIA certification validating the skills to detect, analyze, and respond to security threats using threat monitoring, vulnerability management, and incident response techniques."
+CySA+,CyberSecurity Analyst Plus,"A CompTIA certification validating the skills to detect, analyze, and respond to security threats using threat monitoring, vulnerability management, and incident response techniques."
 DAST,Dynamic Application Security Testing,A black-box security testing tool that evaluates a running application externally to identify runtime vulnerabilities.
 DCS,Distributed Control System,"An plant-wide industrial control system that distributes control logic across multiple controllers throughout a manufacturing facility, forming a core OT platform whose compromise can disrupt production, endanger safety, and affect critical infrastructure operations."
 DFARS,Defense Federal Acquisition Regulation Supplement,"A set of DoD acquisition regulations that supplements FAR with additional requirements for defense contractors, including cybersecurity requirements for protecting defense information."
 DFIR,Digital Forensics and Incident Response,"A cybersecurity discipline that investigates security incidents, preserves and analyzes digital evidence, determines root cause and scope, and coordinates containment, eradication, and recovery."
 DISA,Defense Information Systems Agency,
-DKIM,DomainKeys Identified Mail,
+DKIM,DomainKeys Identified Mail,"An email authentication method that digitally signs outbound messages and lets receiving systems verify the signature using a public key published in DNS, confirming the signing domain’s responsibility for the message and the integrity of its signed content."
 DLP,Data Loss Prevention,Detects the unauthorized transmission or disclosure of sensitive data and prevents its occurrence.
 e-PHI,Electronic Protected Health Information,"PHI that is created, received, maintained, or transmitted electronically."
 E2EE,End-To-End Encryption,A security model in which information is encrypted on the sender’s device and can be decrypted only on the intended recipient’s device.
@@ -162,6 +162,7 @@ OPA,Open Policy Agent,"An open-source, general-purpose policy engine that unifie
 OT,Operational Technology,Hardware and software used to monitor control and automate physical processes in industrial settings.
 OWASP,Open Worldwide Application Security Project,"A nonprofit organization and global community that improves software and application security through open, vendor-neutral standards, tools, guidance, education, and research, best known for its Top 10 list of web application security risks."
 PaaS,Platform as a Service,"A cloud computing model that provides a managed environment for developing, deploying, and running applications, while the provider manages the platform resources."
+PaC,Policy as Code,"The practice of defining, managing, and enforcing policies as machine-readable code that can be versioned, tested, automated, and integrated into software delivery and infrastructure workflows."
 PAM,Privileged Access Management,"The practice of securing, controlling, monitoring, and auditing privileged accounts and administrative access to critical systems, applications, and data."
 PAN,Primary Account Number,"The unique number assigned to a credit, debit, or prepaid card that identifies the issuer and cardholder’s account and must be protected under PCI DSS when stored, processed, or transmitted."
 PBR,Policy-Based Routing,"A routing technique that directs traffic according to defined policies, rather than only by destination IP and the routing table."

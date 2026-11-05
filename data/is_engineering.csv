@@ -12,7 +12,7 @@ CCE,Common Configuration Enumeration,"Provides unique identifiers for system con
 CMDB,Configuration Management Database,a centralized repository that stores information about an organization's IT assets and the relationships between them.
 CPE,Common Platform Enumeration,"A standardized, machine-readable method for naming and identifying classes of applications, operating systems, and hardware devices within an enterprise’s computing assets."
 CSP,Content Security Policy,"A web security standard that lets websites restrict which resources browsers can load and execute and how pages can be embedded, helping prevent cross-site scripting (XSS), code injection, and clickjacking."
-DKIM,DomainKeys Identified Mail,
+DKIM,DomainKeys Identified Mail,"An email authentication method that digitally signs outbound messages and lets receiving systems verify the signature using a public key published in DNS, confirming the signing domain’s responsibility for the message and the integrity of its signed content."
 DLP,Data Loss Prevention,Detects the unauthorized transmission or disclosure of sensitive data and prevents its occurrence.
 DNS,Domain Name System,
 E2EE,End-To-End Encryption,A security model in which information is encrypted on the sender’s device and can be decrypted only on the intended recipient’s device.

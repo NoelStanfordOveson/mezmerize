@@ -12,6 +12,7 @@ DAST,Dynamic Application Security Testing,A black-box security testing tool that
 FPU,Floating Point Unit,"Colloquially known as a math coprocessor, it is a part of a computer system specially designed to carry out operations on floating-point numbers."
 JSON,JavaScript Object Notation,A lightweight format for storing and transporting data.
 OPA,Open Policy Agent,"An open-source, general-purpose policy engine that unifies policy enforcement across the technology stack through declarative policy as code, separating policy decisions from application and infrastructure logic."
+PaC,Policy as Code,"The practice of defining, managing, and enforcing policies as machine-readable code that can be versioned, tested, automated, and integrated into software delivery and infrastructure workflows."
 REST,Representational State Transfer,"REST is an architectural style for web services using APIs that define constraints for distributed, Internet-scale hypermedia systems commonly using HTTP methods such as GET, POST, PUT, and DELETE."
 SPIFFE,Secure Production Identity Framework For Everyone,"An open standard that provides cryptographically verifiable identities for workloads and services, enabling mutual authentication and Zero Trust communication."
 SPIRE,SPIFFE Runtime Environment,"The reference implementation of SPIFFE that provides workload attestation, identity issuance, certificate management, and authentication for Zero Trust service-to-service communication."
