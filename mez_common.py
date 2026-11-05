@@ -173,15 +173,15 @@ def read_key(allowed):
             return key
 
 # 1j. Type a line of text; ESC cancels
-def input_or_esc(prompt, required=False, width=None):
+def input_or_esc(prompt, required=False, width=None, text=""):
     """
     Like input(), but ESC cancels.
     If width is given, long text wraps by whole words, lined up under the prompt.
     Keys in the prompt (ESC = cancel) print green; the prompt is measured in plain.
+    text starts typed in, ready to edit with Backspace.
     Returns the typed text when ENTER is pressed, or None for ESC
     """
-    print(color_keys(prompt), end="", flush=True)
-    text = ""
+    print(color_keys(prompt) + text, end="", flush=True)
     line_start = 0                                                  # where the current screen line starts in text
     indent = " " * len(prompt)                                      # wrapped lines line up under the typing
     while True:
