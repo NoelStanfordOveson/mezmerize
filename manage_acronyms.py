@@ -17,6 +17,7 @@ from mez_cards import (MASTER_FILE, BACKUP_FILE, FIELDS, read_rows, write_sorted
 RESULT_LEAD = colored("RESULT:  ", BLUE)                                # every RESULT line starts with this
 NO_CHANGES = colored("NO CHANGES", BLUE)                                # as in "NO CHANGES were made."
 FINDER_INDENT = " " * 2                                                 # the deck list panel sits in this far
+FINDER_EDGE = "\u2551 "                                                 # the left edge of the deck list panel
 
 
 # 1. Pre-filled typing (Windows console)
@@ -775,9 +776,9 @@ def show_deck_finder(card, deck_name, banner="LOOKUP - Deck Finder"):
         key = "  " if looking else menu_key(number)
         name = colored(f"{label:<23}", ORANGE) if lines else f"{label:<23}"
         first = colored(lines[0], BLUE) if lines else ""
-        print(f"{FINDER_INDENT}{key} {name}{first}".rstrip())
+        print(f"{FINDER_INDENT}{FINDER_EDGE}{key} {name}{first}".rstrip())
         for line in lines[1:]:
-            print(f"{FINDER_INDENT}{'':<26}{colored(line, BLUE)}")
+            print(f"{FINDER_INDENT}{FINDER_EDGE}{'':<26}{colored(line, BLUE)}")
 
     print(f"{FINDER_INDENT}{'=' * (CARD_WIDTH - len(FINDER_INDENT))}")
     print(color_keys(f"1-{len(BUILTIN_DECKS)} = visit    + or ESC = back to card    Q = quit"), end="", flush=True)
