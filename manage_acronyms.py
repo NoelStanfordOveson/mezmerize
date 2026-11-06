@@ -16,6 +16,7 @@ from mez_cards import (MASTER_FILE, BACKUP_FILE, FIELDS, read_rows, write_sorted
 
 RESULT_LEAD = colored("RESULT:  ", BLUE)                                # every RESULT line starts with this
 NO_CHANGES = colored("NO CHANGES", BLUE)                                # as in "NO CHANGES were made."
+FINDER_INDENT = " " * 2                                                 # the deck list panel sits in this far
 
 
 # 1. Pre-filled typing (Windows console)
@@ -752,7 +753,8 @@ def show_deck_finder(card, deck_name):
     print_decks([card["deck"]])
     print(f"ACRONYM:     {card['acronym']}")
     print_wrapped("FULL NAME:   ", card["full_name"])
-    print("=" * CARD_WIDTH)
+    print()                                                             # the rest of the card slides under here
+    print(f"{FINDER_INDENT}{'=' * (CARD_WIDTH - len(FINDER_INDENT))}")
 
     choices = {}
     for number, (label, filename) in enumerate(BUILTIN_DECKS, start=1):
@@ -767,11 +769,11 @@ def show_deck_finder(card, deck_name):
         key = "  " if looking else menu_key(number)
         name = colored(f"{label:<23}", ORANGE) if lines else f"{label:<23}"
         first = colored(lines[0], BLUE) if lines else ""
-        print(f"{key} {name}{first}".rstrip())
+        print(f"{FINDER_INDENT}{key} {name}{first}".rstrip())
         for line in lines[1:]:
-            print(f"{'':<26}{colored(line, BLUE)}")
+            print(f"{FINDER_INDENT}{'':<26}{colored(line, BLUE)}")
 
-    print("=" * CARD_WIDTH)
+    print(f"{FINDER_INDENT}{'=' * (CARD_WIDTH - len(FINDER_INDENT))}")
     print(color_keys(f"1-{len(BUILTIN_DECKS)} = visit    + or ESC = back to card    Q = quit"), end="", flush=True)
     choice = read_key(list(choices) + ["+", "esc", "q"])
     if choice in choices:
