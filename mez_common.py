@@ -20,7 +20,7 @@ RESET = "\x1b[0m"                                                   # back to th
 CHOICE_COLOR = "\x1b[38;5;71m"                                      # menu choices: sage green; "" = plain
 # a key (ENTER, ESC, or one capital letter), then any "or <key>", then " = "
 KEY_PATTERN = re.compile(r"(?<![\w+])(?:ENTER|ESC|[A-Z+])(?=(?: or (?:ENTER|ESC|[A-Z+]))* = )")
-NUMBER_PATTERN = re.compile(r"\b[0-9]+(?= = )")                     # a number key: 1 = Cybersecurity
+NUMBER_PATTERN = re.compile(r"\b[0-9]+(?:-[0-9]+)?(?= = )")         # a number key: 1 = Cybersecurity, 1-8 = visit
 os.system("")                                                       # switch on color codes in the Windows console
 
 BUILTIN_DECKS = [
@@ -33,6 +33,7 @@ BUILTIN_DECKS = [
     ("IS Engineering", "is_engineering.csv"),
     ("IS Management", "is_management.csv"),
 ]
+
 
 # 1. Helper functions
 # 1a. print_wrapped

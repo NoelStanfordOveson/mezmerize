@@ -8,8 +8,8 @@ from ctypes import wintypes
 
 from mez_common import (BUILTIN_DECKS, clear_screen, print_mode_banner, print_wrapped,
                         CARD_WIDTH, overwrite_line, read_key, input_or_esc, say_goodbye,
-                        load_all_builtin, COLUMN_GAP, ORANGE, BLUE, colored, color_keys,
-                        color_words, menu_key)
+                        load_all_builtin, load_flashcards, COLUMN_GAP, ORANGE, BLUE, colored,
+                        color_keys, color_words, menu_key)
 from mez_cards import (MASTER_FILE, BACKUP_FILE, FIELDS, read_rows, write_sorted, deck_file_for,
                        version_of, find_row, decks_with_acronym, decks_with_version, update_master,
                        deck_notes)
@@ -445,18 +445,35 @@ def lookup_acronym(flashcards, deck_name):
     Look up acronyms until the user leaves.
     Return 'back' for ESC or 'quit' for Q.
     """
-    def next_step():
+    def open_finder(card):
+        """Show the deck finder. A picked deck becomes the one being looked at. Return 'quit' for Q."""
+        nonlocal flashcards, deck_name, redraw, last_card
+        last_card = card
+        picked = show_deck_finder(card, deck_name)
+        if picked == "quit":
+            return "quit"
+        redraw = True
+        if picked != "back":
+            deck_name, filename = picked
+            flashcards = load_flashcards(filename, deck_name)
+        return None
+
+    def next_step(card=None):
         """After an edit, delete, copy, or move: None to stay, 'back' for ESC, 'quit' for Q."""
+        finder = "+ = decks    " if card else ""
         print()
-        print(color_keys("ENTER = new lookup    ESC = menu    Q = quit"), end="", flush=True)
-        choice = read_key(("enter", "esc", "q"))
+        print(color_keys(f"ENTER = new lookup    {finder}ESC = menu    Q = quit"), end="", flush=True)
+        choice = read_key(("enter", "esc", "q", "+") if card else ("enter", "esc", "q"))
         if choice == "esc":
             return "back"
         if choice == "q":
             return "quit"
+        if choice == "+":
+            return open_finder(card)
         return None
 
     redraw = False
+    last_card = None                                                    # the card the deck finder last showed
     while True:
         clear_screen(margin=False)
         print_mode_banner("LOOKUP")
@@ -467,6 +484,7 @@ def lookup_acronym(flashcards, deck_name):
             if query is None:
                 return "back"
             query = query.strip()
+            last_card = None
         redraw = False
 
         query_upper = query.upper()
@@ -509,7 +527,7 @@ def lookup_acronym(flashcards, deck_name):
                 show_full_card(card, title=f"Match {number} of {len(matches)}")
 
         keys = ["enter", "esc", "q", "a"]
-        if matches:
+        if matches or last_card:
             keys.append("+")
         actions = ["A = add"]                                           # add is offered on every lookup
 
@@ -519,18 +537,18 @@ def lookup_acronym(flashcards, deck_name):
 
         print()
         print(color_keys("    ".join(actions)))
-        finder = "+ = decks    " if matches else ""
+        finder = "+ = decks    " if matches or last_card else ""
         print(color_keys(f"ENTER = new lookup    {finder}ESC = menu    Q = quit"), end="", flush=True)
 
         action = read_key(keys)
         if action == "+":
-            card = matches[0]
+            card = matches[0] if matches else last_card
             if len(matches) > 1:
                 picked = pick_from_matches(list(enumerate(matches, start=1)), "Show", allow_all=False)
                 card = picked[0] if picked else None
-            if card is not None and show_deck_finder(card) == "quit":
-                return "quit"
             redraw = True
+            if card is not None and open_finder(card) == "quit":
+                return "quit"
             continue                                                    # same query: redraw the cards
         if action == "a":
             choice, added = add_from_lookup(query)
@@ -584,7 +602,7 @@ def lookup_acronym(flashcards, deck_name):
                     if result and deck_name == "ALL DECKS":
                         flashcards.append({**card, "deck": result})
                         flashcards.sort(key=lambda card: card["acronym"].casefold())
-                    leave = next_step()
+                    leave = next_step(card if result else None)
                     if leave:
                         return leave
         elif action == "m":
@@ -605,7 +623,7 @@ def lookup_acronym(flashcards, deck_name):
                         if deck_name == "ALL DECKS":
                             flashcards.append({**card, "deck": result})
                             flashcards.sort(key=lambda card: card["acronym"].casefold())
-                    leave = next_step()
+                    leave = next_step({**card, "deck": result} if result else None)
                     if leave:
                         return leave
         elif action == "esc":
@@ -719,8 +737,13 @@ def list_labels(labels, holds=True):
         print(f"{'':<11}{colored(label, ORANGE if holds else '')}")
 
 # 4l. Show the top of a card, then every deck and what it holds
-def show_deck_finder(card):
-    """Cover the card's lower half with the deck list. Return 'back' for + or ESC, 'quit' for Q."""
+def show_deck_finder(card, deck_name):
+    """
+    Cover the card's lower half with the deck list.
+    deck_name is the deck being looked at; ALL DECKS means the card's own deck.
+    Return 'back' for + or ESC, 'quit' for Q, or the (label, filename) picked to visit.
+    """
+    here = card["deck"] if deck_name == "ALL DECKS" else deck_name
     notes = deck_notes(card)
     clear_screen(margin=False)
     print_mode_banner("LOOKUP - Deck Finder")
@@ -731,9 +754,14 @@ def show_deck_finder(card):
     print_wrapped("FULL NAME:   ", card["full_name"])
     print("=" * CARD_WIDTH)
 
+    choices = {}
     for number, (label, filename) in enumerate(BUILTIN_DECKS, start=1):
-        looking = label == card["deck"]
+        looking = label == here
+        if not looking:
+            choices[str(number)] = (label, filename)
         lines = [f"({note})" for note in notes[label]]
+        if label == card["deck"] and not looking:
+            lines = ["(this card)"] + lines
         if looking:
             lines = ["(looking from here)"] + lines
         key = "  " if looking else menu_key(number)
@@ -744,8 +772,11 @@ def show_deck_finder(card):
             print(f"{'':<26}{colored(line, BLUE)}")
 
     print("=" * CARD_WIDTH)
-    print(color_keys("+ or ESC = back to card    Q = quit"), end="", flush=True)
-    return "quit" if read_key(("+", "esc", "q")) == "q" else "back"
+    print(color_keys(f"1-{len(BUILTIN_DECKS)} = visit    + or ESC = back to card    Q = quit"), end="", flush=True)
+    choice = read_key(list(choices) + ["+", "esc", "q"])
+    if choice in choices:
+        return choices[choice]
+    return "quit" if choice == "q" else "back"
 
 
 # 5. Edit
