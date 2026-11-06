@@ -443,18 +443,23 @@ def ask_or_cancel(draw, question, keys, verb, words=()):
 # 4d. Look up a flashcard by acronym
 def lookup_acronym(flashcards, deck_name):
     """
-    Look up acronyms until the user leaves.
-    Return 'back' for ESC or 'quit' for Q.
+    Look up acronyms until the user leaves. Return 'back' for ESC, 'quit' for Q,
+    or the (label, filename) of the deck last visited.
     """
+    def leaving():
+        """What ESC returns: the deck last visited, or 'back' if there was no last deck."""
+        return visited or "back"
+
     def open_finder(card):
         """Show the deck finder. A picked deck becomes the one being looked at. Return 'quit' for Q."""
-        nonlocal flashcards, deck_name, redraw, last_card
+        nonlocal flashcards, deck_name, redraw, last_card, visited
         last_card = card
         picked = show_deck_finder(card, deck_name)
         if picked == "quit":
             return "quit"
         redraw = True
         if picked != "back":
+            visited = picked
             deck_name, filename = picked
             flashcards = load_flashcards(filename, deck_name)
         return None
@@ -466,13 +471,14 @@ def lookup_acronym(flashcards, deck_name):
         print(color_keys(f"ENTER = new lookup    {finder}ESC = menu    Q = quit"), end="", flush=True)
         choice = read_key(("enter", "esc", "q", "+") if card else ("enter", "esc", "q"))
         if choice == "esc":
-            return "back"
+            return leaving()
         if choice == "q":
             return "quit"
         if choice == "+":
             return open_finder(card)
         return None
 
+    visited = None                                                      # the deck last visited with +
     redraw = False
     last_card = None                                                    # the card the deck finder last showed
     while True:
@@ -483,7 +489,7 @@ def lookup_acronym(flashcards, deck_name):
         if not redraw:
             query = input_or_esc("Acronym to look up (ESC = menu): ", required=True)
             if query is None:
-                return "back"
+                return leaving()
             query = query.strip()
             last_card = None
         redraw = False
@@ -558,7 +564,7 @@ def lookup_acronym(flashcards, deck_name):
                     flashcards.append(card)
             flashcards.sort(key=lambda card: card["acronym"].casefold())
             if choice == "menu":
-                return "back"
+                return leaving()
             if choice == "quit":
                 return "quit"
         elif action == "e":
@@ -628,7 +634,7 @@ def lookup_acronym(flashcards, deck_name):
                     if leave:
                         return leave
         elif action == "esc":
-            return "back"
+            return leaving()
         elif action == "q":
             return "quit"
 
@@ -738,7 +744,7 @@ def list_labels(labels, holds=True):
         print(f"{'':<11}{colored(label, ORANGE if holds else '')}")
 
 # 4l. Show the top of a card, then every deck and what it holds
-def show_deck_finder(card, deck_name):
+def show_deck_finder(card, deck_name, banner="LOOKUP - Deck Finder"):
     """
     Cover the card's lower half with the deck list.
     deck_name is the deck being looked at; ALL DECKS means the card's own deck.
@@ -747,7 +753,7 @@ def show_deck_finder(card, deck_name):
     here = card["deck"] if deck_name == "ALL DECKS" else deck_name
     notes = deck_notes(card)
     clear_screen(margin=False)
-    print_mode_banner("LOOKUP - Deck Finder")
+    print_mode_banner(banner)
     print()
     print("=" * CARD_WIDTH)
     print_decks([card["deck"]])
