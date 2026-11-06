@@ -18,8 +18,11 @@ BLUE = "\x1b[38;5;39m"                                              # things rep
 GREEN = "\x1b[92m"                                                  # a key that can be pressed
 RESET = "\x1b[0m"                                                   # back to the normal color
 CHOICE_COLOR = "\x1b[38;5;71m"                                      # menu choices: sage green; "" = plain
+SAVE_CURSOR = "\x1b7"                                               # remember where the cursor is
+RESTORE_CURSOR = "\x1b8"                                            # go back to that spot
+ERASE_BELOW = "\x1b[J"                                              # erase from the cursor down
 # a key (ENTER, ESC, or one capital letter), then any "or <key>", then " = "
-KEY_PATTERN = re.compile(r"(?<![\w+])(?:ENTER|ESC|[A-Z+])(?=(?: or (?:ENTER|ESC|[A-Z+]))* = )")
+KEY_PATTERN = re.compile(r"(?<![\w+])(?:ENTER|ESC|[A-Z+\u2191\u2193])(?=(?: or (?:ENTER|ESC|[A-Z+\u2191\u2193]))* = )")
 NUMBER_PATTERN = re.compile(r"\b[0-9]+(?:-[0-9]+)?(?= = )")         # a number key: 1 = Cybersecurity, 1-8 = visit
 os.system("")                                                       # switch on color codes in the Windows console
 
@@ -129,7 +132,7 @@ def csv_path(filename):
 def get_key():
     """
     Wait for one keypress and return it.
-    Returns 'enter', 'esc', or 'backspace' for those keys,
+    Returns 'enter', 'esc', 'backspace', 'up', or 'down' for those keys,
     otherwise the character typed (for example 'q' or '3').
     """
     try:
@@ -137,8 +140,12 @@ def get_key():
         while True:
             ch = msvcrt.getwch()
             if ch in ("\x00", "\xe0"):                              # arrow/function keys send two codes
-                msvcrt.getwch()                                     # throw away the second code
-                continue                                            # and keep waiting for a real key
+                second = msvcrt.getwch()                            # which arrow or function key
+                if second == "H":
+                    return "up"
+                if second == "P":
+                    return "down"
+                continue                                            # any other: keep waiting for a real key
             break
 
     except ImportError:
@@ -174,20 +181,29 @@ def read_key(allowed):
             return key
 
 # 1j. Type a line of text; ESC cancels
-def input_or_esc(prompt, required=False, width=None, text=""):
+def input_or_esc(prompt, required=False, width=None, text="", history=None, on_history=None):
     """
     Like input(), but ESC cancels.
     If width is given, long text wraps by whole words, lined up under the prompt.
     Keys in the prompt (ESC = cancel) print green; the prompt is measured in plain.
     text starts typed in, ready to edit with Backspace.
+    history is a list, newest first: up and down move a highlight through it, and
+    ENTER on an empty line puts the highlighted entry on the line, ready to edit.
+    on_history(place) redraws the highlight; place is -1 for none.
     Returns the typed text when ENTER is pressed, or None for ESC
     """
     print(color_keys(prompt) + text, end="", flush=True)
+    history = history or []
+    place = history.index(text) if text in history else -1          # which history entry is on the line
     line_start = 0                                                  # where the current screen line starts in text
     indent = " " * len(prompt)                                      # wrapped lines line up under the typing
     while True:
         key = get_key()
         if key == "enter":
+            if not text.strip() and place >= 0:                     # empty line: take the highlighted entry
+                text = history[place]
+                print(text, end="", flush=True)
+                continue
             if required and not text.strip():
                 continue                                            # nothing typed yet: ignore ENTER
             print()                                                 # move down to the next line
@@ -195,6 +211,15 @@ def input_or_esc(prompt, required=False, width=None, text=""):
         if key == "esc":
             print()
             return None
+        if key in ("up", "down") and history:
+            if key == "up":
+                place = min(place + 1, len(history) - 1)
+            else:
+                place = max(place - 1, -1)
+            if on_history:
+                on_history(place)
+            print(text, end="", flush=True)
+            continue
         if key == "backspace":
             if len(text) > line_start:                              # only erase on the current line
                 text = text[:-1]                                    # drop the last character

@@ -12,15 +12,12 @@ import textwrap
 from mez_common import (BUILTIN_DECKS, CARD_WIDTH, DATA_FOLDER, clear_screen, csv_path,
                         input_or_esc, load_all_builtin, load_flashcards, overwrite_line,
                         print_mode_banner, print_wrapped, read_key, say_goodbye, ORANGE,
-                        color_keys, menu_key)
+                        color_keys, menu_key, SAVE_CURSOR, RESTORE_CURSOR, ERASE_BELOW)
 from mez_cards import FIELDS
 from manage_acronyms import lookup_acronym, show_deck_finder
 
 VALUE_COLUMN = 13                                                           # a card's values start here
 BANNER_LINES = 3                                                            # height of the study banner
-SAVE_CURSOR = "\x1b7"                                                       # remember where the cursor is
-RESTORE_CURSOR = "\x1b8"                                                    # go back to that spot
-ERASE_BELOW = "\x1b[J"                                                      # erase from the cursor down
 
 
 # 1. Show the cards
