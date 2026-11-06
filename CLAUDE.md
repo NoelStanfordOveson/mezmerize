@@ -253,6 +253,13 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
 - Claude writes and maintains this CLAUDE.md. I review each change and commit it.
 - For a big new or contiguous block, show the whole block first, working outermost bracket
   first. I work from that block and ask for snippets only if I need them.
+- Keep snippets short; a long function is shown in pieces, not one long block. A big
+  Existing block can come first, then the smaller Afterward pieces that change it.
+- Each snippet has a change list, all in one place (before or after the code): which
+  lines are deleted, which are added, and which change (from / to when it helps).
+- Wrap each snippet with 2 to 5 unchanged lines above and below, so I know where I am.
+- Read the file right before showing any snippets, and take every line number and Existing
+  block from that fresh read, so they match my file exactly.
 - For each code change: first show the existing code in context (the whole function if it's
   not huge, otherwise about 10 lines either side) so I can get my bearings, then the
   afterward, then ask "Questions?" and stop. The in-context step is just the code: no recap
