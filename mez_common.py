@@ -194,7 +194,7 @@ def input_or_esc(prompt, required=False, width=None, text="", history=None, on_h
     """
     print(color_keys(prompt) + text, end="", flush=True)
     history = history or []
-    place = history.index(text) if text in history else -1          # which history entry is on the line
+    place = -1                                                      # which history entry is highlighted (-1 = none)
     line_start = 0                                                  # where the current screen line starts in text
     indent = " " * len(prompt)                                      # wrapped lines line up under the typing
     while True:

@@ -9,7 +9,8 @@ from ctypes import wintypes
 from mez_common import (BUILTIN_DECKS, clear_screen, print_mode_banner, print_wrapped,
                         CARD_WIDTH, overwrite_line, read_key, input_or_esc, say_goodbye,
                         load_all_builtin, load_flashcards, COLUMN_GAP, ORANGE, BLUE, colored,
-                        color_keys, color_words, menu_key)
+                        color_keys, color_words, menu_key, csv_path, CHOICE_COLOR, SAVE_CURSOR,
+                        RESTORE_CURSOR, ERASE_BELOW)
 from mez_cards import (MASTER_FILE, BACKUP_FILE, FIELDS, read_rows, write_sorted, deck_file_for,
                        version_of, find_row, decks_with_acronym, decks_with_version, update_master,
                        deck_notes)
@@ -17,7 +18,11 @@ from mez_cards import (MASTER_FILE, BACKUP_FILE, FIELDS, read_rows, write_sorted
 RESULT_LEAD = colored("RESULT:  ", BLUE)                                # every RESULT line starts with this
 NO_CHANGES = colored("NO CHANGES", BLUE)                                # as in "NO CHANGES were made."
 FINDER_INDENT = " " * 2                                                 # the deck list panel sits in this far
-FINDER_EDGE = "\u2551 "                                                 # the left edge of the deck list panel
+FINDER_EDGE = "| "                                                      # the left edge of the deck list panel
+RECENT_FILE = "recent.txt"                                              # recent lookups, newest first (git ignores it)
+RECENT_COUNT = 25                                                       # how many recent lookups to keep
+RECENTS_LEAD = "Recents: "                                              # the lead on the Recents line
+LOOKUP_PROMPT = "Acronym to look up (ESC = menu): "                     # the lookup's typing prompt
 
 
 # 1. Pre-filled typing (Windows console)
@@ -50,6 +55,10 @@ FINDER_EDGE = "\u2551 "                                                 # the le
 # 4j. print_decks(labels, holds=True)
 # 4k. list_labels(labels, holds=True)
 # 4l. show_deck_finder(card)
+# 4m. load_recent()
+# 4n. save_recent(recent, acronym)
+# 4o. recents_window(recent, place)
+# 4p. print_recents(recent, place)
 
 # 5. Edit
 # 5a. ask_for_edits
@@ -447,6 +456,12 @@ def lookup_acronym(flashcards, deck_name):
     Look up acronyms until the user leaves. Return 'back' for ESC, 'quit' for Q,
     or the (label, filename) of the deck last visited.
     """
+    def show_recents(place):
+        """Redraw the Recents line and the prompt from the saved spot, with place highlighted."""
+        print(RESTORE_CURSOR + SAVE_CURSOR + ERASE_BELOW, end="")       # back to the spot, kept for next time
+        print_recents(recent, place)
+        print(color_keys(LOOKUP_PROMPT), end="", flush=True)
+
     def leaving():
         """What ESC returns: the deck last visited, or 'back' if there was no last deck."""
         return visited or "back"
@@ -479,6 +494,7 @@ def lookup_acronym(flashcards, deck_name):
             return open_finder(card)
         return None
 
+    recent = load_recent()
     visited = None                                                      # the deck last visited with +
     redraw = False
     last_card = None                                                    # the card the deck finder last showed
@@ -488,7 +504,9 @@ def lookup_acronym(flashcards, deck_name):
         print()
 
         if not redraw:
-            query = input_or_esc("Acronym to look up (ESC = menu): ", required=True)
+            print(SAVE_CURSOR, end="")
+            print_recents(recent, -1)
+            query = input_or_esc(LOOKUP_PROMPT, required=True, history=recent, on_history=show_recents)
             if query is None:
                 return leaving()
             query = query.strip()
@@ -504,6 +522,9 @@ def lookup_acronym(flashcards, deck_name):
         elsewhere = []
         if deck_name != "ALL DECKS":
             elsewhere = [label for label in decks_with_acronym(query) if label != deck_name]
+
+        if matches or elsewhere:
+            save_recent(recent, matches[0]["acronym"] if matches else query)
 
         if not matches:
             if elsewhere:
@@ -786,6 +807,63 @@ def show_deck_finder(card, deck_name, banner="LOOKUP - Deck Finder"):
     if choice in choices:
         return choices[choice]
     return "quit" if choice == "q" else "back"
+
+# 4m. Read the recent lookups
+def load_recent():
+    """Return the saved recent lookups, newest first, or [] if there are none yet."""
+    try:
+        with open(csv_path(RECENT_FILE), encoding="utf-8") as file:
+            return [line.strip() for line in file if line.strip()][:RECENT_COUNT]
+    except OSError:
+        return []
+
+# 4n. Put an acronym at the front of the recent lookups, and save them
+def save_recent(recent, acronym):
+    """Move acronym to the front (no repeats), keep RECENT_COUNT, and write the file."""
+    if acronym in recent:
+        recent.remove(acronym)
+    recent.insert(0, acronym)
+    del recent[RECENT_COUNT:]
+    try:
+        with open(csv_path(RECENT_FILE), "w", encoding="utf-8") as file:
+            file.write("\n".join(recent) + "\n")
+    except OSError:
+        pass                                                            # a convenience: never stop a lookup over it
+
+# 4o. Work out which recent lookups fit on the one Recents line
+def recents_window(recent, place):
+    """
+    Return (start, end): recent[start:end] fits on one line with its ... marks,
+    and includes place when place is 0 or more.
+    """
+    start = 0
+    while True:
+        width = len(RECENTS_LEAD) + (len("..., ") if start else 0)
+        end = start
+        while end < len(recent):
+            item = len(recent[end]) + (len(", ") if end > start else 0)
+            more = len(", ...") if end + 1 < len(recent) else 0         # room for ... if any are left
+            if width + item + more > CARD_WIDTH:
+                break
+            width += item
+            end += 1
+        if place < end or start >= place:
+            return start, end
+        start += 1                                                      # slide one along, then try again
+
+# 4p. Print the Recents line, with the one being rested on in CHOICE_COLOR
+def print_recents(recent, place):
+    """Print the recent lookups on one line, the arrow hint, then a blank line. Nothing if there are none."""
+    if not recent:
+        return
+    start, end = recents_window(recent, place)
+    shown = [colored(acronym, CHOICE_COLOR) if number == place else acronym
+             for number, acronym in enumerate(recent[start:end], start=start)]
+    before = "..., " if start > 0 else ""
+    after = ", ..." if end < len(recent) else ""
+    print(RECENTS_LEAD + before + ", ".join(shown) + after)
+    print(color_keys(" " * len(RECENTS_LEAD) + "(\u2191 = earlier    \u2193 = more recent)"))
+    print()
 
 
 # 5. Edit
