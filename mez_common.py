@@ -132,7 +132,7 @@ def csv_path(filename):
 def get_key():
     """
     Wait for one keypress and return it.
-    Returns 'enter', 'esc', 'backspace', 'up', or 'down' for those keys,
+    Returns 'enter', 'esc', 'backspace', 'up', 'down', 'left', or 'right' for those keys,
     otherwise the character typed (for example 'q' or '3').
     """
     try:
@@ -145,6 +145,10 @@ def get_key():
                     return "up"
                 if second == "P":
                     return "down"
+                if second == "K":
+                    return "left"
+                if second == "M":
+                    return "right"
                 continue                                            # any other: keep waiting for a real key
             break
 
@@ -187,39 +191,55 @@ def input_or_esc(prompt, required=False, width=None, text="", history=None, on_h
     If width is given, long text wraps by whole words, lined up under the prompt.
     Keys in the prompt (ESC = cancel) print green; the prompt is measured in plain.
     text starts typed in, ready to edit with Backspace.
-    history is a list, newest first: up and down move a highlight through it, and
-    ENTER on an empty line puts the highlighted entry on the line, ready to edit.
-    on_history(place) redraws the highlight; place is -1 for none.
+    history is a list, newest first. Up moves into it and highlights an entry; while
+    there, left and right move too. ENTER puts that entry on the line, and ESC or
+    typing returns to the line.
+    on_history(place) redraws the highlight and the prompt; place is -1 for none.
     Returns the typed text when ENTER is pressed, or None for ESC
     """
     print(color_keys(prompt) + text, end="", flush=True)
     history = history or []
     place = -1                                                      # which history entry is highlighted (-1 = none)
+
+    def show_place():
+        """Redraw the highlight and the prompt, then the line typed so far."""
+        if on_history:
+            on_history(place)
+            print(text, end="", flush=True)
+
     line_start = 0                                                  # where the current screen line starts in text
     indent = " " * len(prompt)                                      # wrapped lines line up under the typing
     while True:
         key = get_key()
         if key == "enter":
-            if not text.strip() and place >= 0:                     # empty line: take the highlighted entry
+            if place >=0:                                           # in the list: put that entry on the line
                 text = history[place]
-                print(text, end="", flush=True)
+                place = -1
+                show_place()
                 continue
             if required and not text.strip():
                 continue                                            # nothing typed yet: ignore ENTER
             print()                                                 # move down to the next line
             return text
         if key == "esc":
+            if place >=0:                                           # in the list: just leave it
+                place = -1
+                show_place()
+                continue
             print()
             return None
-        if key in ("up", "down") and history:
-            if key == "up":
+        if key in ("up", "down", "left", "right") and history:
+            if key in ("left", "right") and place < 0:
+                continue                                            # left and right work only in the list
+            if key in ("up", "right"):
                 place = min(place + 1, len(history) - 1)
             else:
                 place = max(place - 1, -1)
-            if on_history:
-                on_history(place)
-            print(text, end="", flush=True)
+            show_place()
             continue
+        if place >= 0:                                              # any other key in the list: back to the line
+            place = -1
+            show_place()
         if key == "backspace":
             if len(text) > line_start:                              # only erase on the current line
                 text = text[:-1]                                    # drop the last character

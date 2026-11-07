@@ -9,8 +9,8 @@ from ctypes import wintypes
 from mez_common import (BUILTIN_DECKS, clear_screen, print_mode_banner, print_wrapped,
                         CARD_WIDTH, overwrite_line, read_key, input_or_esc, say_goodbye,
                         load_all_builtin, load_flashcards, COLUMN_GAP, ORANGE, BLUE, colored,
-                        color_keys, color_words, menu_key, csv_path, CHOICE_COLOR, SAVE_CURSOR,
-                        RESTORE_CURSOR, ERASE_BELOW)
+                        color_keys, color_words, menu_key, csv_path, CHOICE_COLOR, GREEN,
+                        SAVE_CURSOR, RESTORE_CURSOR, ERASE_BELOW)
 from mez_cards import (MASTER_FILE, BACKUP_FILE, FIELDS, read_rows, write_sorted, deck_file_for,
                        version_of, find_row, decks_with_acronym, decks_with_version, update_master,
                        deck_notes)
@@ -853,8 +853,9 @@ def recents_window(recent, place):
 
 # 4p. Print the Recents line, with the one being rested on in CHOICE_COLOR
 def print_recents(recent, place):
-    """Print the recent lookups on one line, the arrow hint, then a blank line. Nothing if there are none."""
+    """Print the recent lookups on one line, the arrow hint, then a blank line. (none) if there are none."""
     if not recent:
+        print(RECENTS_LEAD + "(none)\n")
         return
     start, end = recents_window(recent, place)
     shown = [colored(acronym, CHOICE_COLOR) if number == place else acronym
@@ -862,7 +863,8 @@ def print_recents(recent, place):
     before = "..., " if start > 0 else ""
     after = ", ..." if end < len(recent) else ""
     print(RECENTS_LEAD + before + ", ".join(shown) + after)
-    print(color_keys(" " * len(RECENTS_LEAD) + "(\u2191 = earlier    \u2193 = more recent)"))
+    sideways = "    " + colored("\u2190  \u2192", GREEN) if place >= 0 else ""   # left and right only in the list
+    print(color_keys(" " * len(RECENTS_LEAD) + "(\u2191 = earlier" + sideways + "    \u2193 = more recent)"))
     print()
 
 
