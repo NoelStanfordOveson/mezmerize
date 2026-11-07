@@ -54,6 +54,8 @@ PCIe,Peripheral Component Interconnect express,A high-speed interface standard f
 PKI,Public Key Infrastructure,
 PoP,Point of Presence,"A physical location where installed network infrastructure serves as an interface between communicating entities, allowing users to connect to a service provider’s network or cloud services."
 POP3,Post Office Protocol v3,
+PPM,Personal Password Management,"The practice of securely creating, storing, organizing, protecting, and using passwords and other credentials for personal and professional accounts through password managers, strong authentication practices, and credential security controls."
+PPM,Privileged Password Management,"A core component of PAM that securely stores, controls, rotates, retrieves, and audits passwords and other credentials for privileged accounts, systems, and applications."
 RADIUS,Remote Authentication Dial-In User Service,"A network access protocol that provides centralized AAA for users and devices accessing VPNs, wireless networks, routers, and switches, traditionally using UDP and password hashing in order to hide credentials without encrypting the entire packet."
 RBA,Risk Based Alerting?,
 RBAC,Role-Based Access Control,An access control model that assigns permissions to roles and grants users those permissions through role membership.
@@ -73,7 +75,7 @@ SSO,Single Sign-On,An authentication system that lets a user sign in once with a
 SWA,Secure Web Appliance,"A Cisco Systems on-premises web security appliance that provides SWG capabilities to inspect, filter, and control web traffic."
 SWG,Secure Web Gateway,"A security capability that inspects, filters, and controls web traffic to protect users and prevent malware, phishing, access to malicious websites, data loss, and other web threats."
 TACACS+,Terminal Access Controller Access-Control System +,"A centralized AAA protocol developed by Cisco Systems that controls and audits administrative access to network infrastructure devices such as routers, switches, firewalls, and wireless controllers."
-TCP,Transmission Control Protocol,
+TCP,Transmission Control Protocol,"A connection-oriented transport-layer protocol that provides reliable, ordered, and error-checked data delivery between applications over an IP network."
 Telnet,TELetype over a NETwork,
 UEM,Unified Endpoint Management,"A platform that centrally manages, secures, configures, and monitors endpoints throughout their lifecycle."
 VLAN,Virtual LAN,"A logical subdivision of a physical network into separate Layer 2 networks, or broadcast domains."
@@ -83,6 +85,7 @@ VPN,Virtual Private Network,"An overlay network using virtualization to extend a
 VRF,Virtual Routing and Forwarding,A technology that allows multiple instances of a routing table to co-exist within the same router at the same time.
 WAF,Web Application Firewall,A security control that inspects HTTP/HTTPS traffic to protect web applications from attacks that traditional network firewalls may not detect.
 WCCP,Web Cache Communication Protocol,
+WPM,Workforce Password Management,"The technologies, controls, and processes used to securely generate, store, manage, share, and monitor employees’ password-based credentials for business applications and services."
 WSA,Web Security Appliance,"A Cisco Systems’ SWG appliance (name deprecated) that inspects HTTP and HTTPS traffic between users and the internet, providing URL filtering, malware detection, data protection, and policy enforcement."
 ZTA,Zero Trust Architecture,"Applies Zero Trust principles to enterprise infrastructure and workflows, requiring explicit authentication and authorization before granting resource access, regardless of user, device, or asset location or ownership."
 ZTNA,Zero Trust Network Access,"The doctrine of only granting access to authorized applications and resources through continuous verification of user identity, device, and context, following the Zero Trust principle: ""Never trust, always verify."""
