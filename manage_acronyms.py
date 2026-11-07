@@ -8,44 +8,57 @@ from ctypes import wintypes
 
 from mez_common import (BUILTIN_DECKS, clear_screen, print_mode_banner, print_wrapped,
                         CARD_WIDTH, overwrite_line, read_key, input_or_esc, say_goodbye,
-                        load_all_builtin, COLUMN_GAP, ORANGE, BLUE, colored, color_keys,
-                        color_words, menu_key)
+                        load_all_builtin, load_flashcards, COLUMN_GAP, ORANGE, BLUE, colored,
+                        color_keys, color_words, menu_key, csv_path, CHOICE_COLOR, GREEN,
+                        SAVE_CURSOR, RESTORE_CURSOR, ERASE_BELOW)
 from mez_cards import (MASTER_FILE, BACKUP_FILE, FIELDS, read_rows, write_sorted, deck_file_for,
-                       version_of, find_row, decks_with_acronym, decks_with_version, update_master)
+                       version_of, find_row, decks_with_acronym, decks_with_version, update_master,
+                       deck_notes)
 
 RESULT_LEAD = colored("RESULT:  ", BLUE)                                # every RESULT line starts with this
 NO_CHANGES = colored("NO CHANGES", BLUE)                                # as in "NO CHANGES were made."
+FINDER_INDENT = " " * 2                                                 # the deck list panel sits in this far
+FINDER_EDGE = "| "                                                      # the left edge of the deck list panel
+RECENT_FILE = "recent.txt"                                              # recent lookups, newest first (git ignores it)
+RECENT_COUNT = 25                                                       # how many recent lookups to keep
+RECENTS_LEAD = "Recents: "                                              # the lead on the Recents line
+LOOKUP_PROMPT = "Acronym to look up (ESC = menu): "                     # the lookup's typing prompt
 
 
 # 1. Pre-filled typing (Windows console)
 # 1a. Windows keystroke records (classes)
-# 1b. prefill
-# 1c. input_prefilled
+# 1b. prefill(text)
+# 1c. input_prefilled(prompt, default)
 
-# 2. choose_target_deck
+# 2. choose_target_deck()
 
 # 3. Interactive
-# 3a. ask_for_entry
-# 3b. ok_to_add
-# 3c. confirm_add
-# 3d. save_entry
-# 3e. add_to_deck
-# 3f. add_another
-# 3g. add_from_lookup
-# 3h. add_acronyms
+# 3a. ask_for_entry(label, acronym=None)
+# 3b. ok_to_add(entry, label, deck_rows, master_rows)
+# 3c. confirm_add(entry, label, files)
+# 3d. save_entry(entry, label, filename)
+# 3e. add_to_deck(label, filename)
+# 3f. add_another()
+# 3g. add_from_lookup(acronym)
+# 3h. add_acronyms()
 
 # 4. Manage Elements
-# 4a. show_full_card
-# 4b. show_caution
-# 4c. ask_or_cancel
-# 4d. lookup_acronym
-# 4e. lookup_all_decks
-# 4f. wrap_choices
-# 4g. choose_edit_scope
-# 4h. pick_from_matches
-# 4i. ask_this_or_all
-# 4j. print_decks
-# 4k. list_labels
+# 4a. show_full_card(card, title=None, labels=None, holds=True)
+# 4b. show_caution(sections, entry=None, labels=None, holds=False, title="CAUTION", caution=True)
+# 4c. ask_or_cancel(draw, question, keys, verb, words=())
+# 4d. lookup_acronym(flashcards, deck_name)
+# 4e. lookup_all_decks()
+# 4f. wrap_choices(lead, choices)
+# 4g. choose_edit_scope(matches, verb="Edit")
+# 4h. pick_from_matches(editable, verb="Edit", allow_all=True)
+# 4i. ask_this_or_all(card, decks, verb="Edit")
+# 4j. print_decks(labels, holds=True)
+# 4k. list_labels(labels, holds=True)
+# 4l. show_deck_finder(card)
+# 4m. load_recent()
+# 4n. save_recent(recent, acronym)
+# 4o. recents_window(recent, place)
+# 4p. print_recents(recent, place)
 
 # 5. Edit
 # 5a. ask_for_edits
@@ -138,18 +151,18 @@ def ask_for_entry(label, acronym=None):
     """
     Show the deck, then ask for acronym, full name, and
     description.
-    If an acronym is passed in (from a lookup), show it instead of asking.
+    If an acronym is passed in (from a lookup), it starts typed in, ready to edit.
     Returns a dict, or None if ESC was pressed at any prompt.
     """
     print(color_keys("\nEnter the new acronym.     (ESC = back to the deck list)\n"))
 
     print_decks([label], holds=False)                                   # not in this deck yet
+    start = acronym or ""
+    if start.islower():
+        start = start.upper()
+    acronym = input_or_esc("Acronym:     ", required=True, text=start)
     if acronym is None:
-        acronym = input_or_esc("Acronym:     ", required=True)
-        if acronym is None:
-            return None
-    else:
-        print(f"Acronym:     {acronym}")
+        return None
 
     full_name = input_or_esc("Full name:   ", width=CARD_WIDTH)
     if full_name is None:
@@ -348,7 +361,7 @@ def add_from_lookup(acronym):
 
         print()
         print(color_keys("A = add another"))
-        print(color_keys("ENTER = back to lookup    ESC = menu    Q = quit"), end="", flush=True)
+        print(color_keys("ENTER = new lookup    ESC = menu    Q = quit"), end="", flush=True)
 
         choice = read_key(("a", "enter", "esc", "q"))
         if choice == "a":
@@ -440,29 +453,65 @@ def ask_or_cancel(draw, question, keys, verb, words=()):
 # 4d. Look up a flashcard by acronym
 def lookup_acronym(flashcards, deck_name):
     """
-    Look up acronyms until the user leaves.
-    Return 'back' for ESC or 'quit' for Q.
+    Look up acronyms until the user leaves. Return 'back' for ESC, 'quit' for Q,
+    or the (label, filename) of the deck last visited.
     """
-    def next_step():
-        """After an edit, delete, copy, or move: None to stay, 'back' for ESC, 'quit' for Q."""
-        print()
-        print(color_keys("ENTER = back to lookup    ESC = menu    Q = quit"), end="", flush=True)
-        choice = read_key(("enter", "esc", "q"))
-        if choice == "esc":
-            return "back"
-        if choice == "q":
+    def show_recents(place):
+        """Redraw the Recents line and the prompt from the saved spot, with place highlighted."""
+        print(RESTORE_CURSOR + SAVE_CURSOR + ERASE_BELOW, end="")       # back to the spot, kept for next time
+        print_recents(recent, place)
+        print(color_keys(LOOKUP_PROMPT), end="", flush=True)
+
+    def leaving():
+        """What ESC returns: the deck last visited, or 'back' if there was no last deck."""
+        return visited or "back"
+
+    def open_finder(card):
+        """Show the deck finder. A picked deck becomes the one being looked at. Return 'quit' for Q."""
+        nonlocal flashcards, deck_name, redraw, last_card, visited
+        last_card = card
+        picked = show_deck_finder(card, deck_name)
+        if picked == "quit":
             return "quit"
+        redraw = True
+        if picked != "back":
+            visited = picked
+            deck_name, filename = picked
+            flashcards = load_flashcards(filename, deck_name)
         return None
 
+    def next_step(card=None):
+        """After an edit, delete, copy, or move: None to stay, 'back' for ESC, 'quit' for Q."""
+        finder = "+ = decks    " if card else ""
+        print()
+        print(color_keys(f"ENTER = new lookup    {finder}ESC = menu    Q = quit"), end="", flush=True)
+        choice = read_key(("enter", "esc", "q", "+") if card else ("enter", "esc", "q"))
+        if choice == "esc":
+            return leaving()
+        if choice == "q":
+            return "quit"
+        if choice == "+":
+            return open_finder(card)
+        return None
+
+    recent = load_recent()
+    visited = None                                                      # the deck last visited with +
+    redraw = False
+    last_card = None                                                    # the card the deck finder last showed
     while True:
         clear_screen(margin=False)
         print_mode_banner("LOOKUP")
         print()
 
-        query = input_or_esc("Acronym to look up (ESC = menu): ", required=True)
-        if query is None:
-            return "back"
-        query = query.strip()
+        if not redraw:
+            print(SAVE_CURSOR, end="")
+            print_recents(recent, -1)
+            query = input_or_esc(LOOKUP_PROMPT, required=True, history=recent, on_history=show_recents)
+            if query is None:
+                return leaving()
+            query = query.strip()
+            last_card = None
+        redraw = False
 
         query_upper = query.upper()
         matches = [
@@ -473,6 +522,9 @@ def lookup_acronym(flashcards, deck_name):
         elsewhere = []
         if deck_name != "ALL DECKS":
             elsewhere = [label for label in decks_with_acronym(query) if label != deck_name]
+
+        if matches or elsewhere:
+            save_recent(recent, matches[0]["acronym"] if matches else query)
 
         if not matches:
             if elsewhere:
@@ -504,6 +556,8 @@ def lookup_acronym(flashcards, deck_name):
                 show_full_card(card, title=f"Match {number} of {len(matches)}")
 
         keys = ["enter", "esc", "q", "a"]
+        if matches or last_card:
+            keys.append("+")
         actions = ["A = add"]                                           # add is offered on every lookup
 
         if any(deck_file_for(card["deck"]) for card in matches):
@@ -512,9 +566,19 @@ def lookup_acronym(flashcards, deck_name):
 
         print()
         print(color_keys("    ".join(actions)))
-        print(color_keys("ENTER = look up another    ESC = menu    Q = quit"), end="", flush=True)
+        finder = "+ = decks    " if matches or last_card else ""
+        print(color_keys(f"ENTER = new lookup    {finder}ESC = menu    Q = quit"), end="", flush=True)
 
         action = read_key(keys)
+        if action == "+":
+            card = matches[0] if matches else last_card
+            if len(matches) > 1:
+                picked = pick_from_matches(list(enumerate(matches, start=1)), "Show", allow_all=False)
+                card = picked[0] if picked else None
+            redraw = True
+            if card is not None and open_finder(card) == "quit":
+                return "quit"
+            continue                                                    # same query: redraw the cards
         if action == "a":
             choice, added = add_from_lookup(query)
             for card in added:                                          # show new cards in this lookup
@@ -522,7 +586,7 @@ def lookup_acronym(flashcards, deck_name):
                     flashcards.append(card)
             flashcards.sort(key=lambda card: card["acronym"].casefold())
             if choice == "menu":
-                return "back"
+                return leaving()
             if choice == "quit":
                 return "quit"
         elif action == "e":
@@ -567,7 +631,7 @@ def lookup_acronym(flashcards, deck_name):
                     if result and deck_name == "ALL DECKS":
                         flashcards.append({**card, "deck": result})
                         flashcards.sort(key=lambda card: card["acronym"].casefold())
-                    leave = next_step()
+                    leave = next_step(card if result else None)
                     if leave:
                         return leave
         elif action == "m":
@@ -588,11 +652,11 @@ def lookup_acronym(flashcards, deck_name):
                         if deck_name == "ALL DECKS":
                             flashcards.append({**card, "deck": result})
                             flashcards.sort(key=lambda card: card["acronym"].casefold())
-                    leave = next_step()
+                    leave = next_step({**card, "deck": result} if result else None)
                     if leave:
                         return leave
         elif action == "esc":
-            return "back"
+            return leaving()
         elif action == "q":
             return "quit"
 
@@ -700,6 +764,108 @@ def list_labels(labels, holds=True):
     """
     for label in labels:
         print(f"{'':<11}{colored(label, ORANGE if holds else '')}")
+
+# 4l. Show the top of a card, then every deck and what it holds
+def show_deck_finder(card, deck_name, banner="LOOKUP - Deck Finder"):
+    """
+    Cover the card's lower half with the deck list.
+    deck_name is the deck being looked at; ALL DECKS means the card's own deck.
+    Return 'back' for + or ESC, 'quit' for Q, or the (label, filename) picked to visit.
+    """
+    here = card["deck"] if deck_name == "ALL DECKS" else deck_name
+    notes = deck_notes(card)
+    clear_screen(margin=False)
+    print_mode_banner(banner)
+    print()
+    print("=" * CARD_WIDTH)
+    print_decks([card["deck"]])
+    print(f"ACRONYM:     {card['acronym']}")
+    print_wrapped("FULL NAME:   ", card["full_name"])
+    print()                                                             # the rest of the card slides under here
+    print(f"{FINDER_INDENT}{'=' * (CARD_WIDTH - len(FINDER_INDENT))}")
+
+    choices = {}
+    for number, (label, filename) in enumerate(BUILTIN_DECKS, start=1):
+        looking = label == here
+        if not looking:
+            choices[str(number)] = (label, filename)
+        lines = [f"({note})" for note in notes[label]]
+        if label == card["deck"] and not looking:
+            lines = ["(this card)"] + lines
+        if looking:
+            lines = ["(looking from here)"] + lines
+        key = "  " if looking else menu_key(number)
+        name = colored(f"{label:<23}", ORANGE) if lines else f"{label:<23}"
+        first = colored(lines[0], BLUE) if lines else ""
+        print(f"{FINDER_INDENT}{FINDER_EDGE}{key} {name}{first}".rstrip())
+        for line in lines[1:]:
+            print(f"{FINDER_INDENT}{FINDER_EDGE}{'':<26}{colored(line, BLUE)}")
+
+    print(f"{FINDER_INDENT}{'=' * (CARD_WIDTH - len(FINDER_INDENT))}")
+    print(color_keys(f"1-{len(BUILTIN_DECKS)} = visit    + or ESC = back to card    Q = quit"), end="", flush=True)
+    choice = read_key(list(choices) + ["+", "esc", "q"])
+    if choice in choices:
+        return choices[choice]
+    return "quit" if choice == "q" else "back"
+
+# 4m. Read the recent lookups
+def load_recent():
+    """Return the saved recent lookups, newest first, or [] if there are none yet."""
+    try:
+        with open(csv_path(RECENT_FILE), encoding="utf-8") as file:
+            return [line.strip() for line in file if line.strip()][:RECENT_COUNT]
+    except OSError:
+        return []
+
+# 4n. Put an acronym at the front of the recent lookups, and save them
+def save_recent(recent, acronym):
+    """Move acronym to the front (no repeats), keep RECENT_COUNT, and write the file."""
+    if acronym in recent:
+        recent.remove(acronym)
+    recent.insert(0, acronym)
+    del recent[RECENT_COUNT:]
+    try:
+        with open(csv_path(RECENT_FILE), "w", encoding="utf-8") as file:
+            file.write("\n".join(recent) + "\n")
+    except OSError:
+        pass                                                            # a convenience: never stop a lookup over it
+
+# 4o. Work out which recent lookups fit on the one Recents line
+def recents_window(recent, place):
+    """
+    Return (start, end): recent[start:end] fits on one line with its ... marks,
+    and includes place when place is 0 or more.
+    """
+    start = 0
+    while True:
+        width = len(RECENTS_LEAD) + (len("..., ") if start else 0)
+        end = start
+        while end < len(recent):
+            item = len(recent[end]) + (len(", ") if end > start else 0)
+            more = len(", ...") if end + 1 < len(recent) else 0         # room for ... if any are left
+            if width + item + more > CARD_WIDTH:
+                break
+            width += item
+            end += 1
+        if place < end or start >= place:
+            return start, end
+        start += 1                                                      # slide one along, then try again
+
+# 4p. Print the Recents line, with the one being rested on in CHOICE_COLOR
+def print_recents(recent, place):
+    """Print the recent lookups on one line, the arrow hint, then a blank line. (none) if there are none."""
+    if not recent:
+        print(RECENTS_LEAD + "(none)\n")
+        return
+    start, end = recents_window(recent, place)
+    shown = [colored(acronym, CHOICE_COLOR) if number == place else acronym
+             for number, acronym in enumerate(recent[start:end], start=start)]
+    before = "..., " if start > 0 else ""
+    after = ", ..." if end < len(recent) else ""
+    print(RECENTS_LEAD + before + ", ".join(shown) + after)
+    sideways = "    " + colored("\u2190  \u2192", GREEN) if place >= 0 else ""   # left and right only in the list
+    print(color_keys(" " * len(RECENTS_LEAD) + "(\u2191 = earlier" + sideways + "    \u2193 = more recent)"))
+    print()
 
 
 # 5. Edit

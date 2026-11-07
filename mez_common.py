@@ -18,9 +18,12 @@ BLUE = "\x1b[38;5;39m"                                              # things rep
 GREEN = "\x1b[92m"                                                  # a key that can be pressed
 RESET = "\x1b[0m"                                                   # back to the normal color
 CHOICE_COLOR = "\x1b[38;5;71m"                                      # menu choices: sage green; "" = plain
+SAVE_CURSOR = "\x1b7"                                               # remember where the cursor is
+RESTORE_CURSOR = "\x1b8"                                            # go back to that spot
+ERASE_BELOW = "\x1b[J"                                              # erase from the cursor down
 # a key (ENTER, ESC, or one capital letter), then any "or <key>", then " = "
-KEY_PATTERN = re.compile(r"\b(?:ENTER|ESC|[A-Z])(?=(?: or (?:ENTER|ESC|[A-Z]))* = )")
-NUMBER_PATTERN = re.compile(r"\b[0-9]+(?= = )")                     # a number key: 1 = Cybersecurity
+KEY_PATTERN = re.compile(r"(?<![\w+])(?:ENTER|ESC|[A-Z+\u2191\u2193])(?=(?: or (?:ENTER|ESC|[A-Z+\u2191\u2193]))* = )")
+NUMBER_PATTERN = re.compile(r"\b[0-9]+(?:-[0-9]+)?(?= = )")         # a number key: 1 = Cybersecurity, 1-8 = visit
 os.system("")                                                       # switch on color codes in the Windows console
 
 BUILTIN_DECKS = [
@@ -33,6 +36,7 @@ BUILTIN_DECKS = [
     ("IS Engineering", "is_engineering.csv"),
     ("IS Management", "is_management.csv"),
 ]
+
 
 # 1. Helper functions
 # 1a. print_wrapped
@@ -128,7 +132,7 @@ def csv_path(filename):
 def get_key():
     """
     Wait for one keypress and return it.
-    Returns 'enter', 'esc', or 'backspace' for those keys,
+    Returns 'enter', 'esc', 'backspace', 'up', 'down', 'left', or 'right' for those keys,
     otherwise the character typed (for example 'q' or '3').
     """
     try:
@@ -136,8 +140,16 @@ def get_key():
         while True:
             ch = msvcrt.getwch()
             if ch in ("\x00", "\xe0"):                              # arrow/function keys send two codes
-                msvcrt.getwch()                                     # throw away the second code
-                continue                                            # and keep waiting for a real key
+                second = msvcrt.getwch()                            # which arrow or function key
+                if second == "H":
+                    return "up"
+                if second == "P":
+                    return "down"
+                if second == "K":
+                    return "left"
+                if second == "M":
+                    return "right"
+                continue                                            # any other: keep waiting for a real key
             break
 
     except ImportError:
@@ -173,27 +185,61 @@ def read_key(allowed):
             return key
 
 # 1j. Type a line of text; ESC cancels
-def input_or_esc(prompt, required=False, width=None):
+def input_or_esc(prompt, required=False, width=None, text="", history=None, on_history=None):
     """
     Like input(), but ESC cancels.
     If width is given, long text wraps by whole words, lined up under the prompt.
     Keys in the prompt (ESC = cancel) print green; the prompt is measured in plain.
+    text starts typed in, ready to edit with Backspace.
+    history is a list, newest first. Up moves into it and highlights an entry; while
+    there, left and right move too. ENTER puts that entry on the line, and ESC or
+    typing returns to the line.
+    on_history(place) redraws the highlight and the prompt; place is -1 for none.
     Returns the typed text when ENTER is pressed, or None for ESC
     """
-    print(color_keys(prompt), end="", flush=True)
-    text = ""
+    print(color_keys(prompt) + text, end="", flush=True)
+    history = history or []
+    place = -1                                                      # which history entry is highlighted (-1 = none)
+
+    def show_place():
+        """Redraw the highlight and the prompt, then the line typed so far."""
+        if on_history:
+            on_history(place)
+            print(text, end="", flush=True)
+
     line_start = 0                                                  # where the current screen line starts in text
     indent = " " * len(prompt)                                      # wrapped lines line up under the typing
     while True:
         key = get_key()
         if key == "enter":
+            if place >=0:                                           # in the list: put that entry on the line
+                text = history[place]
+                place = -1
+                show_place()
+                continue
             if required and not text.strip():
                 continue                                            # nothing typed yet: ignore ENTER
             print()                                                 # move down to the next line
             return text
         if key == "esc":
+            if place >=0:                                           # in the list: just leave it
+                place = -1
+                show_place()
+                continue
             print()
             return None
+        if key in ("up", "down", "left", "right") and history:
+            if key in ("left", "right") and place < 0:
+                continue                                            # left and right work only in the list
+            if key in ("up", "right"):
+                place = min(place + 1, len(history) - 1)
+            else:
+                place = max(place - 1, -1)
+            show_place()
+            continue
+        if place >= 0:                                              # any other key in the list: back to the line
+            place = -1
+            show_place()
         if key == "backspace":
             if len(text) > line_start:                              # only erase on the current line
                 text = text[:-1]                                    # drop the last character

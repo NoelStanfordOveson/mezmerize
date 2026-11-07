@@ -20,11 +20,14 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
 ## Architecture (floors: each file imports only from floors below it)
 
 - `mez_common.py` (bottom): shared constants (CARD_WIDTH = 60, COLUMN_GAP, DATA_FOLDER, BUILTIN_DECKS,
-  the colors) and helpers used by more than one program (screen, keys, input, CSV paths,
-  loading decks, color: colored, color_keys, color_words, menu_key).
+  the colors, the cursor codes SAVE_CURSOR / RESTORE_CURSOR / ERASE_BELOW) and helpers used by
+  more than one program (screen, keys, input, CSV paths, loading decks, color: colored,
+  color_keys, color_words, menu_key). get_key returns 'up', 'down', 'left', 'right' for the
+  arrows; input_or_esc can start with text and can take a history list (see Recents).
 - `mez_cards.py` (middle): card logic, no screens. Reads and writes the CSVs (read_rows,
   write_sorted), identifies cards and finds them in decks (version_of, find_row,
-  decks_with_version, decks_with_acronym), and keeps master.csv current (update_master).
+  decks_with_version, decks_with_acronym, deck_notes), and keeps master.csv current
+  (update_master).
 - `manage_acronyms.py`: the screens for lookup, add, edit, delete, copy, and move.
   show_caution draws every CAUTION box.
 - `study_flashcards.py` and `manage_decks.py`: study_flashcards imports lookup_acronym from manage_acronyms,
@@ -82,6 +85,7 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
 - Every write to master.csv first copies it to data/master.bak (one step of undo;
   *.bak is in .gitignore).
 - Lookup matches on acronym only.
+- data/recent.txt holds the Recents list (ignored by git; each folder keeps its own).
 - Deck health (manage_decks) checks by version, not by acronym:
   1. in master.csv, no deck uses this version (backlog);
   2. in a deck, master.csv lacks this version (a stray: every deck card should have an
@@ -202,10 +206,36 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
   The redraw after an answer drops the hint.
 - Key lines are actions on top, navigation below. Lookup: `A = add` always (found or
   not), plus `E = edit    D = delete    C = copy    M = move` for found built-in cards,
-  then `ENTER = look up another    ESC = menu    Q = quit`. After an edit, delete, copy,
-  or move from a lookup: `ENTER = back to lookup    ESC = menu    Q = quit` (next_step).
-  After adding from a lookup: `A = add another` above that same line. ESC = menu leaves
-  the lookup. Navigation keys are in capitals.
+  then `ENTER = new lookup    + = decks    ESC = menu    Q = quit` (+ only when a card
+  is shown). After an edit or delete: `ENTER = new lookup    ESC = menu    Q = quit`
+  (next_step); after a copy or move, `+ = decks` too. After adding from a lookup:
+  `A = add another` above `ENTER = new lookup ...`. ESC = menu leaves the lookup.
+  Navigation keys are in capitals.
+- Add from a lookup starts with the looked-up acronym typed in, ready to edit (in capitals
+  if it was typed all lowercase); ESC still backs out.
+- Deck finder: `+` follows wherever a complete card is shown: lookups (both programs),
+  after a copy or move, and study cards after the reveal (never before the reveal, never
+  on a CAUTION screen). It keeps the card's DECK / ACRONYM / FULL NAME, a blank line, then
+  the deck list as a panel set in by FINDER_INDENT with FINDER_EDGE down its left side, so
+  the card seems to slide underneath. Each deck lists its notes in blue, in the order its
+  cards appear: `(looking from here)` (no number), `(this card)` (the card's own deck when
+  looking from another), `(identical)`, `(same acronym & name)`, `(same acronym)`; each
+  other card gets only its closest note (deck_notes). Labels of decks with a note are
+  orange. Numbers stay fixed. `+` or ESC goes back to the card.
+- Visiting: a number on the deck finder looks the acronym up in that deck, which becomes
+  the one being looked at; `+` still works there, even with no card found. In study mode,
+  ESC from a lookup lands on the last deck visited, and a number on a study card's deck
+  finder switches to that deck's study menu.
+- Recents: the lookup prompt starts empty, with the Recents line above it: the last
+  RECENT_COUNT (25) acronyms found, newest first, no repeats, on one line that slides with
+  `...` marks (recents_window); `Recents: (none)` before the first. Only lookups that found
+  something are saved, with the card's own spelling. Focus starts in the field, where the
+  text is always what ENTER looks up. Up moves focus into the list (the newest highlighted
+  in CHOICE_COLOR); there, up / right go earlier and down / left more recent, ENTER puts
+  the highlighted acronym in the field (replacing whatever was there), and ESC, typing,
+  Backspace, or down / left past the newest return to the field. The hint under the list
+  is `(↑ = earlier    ↓ = more recent)`, with a green `←  →` between them only while the
+  list has focus.
 - Printed prompts don't say "sync"; code names can.
 - Study cards are drawn whole from the start, with the answer fields blank. A blank field
   takes one line, so the card gives no hint how long the answer is. ENTER fills them in on
@@ -241,9 +271,10 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
 - **Blue = things reported** (cyan looked too close to green): RESULT_LEAD (every
   `RESULT:`), NO_CHANGES, `Can't edit` / `Can't delete` / `Can't move`, and the Copy/Move
   Deck List notes.
-- **Green = a key to press:** color_keys() colors just the key (ENTER, ESC, Q, A, E, ...),
-  never `or` or the words after `=`. Menu choices (`1.`, `A.`, and `1 = Cybersecurity`)
-  use CHOICE_COLOR through menu_key() and NUMBER_PATTERN.
+- **Green = a key to press:** color_keys() colors just the key (ENTER, ESC, Q, A, E, +,
+  the arrows, ...), never `or` or the words after `=`. Menu choices (`1.`, `A.`,
+  `1 = Cybersecurity`, `1-8 = visit`) use CHOICE_COLOR through menu_key() and
+  NUMBER_PATTERN. The Recents acronym being rested on is a choice too, so it's CHOICE_COLOR.
 - manage_decks has no color yet (it comes with its print routines). The printer
   (later) gets plain text.
 
@@ -253,6 +284,13 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
 - Claude writes and maintains this CLAUDE.md. I review each change and commit it.
 - For a big new or contiguous block, show the whole block first, working outermost bracket
   first. I work from that block and ask for snippets only if I need them.
+- Keep snippets short; a long function is shown in pieces, not one long block. A big
+  Existing block can come first, then the smaller Afterward pieces that change it.
+- Each snippet has a change list, all in one place (before or after the code): which
+  lines are deleted, which are added, and which change (from / to when it helps).
+- Wrap each snippet with 2 to 5 unchanged lines above and below, so I know where I am.
+- Read the file right before showing any snippets, and take every line number and Existing
+  block from that fresh read, so they match my file exactly.
 - For each code change: first show the existing code in context (the whole function if it's
   not huge, otherwise about 10 lines either side) so I can get my bearings, then the
   afterward, then ask "Questions?" and stop. The in-context step is just the code: no recap

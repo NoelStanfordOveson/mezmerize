@@ -1,3 +1,9 @@
+"""
+study_flashcards: study a deck, one card at a time.
+A program floor: look up a card, review a deck in order, or quiz by acronym or
+by full name. Each card starts with its answers blank and fills in on ENTER.
++ shows which decks hold the card, and a number switches to that deck.
+"""
 import os
 import random
 import shutil
@@ -6,22 +12,20 @@ import textwrap
 from mez_common import (BUILTIN_DECKS, CARD_WIDTH, DATA_FOLDER, clear_screen, csv_path,
                         input_or_esc, load_all_builtin, load_flashcards, overwrite_line,
                         print_mode_banner, print_wrapped, read_key, say_goodbye, ORANGE,
-                        color_keys, menu_key)
+                        color_keys, menu_key, SAVE_CURSOR, RESTORE_CURSOR, ERASE_BELOW)
 from mez_cards import FIELDS
-from manage_acronyms import lookup_acronym
+from manage_acronyms import lookup_acronym, show_deck_finder
 
 VALUE_COLUMN = 13                                                           # a card's values start here
 BANNER_LINES = 3                                                            # height of the study banner
-SAVE_CURSOR = "\x1b7"                                                       # remember where the cursor is
-RESTORE_CURSOR = "\x1b8"                                                    # go back to that spot
-ERASE_BELOW = "\x1b[J"                                                      # erase from the cursor down
 
 
 # 1. Show the cards
 # 1a. draw_card(card, number, total, hidden=())
 # 1b. card_height(card)
 # 1c. show_card(card, number, total, hidden)
-# 1d. study_cards(cards, banner, hidden)
+# 1d. ask_next()
+# 1e. study_cards(cards, banner, hidden)
 # 2. resolve_csv_path(name)
 # 3. choose_deck()
 # 4. Main program loop
@@ -57,11 +61,23 @@ def show_card(card, number, total, hidden):
 
     print(RESTORE_CURSOR + ERASE_BELOW, end="")
     draw_card(card, number, total)
-    return overwrite_line("ENTER = next card    ESC = menu")
+    return ask_next()
 
-# 1d. Run through the cards, stacking them down the screen
+# 1d. Ask what's next, once the card is filled in
+def ask_next():
+    """Return 'enter', '+', or 'esc', and erase the key line."""
+    keys = "ENTER = next card    + = decks    ESC = menu"
+    print(color_keys(keys), end="", flush=True)
+    action = read_key(("enter", "+", "esc"))
+    print("\r" + " " * len(keys) + "\r", end="", flush=True)
+    return action
+
+# 1e. Run through the cards, stacking them down the screen
 def study_cards(cards, banner, hidden):
-    """Stack the cards down the screen; when the next one won't fit, start a new screen."""
+    """
+    Stack the cards down the screen; when the next one won't fit, start a new screen.
+    Return None when done or on ESC, 'quit' for Q, or the (label, filename) picked with +.
+    """
     window_lines = shutil.get_terminal_size(fallback=(CARD_WIDTH, 24)).lines
     lines_used = window_lines                                               # forces a new screen for the first card
     for number, card in enumerate(cards, start=1):
@@ -70,9 +86,20 @@ def study_cards(cards, banner, hidden):
             clear_screen(margin=False)
             print_mode_banner(banner)
             lines_used = BANNER_LINES
-        if show_card(card, number, len(cards), hidden) == "esc":
-            break
+        action = show_card(card, number, len(cards), hidden)
+        while action == "+":
+            picked = show_deck_finder(card, card["deck"], "STUDY MODE - Deck Finder")
+            if picked != "back":
+                return picked
+            clear_screen(margin=False)
+            print_mode_banner(banner)
+            lines_used = BANNER_LINES
+            draw_card(card, number, len(cards))
+            action = ask_next()
+        if action == "esc":
+            return None
         lines_used += height
+    return None
 
 # 2. Turn what the user typed into a full path to a CSV file
 def resolve_csv_path(name):
@@ -180,27 +207,33 @@ def main():
 
             choice = read_key(("1", "2", "3", "4", "esc", "q"))
 
+            went = None                                                     # where the user went from here
             if choice == "1":
-                if lookup_acronym(flashcards, deck_name) == "quit":
-                    return "quit"
+                went = lookup_acronym(flashcards, deck_name)
 
             elif choice == "2":
-                study_cards(flashcards, "STUDY MODE - Review", ("full_name", "description"))
+                went = study_cards(flashcards, "STUDY MODE - Review", ("full_name", "description"))
 
             elif choice == "3":
                 quiz_cards = random.sample(flashcards, len(flashcards))     # shuffle the cards
-                study_cards(quiz_cards, "STUDY MODE - Quiz by Acronym", ("full_name", "description"))
+                went = study_cards(quiz_cards, "STUDY MODE - Quiz by Acronym", ("full_name", "description"))
 
             elif choice == "4":
                 named_cards = [card for card in flashcards if card["full_name"]]    # skip any with no full name
                 quiz_cards = random.sample(named_cards, len(named_cards))   # shuffle the cards
-                study_cards(quiz_cards, "STUDY MODE - Quiz by Full Name", ("acronym", "description"))
+                went = study_cards(quiz_cards, "STUDY MODE - Quiz by Full Name", ("acronym", "description"))
 
             elif choice == "esc":
                 break                                                       # back to the deck loop
 
             elif choice == "q":
                 return "quit"                                               # leave main() entirely
+
+            if went == "quit":
+                return "quit"
+            if went not in (None, "back"):                                  # the user changed decks with +
+                deck_name, filename = went
+                flashcards = load_flashcards(filename, deck_name)
 
 
 # This runs the program when you type: py study_flashcards.py
