@@ -20,7 +20,8 @@ def choose_program():
     """Show the menu. Return the choose program's main function, or None to quit."""
     program_keys = [str(number) for number in range(1, len(PROGRAMS) + 1)]
 
-    clear_screen()
+    clear_screen(margin=False)
+    print()
     print_mode_banner("MEZMERIZE")
     print("\nWhat would you like to do?\n")
 
