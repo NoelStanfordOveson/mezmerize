@@ -17,7 +17,7 @@ import textwrap
 from collections import defaultdict
 
 from mez_common import BUILTIN_DECKS, clear_screen, csv_path, print_mode_banner, read_key, say_goodbye
-from mez_cards import version_of
+from mez_cards import closest_version, version_of
 
 REQUIRED_COLUMNS = ("acronym", "full_name", "description")
 DECK_CHECK_WIDTH = 96                                       # widest the report gets, even in a big window
@@ -26,11 +26,33 @@ ACRONYM_DIVIDER = "-" * 68                                  # between acronyms i
 VERSION_DIVIDER = " " * 6 + "." * 62                        # between versions of one acronym, under the labels
 
 
+# 1. Report pages on screen
+# 1a. report_width()
+# 1b. wrap_row(row, width)
+# 1c. make_pages(blocks, room)
+# 1d. show_pages(banner, heading, rows, last=False)
+
+# 2. Loading and grouping cards
+# 2a. norm(text)
+# 2b. key_of(acronym)
+# 2c. load_csv(filename, source_label)
+# 2d. index_by_acronym(cards)
+# 2e. group_by_version(cards)
+# 2f. place_of(card)
+
+# 3. compare(master_cards, deck_cards)
+# 4. parse_args()
+# main()
+
+
+# 1. Report pages on screen
+# 1a. How wide the report can be
 def report_width():
     """The window's width, capped at DECK_CHECK_WIDTH"""
     columns = shutil.get_terminal_size(fallback=(DECK_CHECK_WIDTH, 24)).columns
     return min(columns - 1, DECK_CHECK_WIDTH)
 
+# 1b. Wrap one report row to the width
 def wrap_row(row, width):
     """Turn one report row into the screen lines it needs (long lines wrap)."""
     lines = []
@@ -43,6 +65,7 @@ def wrap_row(row, width):
         lines.extend(textwrap.wrap(part, width, subsequent_indent=indent) or [""])
     return lines
 
+# 1c. Pack the lines into pages
 def make_pages(blocks, room):
     """
     Pack blocks of lines into pages of at most 'room' lines each.
@@ -58,6 +81,7 @@ def make_pages(blocks, room):
             pages[-1].append(line)
     return pages
 
+# 1d. Show the report one window-full at a time
 def show_pages(banner, heading, rows, last=False):
     """
     Show rows one window-full at a time, with the banner at the top of every page.
@@ -93,14 +117,19 @@ def show_pages(banner, heading, rows, last=False):
             return action
     return "enter"
 
+
+# 2. Loading and grouping cards
+# 2a. Trim the spaces off a field
 def norm(text):
     """Strip leftover spaces so ' CIA ' and 'CIA' count as the same."""
     return (text or "").strip()
 
+# 2b. An acronym, ready to compare (capitals ignored)
 def key_of(acronym):
     """Compare acronyms case-insensitively: 'Cia' == 'CIA'."""
     return norm(acronym).casefold()
 
+# 2c. Load one CSV into a list of cards
 def load_csv(filename, source_label):
     """
     Load one CSV into a list of card dicts.
@@ -144,6 +173,7 @@ def load_csv(filename, source_label):
             })
     return cards, None
 
+# 2d. Group cards by acronym
 def index_by_acronym(cards):
     """
     Group cards by normalized acronym.
@@ -156,6 +186,7 @@ def index_by_acronym(cards):
         grouped[key_of(card["acronym"])].append(card)
     return grouped
 
+# 2e. Group cards by exact version
 def group_by_version(cards):
     """
     Group cards by exact version (see version_of in mez_cards).
@@ -168,10 +199,13 @@ def group_by_version(cards):
         grouped[version_of(card)].append(card)
     return grouped
 
+# 2f. Say where a card lives
 def place_of(card):
     """Say where a card lives: its file and line number, for the report."""
     return f"{card['source']} line {card['line']}"
 
+
+# 3. Run the six health checks
 def compare(master_cards, deck_cards):
     master_versions = group_by_version(master_cards)
     deck_versions = group_by_version(deck_cards)
@@ -187,12 +221,20 @@ def compare(master_cards, deck_cards):
 
     # --- 2. In a deck, the master list lacks this version ---
     extra_in_decks = []
+    lead = f"  {'':>{ACRONYM_COLUMN}}  |  "
     for card in deck_cards:
         if version_of(card) not in master_versions:
-            extra_in_decks.append(
-                f"  {card['acronym'] or '(blank acronym)':>{ACRONYM_COLUMN}}  |  {card['full_name']}"
-                f"  [{place_of(card)}]"
-            )
+            row = (f"  {card['acronym'] or '(blank acronym)':>{ACRONYM_COLUMN}}  |  {card['full_name']}"
+                   f"  [{place_of(card)}]")
+            closest = closest_version(card, master_cards)
+            if closest is None:
+                row += f"\n{lead}TRULY LOST: no card with this acronym in the master list"
+            else:
+                row += (f"\n{lead}CHANGED. Closest in the master list, line {closest['line']}:"
+                        f"\n{lead}NAME: {closest['full_name']}"
+                        f"\n{lead}DESC: {closest['description']}")
+            extra_in_decks.append(row)
+
 
     # --- 3. Same acronym, more than one version (information only) ---
     multi_version = []
@@ -252,6 +294,8 @@ def compare(master_cards, deck_cards):
         "incomplete": incomplete,
     }
 
+
+# 4. Read the master list's filename from the command line
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Compare a master acronym CSV to the merged built-in decks."
@@ -270,6 +314,7 @@ def parse_args():
     return parser.parse_args()
 
 
+# main. Run the deck check, one screen at a time
 def main():
     """Run the deck check. Return 'back' (ESC, or ENTER at the end) or 'quit' (Q)."""
     args = parse_args()
