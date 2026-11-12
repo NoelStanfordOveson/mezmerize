@@ -16,7 +16,8 @@ import shutil
 import textwrap
 from collections import defaultdict
 
-from mez_common import BUILTIN_DECKS, clear_screen, csv_path, print_mode_banner, read_key, say_goodbye
+from mez_common import (BLUE, BUILTIN_DECKS, HELPER, ORANGE, clear_screen, color_keys, color_words,
+                        colored, csv_path, print_mode_banner, read_key, say_goodbye)
 from mez_cards import closest_version, version_of
 
 REQUIRED_COLUMNS = ("acronym", "full_name", "description")
@@ -24,6 +25,7 @@ DECK_CHECK_WIDTH = 96                                       # widest the report 
 ACRONYM_COLUMN = 8                                          # width of the acronym column in the report
 ACRONYM_DIVIDER = "-" * 68                                  # between acronyms in section 3
 VERSION_DIVIDER = " " * 6 + "." * 62                        # between versions of one acronym, under the labels
+REPORT_LABELS = ("TRULY LOST", "CHANGED", "INFORMATION ONLY")   # words colored BLUE in the report
 
 
 # 1. Report pages on screen
@@ -31,6 +33,7 @@ VERSION_DIVIDER = " " * 6 + "." * 62                        # between versions o
 # 1b. wrap_row(row, width)
 # 1c. make_pages(blocks, room)
 # 1d. show_pages(banner, heading, rows, last=False)
+# 1e. color_line(line)
 
 # 2. Loading and grouping cards
 # 2a. norm(text)
@@ -98,24 +101,35 @@ def show_pages(banner, heading, rows, last=False):
         clear_screen(margin=False)
         print_mode_banner(banner, width)
         if heading:
-            print(heading + ("  (continued)" if page_number > 1 else ""))
+            print(color_line(heading + ("  (continued)" if page_number > 1 else "")))
             print("-" * width)
         for line in page:
-            print(line)
+            print(color_line(line))
         print()
 
         if page_number < len(pages):
-            prompt = "ENTER = more     ESC = back     Q = quit"
+            prompt = "ENTER = more    ESC = back    Q = quit"
         elif last:
-            prompt = "ENTER or ESC = back     Q = quit"
+            prompt = "ENTER or ESC = back    Q = quit"
         else:
-            prompt = "ENTER = next section     ESC = back     Q = quit"
-        print(prompt, end="", flush=True)
+            prompt = "ENTER = next section    ESC = back    Q = quit"
+        print(color_keys(prompt), end="", flush=True)
 
         action = read_key(("enter", "esc", "q"))
         if action != "enter":
             return action
     return "enter"
+
+# 1e. Color one report line: labels blue, deck labels orange, file name HELPER
+def color_line(line):
+    """Return the line with its report labels, deck labels, and file names colored. Use after wrapping."""
+    line = color_words(line, REPORT_LABELS, BLUE)
+    for label, filename in BUILTIN_DECKS:
+        whole = label.replace(" ", "\u00a0")
+        line = line.replace(f"{whole}\u00a0(", f"{colored(whole, ORANGE)}\u00a0(")
+        line = line.replace(f"({filename})", f"({colored(filename, HELPER)})")
+    line = line.replace("master line", f"{colored('master', HELPER)} line")
+    return line
 
 
 # 2. Loading and grouping cards
@@ -333,7 +347,8 @@ def main():
     deck_cards = []
     load_errors = []
     for label, filename in BUILTIN_DECKS:
-        cards, error = load_csv(filename, f"{label} ({filename})")
+        whole = label.replace(" ", "\u00a0")
+        cards, error = load_csv(filename, f"{whole}\u00a0({filename})")
         if error:
             load_errors.append(error)
         else:

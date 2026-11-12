@@ -18,6 +18,7 @@ BLUE = "\x1b[38;5;39m"                                              # things rep
 GREEN = "\x1b[92m"                                                  # a key that can be pressed
 RESET = "\x1b[0m"                                                   # back to the normal color
 CHOICE_COLOR = "\x1b[38;5;71m"                                      # menu choices: sage green; "" = plain
+HELPER = "\x1b[1;97m"                                               # where it is / where it's going: bold bright white
 SAVE_CURSOR = "\x1b7"                                               # remember where the cursor is
 RESTORE_CURSOR = "\x1b8"                                            # go back to that spot
 ERASE_BELOW = "\x1b[J"                                              # erase from the cursor down
