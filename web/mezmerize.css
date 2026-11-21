@@ -1,0 +1,109 @@
+/*
+ * mezmerize.css: the look of the web version.
+ * Colors follow the ClearDay hub (navy and gold). The four color jobs from the
+ * PowerShell app keep their meaning:
+ *   --holds  orange  a deck that holds this card right now
+ *   --report blue    things reported (notes, messages)
+ *   --key    green   a key to press
+ *   --choice sage    a menu choice (1, 2, A, ...)
+ * Change a color in one line here.
+ */
+:root{
+  --ink:#0c2260; --ink-2:#123a8a; --text:#243447; --muted:#5b6b7e;
+  --sun:#f5b81f; --bg:#ffffff; --bg-alt:#f4f8fc; --line:#dde6f0;
+  --holds:#c4590a; --report:#1565d8; --key:#1d7a3a; --choice:#4c8a55;
+  --radius:14px;
+}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--bg)}
+body{font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif;color:var(--text);line-height:1.55;-webkit-font-smoothing:antialiased}
+.mez{max-width:760px;margin:0 auto;padding:20px 16px 32px}
+.mez-noscript{padding:16px}
+button{font:inherit;color:inherit}
+
+/* banner: MAJOR - Minor */
+.banner{background:linear-gradient(180deg,var(--ink) 0%,var(--ink-2) 100%);color:#fff;border-radius:var(--radius);padding:14px 20px;margin-bottom:22px;display:flex;align-items:center;gap:12px}
+.banner h1{margin:0;font-size:.95rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#fff}
+.banner .minor{color:var(--sun)}
+.banner .mark{width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,.12);display:grid;place-items:center;flex:none}
+.banner .mark::before{content:"";width:18px;height:18px;background:var(--sun);-webkit-mask:var(--cards) center/contain no-repeat;mask:var(--cards) center/contain no-repeat}
+:root{--cards:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'%3E%3Crect x='3' y='7' width='14' height='13' rx='2'/%3E%3Cpath d='M7 4h12a2 2 0 0 1 2 2v11'/%3E%3Cpath d='M7 12h6M7 15.5h4'/%3E%3C/svg%3E")}
+
+h2{color:var(--ink);font-size:1.25rem;margin:0 0 14px;letter-spacing:-.01em}
+.sub{color:var(--muted);margin:-8px 0 16px}
+.holds{color:var(--holds)}
+.report{color:var(--report)}
+
+/* menus: one row per choice */
+.menu{list-style:none;margin:0 0 20px;padding:0;display:grid;gap:8px}
+.choice{width:100%;display:flex;align-items:center;gap:12px;text-align:left;background:#fff;border:1px solid var(--line);border-radius:10px;padding:11px 14px;cursor:pointer;transition:border-color .15s,box-shadow .15s}
+.choice:hover,.choice:focus-visible{border-color:var(--choice);box-shadow:0 4px 14px rgba(11,31,58,.07);outline:none}
+.choice .num{flex:none;min-width:28px;height:28px;border-radius:8px;border:1.5px solid var(--choice);color:var(--choice);font-weight:700;display:grid;place-items:center;font-size:.9rem}
+.choice .what{flex:1;font-weight:600;color:var(--ink)}
+.choice .count{color:var(--muted);font-size:.9rem}
+
+/* key bar: actions and navigation, each showing its key */
+.keys{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0}
+.key{display:inline-flex;align-items:center;gap:8px;background:var(--bg-alt);border:1px solid var(--line);border-radius:10px;padding:7px 12px;cursor:pointer;font-size:.95rem}
+.key:hover,.key:focus-visible{border-color:var(--key);outline:none}
+.key.hint{cursor:default;background:none;border-style:dashed}
+.key.hint:hover{border-color:var(--line)}
+.key.main{background:var(--ink);border-color:var(--ink);color:#fff}
+.key.main kbd{background:rgba(255,255,255,.14);color:#9fe3b4;border-color:rgba(255,255,255,.3)}
+kbd{font-family:inherit;font-size:.78rem;font-weight:700;color:var(--key);border:1.5px solid var(--key);border-radius:6px;padding:0 6px;line-height:1.5;background:#fff}
+
+/* a card: the labels line up in one column, the values in the next */
+.card{background:#fff;border:1px solid var(--line);border-radius:var(--radius);box-shadow:0 8px 24px rgba(11,31,58,.06);overflow:hidden;margin-bottom:14px}
+.card-title{background:var(--bg-alt);border-bottom:1px solid var(--line);padding:8px 18px;font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.fields{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:0;padding:16px 18px}
+.fields dt{font-size:.78rem;font-weight:700;letter-spacing:.08em;color:var(--muted);padding-top:.2em}
+.fields dt.holds{color:var(--holds)}
+.fields dd{margin:0;min-height:1.55em}
+.fields dd.acronym{font-weight:800;font-size:1.25rem;color:var(--ink);line-height:1.3}
+.card.hidden-answers dd.blank{border-bottom:1px dashed var(--line)}
+.card.study{cursor:pointer}
+.card.reveal dd{animation:fill .35s ease}
+@keyframes fill{from{opacity:0;transform:translateY(3px)}to{opacity:1;transform:none}}
+
+/* the deck finder: the card's top, then the deck list slid over its lower half */
+.finder .card{margin-bottom:0;border-bottom-left-radius:0;border-bottom-right-radius:0;box-shadow:none}
+.finder .panel{margin:-1px 0 14px 18px;border:1px solid var(--line);border-left:4px solid var(--ink-2);border-radius:0 0 var(--radius) var(--radius);background:#fff;box-shadow:0 8px 24px rgba(11,31,58,.06);padding:8px}
+.deckrow{display:grid;grid-template-columns:34px minmax(0,13em) 1fr;align-items:start;gap:8px;padding:7px 8px;border-radius:8px;width:100%;text-align:left;background:none;border:0}
+button.deckrow{cursor:pointer}
+button.deckrow:hover,button.deckrow:focus-visible{background:var(--bg-alt);outline:none}
+.deckrow .num{width:26px;height:26px;border-radius:7px;border:1.5px solid var(--choice);color:var(--choice);font-weight:700;display:grid;place-items:center;font-size:.85rem}
+.deckrow .label{font-weight:600}
+.deckrow .notes{color:var(--report);font-size:.92rem}
+.deckrow .notes span{display:block}
+
+/* lookup */
+.recents{margin-bottom:14px}
+.recents-line{display:flex;align-items:center;gap:8px}
+.recents-line .lead{flex:none;color:var(--muted);font-weight:600}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:3px 2px;scrollbar-width:thin}
+.chip{flex:none;border:1px solid var(--line);background:#fff;border-radius:99px;padding:2px 11px;cursor:pointer;font-size:.92rem}
+.chip:hover{border-color:var(--choice)}
+.chip.on{background:var(--choice);border-color:var(--choice);color:#fff}
+.recents-hint{color:var(--muted);font-size:.85rem;margin-top:2px}
+.recents-hint .side{color:var(--key);font-weight:700}
+.ask{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
+.ask label{font-weight:600;color:var(--ink)}
+.ask input{flex:1;min-width:10em;font:inherit;font-size:1.05rem;padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;color:var(--ink)}
+.ask input:focus{outline:none;border-color:var(--ink-2);box-shadow:0 0 0 3px rgba(18,58,138,.12)}
+.message{margin:14px 0 4px}
+.message p{margin:0 0 2px}
+.where{display:flex;gap:6px}
+.where .lead{flex:none}
+.count-line{padding-left:5.2em;color:var(--muted)}
+.match-tools{display:flex;justify-content:flex-end;padding:0 18px 12px;margin-top:-6px}
+
+.note{color:var(--report);margin:0 0 14px}
+.foot{margin-top:26px;color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:12px}
+
+@media (max-width:520px){
+  .fields{grid-template-columns:1fr;gap:2px}
+  .fields dd{margin-bottom:8px}
+  .deckrow{grid-template-columns:30px 1fr}
+  .deckrow .notes{grid-column:2}
+  .count-line{padding-left:0}
+}

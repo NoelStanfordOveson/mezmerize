@@ -8,6 +8,12 @@ mezmerize: a command-line flashcard app for learning acronyms. Pure Python stand
 (no dependencies, no build step, no test suite). Runs on Windows in PowerShell 7;
 editing an existing card is Windows-only (it uses the console's own line editor).
 
+This folder (`mezmerize-win`, branch `web`) also builds the **web version**: `web/` is one
+self-contained folder (index.html, mezmerize.css, mezmerize.js, decks.js) with study and
+lookup only, no editing. It depends on nothing outside itself (no Joomla, no PHP), so it can
+live on the hub now and move to its own address or SharePoint later. The plan and decisions
+are in claude/bookmarks.md.
+
 ## Commands
 
 ```bash
@@ -15,7 +21,21 @@ py mezmerize.py          # main menu: study, look up/add/edit/delete/copy/move, 
 py study_flashcards.py   # study only (lookup, review, quiz by acronym or by full name)
 py manage_acronyms.py    # look up, add, edit, delete, copy, or move acronyms
 py manage_decks.py       # deck health: audit data/master.csv against the decks
+py export_decks.py       # web: copy the built-in decks into web/decks.js
+py -m http.server 8765 --bind 127.0.0.1 --directory web   # web: try it at http://localhost:8765/
 ```
+
+## Web version
+
+- web/decks.js is made by export_decks.py; never edit it by hand. Export again after cards change.
+- mezmerize.js follows the PowerShell app's rules (versions, deck notes, Also in / Found in,
+  Recents, deck finder, visiting) and its keys (ENTER, ESC, +, numbers, letters); every key
+  is also a button. Recents live in the browser (localStorage), 25 kept.
+- The four color jobs keep their meaning as CSS variables in mezmerize.css: --holds (orange),
+  --report (blue), --key (green), --choice (sage). Navy and gold come from the hub.
+- Both files have a numbered index at the top, like the Python files.
+- When it sits inside another page (iframe), it posts its height to that page
+  (`{mezmerize: "height", height}`) so the frame can fit it.
 
 ## Architecture (floors: each file imports only from floors below it)
 
@@ -281,6 +301,11 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
 ## How to work with me
 
 - I'm learning Python and type every code change myself. Don't edit code files directly.
+  Exception: in `mezmerize-win`, Claude builds the web version itself (web/, export_decks.py)
+  and asks me before moving on when a decision is mine.
+- Questions: say what's being decided and why now, explain each option in plain words (what
+  happens, what it changes later), and give a recommendation. If I didn't follow, explain,
+  then ask the question again.
 - Claude writes and maintains this CLAUDE.md. I review each change and commit it.
 - For a big new or contiguous block, show the whole block first, working outermost bracket
   first. I work from that block and ask for snippets only if I need them.
