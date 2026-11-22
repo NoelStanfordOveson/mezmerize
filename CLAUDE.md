@@ -94,6 +94,26 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
   4. the exact same version twice in master.csv;
   5. the exact same version twice in one deck (the same card in two decks is fine: Copy);
   6. rows with a blank field.
+  Section 2 labels each stray under its `|`: `TRULY LOST` (no card with that acronym in
+  master.csv at all) or `CHANGED` (the closest master row with that acronym, by difflib,
+  through closest_version in mez_cards: line, NAME, DESC).
+- The Result page (DECK HEALTH - Result): when it was checked, counts, Problems by Section,
+  Info by Section, a Next step (the first section with items: truly lost, changed,
+  incomplete, master duplicates, deck duplicates, backlog), then `HEALTH OF DATA:` with
+  clean rows and percent. A row counts once however many problems it has (compare returns
+  the `integrity` and `upkeep` sets). GOOD = no strays or duplicates (integrity) and backlog
+  + incomplete (upkeep) under GOOD_UPKEEP (5%) of rows; POOR = under POOR_CLEAN (80%) of
+  rows clean; otherwise NEEDS ATTENTION.
+- Printing (manage_decks): `F = print full report` on Summary and Result, `P = print this
+  section` on a section with items (none on `None. Excellent.`), `S = save a copy` wherever
+  there's a print key (saves what that key would print). The action line sits above the
+  navigation line; after F, P, or S the page redraws with a RESULT line above the keys.
+  The full report runs Result, sections 1-6, Summary; each part starts a new page, and
+  back-to-back empty sections share one. It's written as RTF (RTF_START: Consolas, 10 pt,
+  0.75 in margins), PRINT_WIDTH (80) wide, plain (no bold, no color), every space as RTF's
+  non-breaking space so columns stay lined up, and printed with os.startfile(path,
+  "print") through whatever opens .rtf (Word). data/deck_health_report.rtf is overwritten
+  by every print; S writes deck_health_YYYY-MM-DD_HHMM.rtf. Both are ignored by git.
 - Single-deck lookup (as in study_flashcards) also checks the other built-in decks, by acronym.
   Found here: `Also in:` the other decks, then `(N total)` counting this deck, plus
   `, N identical` when one card was found and other decks hold that exact version.
@@ -119,7 +139,7 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
   waits at the end of that line.
 - Key bars sit flush left. Navigation lines (lookup, after a result, Deck Lists, menus,
   the study card) use 4 spaces between choices; confirm-screen key lines and `Add anyway?`
-  use 5 (`ENTER = save it     ESC = forget it`). manage_decks still uses 5 (later).
+  use 5 (`ENTER = save it     ESC = forget it`). manage_decks uses 4 throughout.
   Exception: the D / A scope prompt ("You chose Delete.") is indented 5 on purpose.
 - Deck labels in a wrapped list use non-breaking spaces ("\u00a0") so a name never
   splits across lines.
@@ -247,11 +267,13 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
   text: after the label (NAME:, DESC:, IN:) in section 3, after the `|` in sections 1 and 2.
   Section 3 uses ACRONYM_DIVIDER between acronyms and VERSION_DIVIDER between one acronym's
   versions; change a symbol or length in those constants. An acronym stays whole on a page.
+- The MEZMERIZE menu sits 1 line from the top (clear_screen(margin=False), then print()).
+  Every other screen uses TOP_MARGIN, which gives TOP_MARGIN + 1 blank lines (print adds one).
 - Use `...` in examples to stand for other text that's on the screen.
 
 ## Colors
 
-- Three color families, each with one job. Constants in mez_common: ORANGE (palette 208),
+- Four color families, each with one job (HELPER is the fourth, below). Constants in mez_common: ORANGE (palette 208),
   BLUE (palette 39, reports), GREEN (bright, keys), CHOICE_COLOR (sage green, palette 71,
   menu choices). Change a color in one line; `""` means plain (colored() leaves text alone).
   Palette colors are written `\x1b[38;5;Nm` (N = 0-255); GREEN still uses the old short
@@ -275,8 +297,19 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
   the arrows, ...), never `or` or the words after `=`. Menu choices (`1.`, `A.`,
   `1 = Cybersecurity`, `1-8 = visit`) use CHOICE_COLOR through menu_key() and
   NUMBER_PATTERN. The Recents acronym being rested on is a choice too, so it's CHOICE_COLOR.
-- manage_decks has no color yet (it comes with its print routines). The printer
-  (later) gets plain text.
+- **HELPER (bold bright white, `\x1b[1;97m`) = where it is / where it's going:** an
+  informational helper, never a RESULT line, a key line, or the cards themselves. Today:
+  file names in the deck health report and `master` in `master line 13`. Planned (its own
+  branch): the target deck in confirm questions and the candidate card (the card about to
+  be edited, copied, or moved).
+- manage_decks colors each report line after wrapping with color_line: REPORT_LABELS
+  (TRULY LOST, CHANGED, INFORMATION ONLY) blue, deck labels orange inside place notes
+  (never `master`), file names HELPER, keys green. Deck labels are joined with
+  non-breaking spaces before wrapping so a label never splits.
+- One exception to the families: the HEALTH OF DATA rating is a traffic light
+  (RATING_COLORS), on the rating word only and nowhere else: GOOD palette 28 (a deeper
+  green, unlike the key green), NEEDS ATTENTION 220 (yellow), POOR 196 (red).
+- The printout gets plain text.
 
 ## How to work with me
 
@@ -286,6 +319,9 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
   first. I work from that block and ask for snippets only if I need them.
 - Keep snippets short; a long function is shown in pieces, not one long block. A big
   Existing block can come first, then the smaller Afterward pieces that change it.
+- Long work comes in checkpoints of a couple of functions at a time. Claude checks each
+  checkpoint (compile, read, compare with the tested version) before showing the next.
+- Code boxes are marked as Python (for the colors) and show the file's line numbers.
 - Each snippet has a change list, all in one place (before or after the code): which
   lines are deleted, which are added, and which change (from / to when it helps).
 - Wrap each snippet with 2 to 5 unchanged lines above and below, so I know where I am.
@@ -321,19 +357,19 @@ py manage_decks.py       # deck health: audit data/master.csv against the decks
   copy of the data before moving on.
 - Test plans: a two-column table, Step | Expected result.
 - Tell me when to commit, with a GitHub Desktop summary and description, each in its own
-  code box so I can copy and paste them.
+  code box so I can copy and paste them. No Co-Authored-By or session lines in commit
+  messages.
   One commit = one thing. I commit and push in GitHub Desktop.
 - Each new feature gets its own branch: branch, build, test, then merge into main.
 - Each file has a numbered index at the top; keep it matching the section headers, and
   list each function with its arguments (`# 1a. draw_card(card, number, total, hidden=())`)
-  so I can see what it takes from the top of the file. study_flashcards does; the other
-  files will follow, manage_decks included as it's built out.
+  so I can see what it takes from the top of the file. study_flashcards and manage_decks
+  do; the other files will follow.
 - No blank line after a module docstring.
 - Imports in three groups with a blank line between: standard library, third-party, ours.
-- Two blank lines after the imports and constants at the top, before a numbered section
-  that has lettered sub-sections (# 2., # 2a., # 2b., ...), and always before main.
-  One blank line between numbered sections with no sub-sections, between lettered
-  sub-sections, and between other functions.
+- Two blank lines after the imports and constants at the top, before every numbered
+  section (# 2., # 3., ...), and before main. One blank line between lettered
+  sub-sections and between other functions. Inside a function, one blank line at most.
 - Cosmetic changes (anything that changes what the screen shows: spacing, wording,
   layout) get their own commit. Comments, the index, and other internal tidy-ups
   aren't cosmetic; they go in with the code change they belong to.

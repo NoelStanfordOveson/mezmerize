@@ -9,7 +9,7 @@ import re
 import textwrap
 
 CARD_WIDTH = 60                                                     # Width of the flashcard display
-TOP_MARGIN = 2                                                      # Number of blank lines at the top of the screen
+TOP_MARGIN = 2                                                      # Blank lines at the top: TOP_MARGIN + 1 (print adds one)
 DATA_FOLDER = "data"                                                # Folder containing category decks
 COLUMN_GAP = 12                                                     # Spaces between columns in two-column lists
 
@@ -18,6 +18,7 @@ BLUE = "\x1b[38;5;39m"                                              # things rep
 GREEN = "\x1b[92m"                                                  # a key that can be pressed
 RESET = "\x1b[0m"                                                   # back to the normal color
 CHOICE_COLOR = "\x1b[38;5;71m"                                      # menu choices: sage green; "" = plain
+HELPER = "\x1b[1;97m"                                               # where it is / where it's going: bold bright white
 SAVE_CURSOR = "\x1b7"                                               # remember where the cursor is
 RESTORE_CURSOR = "\x1b8"                                            # go back to that spot
 ERASE_BELOW = "\x1b[J"                                              # erase from the cursor down
