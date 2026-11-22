@@ -35,13 +35,17 @@ RATING_COLORS = {                                           # a traffic light, o
     "NEEDS ATTENTION": "\x1b[38;5;220m",                    # yellow
     "POOR": "\x1b[38;5;196m",                               # red
 }
+NO_ITEMS = "None. Excellent."                               # a section with nothing to report
+PRINT_WIDTH = 80                                            # the printout's width, in Consolas
+REPORT_FILE = "deck_health_report.rtf"                      # in the data folder; overwritten by every print
+RTF_START = r"{\rtf1\ansi\deff0{\fonttbl{\f0\fmodern Consolas;}}\margl1080\margr1080\margt1080\margb1080\f0\fs20"
 
 
 # 1. Report pages on screen
 # 1a. report_width()
 # 1b. wrap_row(row, width)
 # 1c. make_pages(blocks, room)
-# 1d. show_pages(banner, heading, rows, last=False)
+# 1d. show_pages(banner, heading, rows, last=False, printout=None, print_key="F")
 # 1e. color_line(line)
 
 # 2. Loading and grouping cards
@@ -60,6 +64,14 @@ RATING_COLORS = {                                           # a traffic light, o
 # 5b. how_many(count, noun)
 # 5c. next_step(report)
 # 5d. result_lines(report, master_cards, deck_cards)
+
+# 6. Printing
+# 6a. printout_pages(parts)
+# 6b. rtf_line(line)
+# 6c. write_rtf(filename, parts)
+# 6d. send_to_printer(parts)
+# 6e. save_copy(parts)
+# 6f. result_message(text, filename)
 
 # main()
 
@@ -101,37 +113,58 @@ def make_pages(blocks, room):
     return pages
 
 # 1d. Show the report one window-full at a time
-def show_pages(banner, heading, rows, last=False):
+def show_pages(banner, heading, rows, last=False, printout=None, print_key="F"):
     """
     Show rows one window-full at a time, with the banner at the top of every page.
+    With a printout (a list of (heading, rows) parts), print_key prints it and S saves a copy.
     Returns 'enter' (go on), 'esc' (back), or 'q' (quit).
     """
     width = report_width()
     height = shutil.get_terminal_size(fallback=(DECK_CHECK_WIDTH, 24)).lines
     top_lines = 3 + (2 if heading else 0)                   # bannner, plus heading and its rule
     room = max(height - top_lines - 2, 1)                   # minus a blank line and the prompt
+    if printout:
+        room = max(room - 3, 1)                             # the action line, and a blank line + RESULT
+        what = "print full report" if print_key == "F" else "print this section"
+        actions = f"{print_key} = {what}    S = save a copy"
+        keys = ("enter", "esc", "q", print_key.lower(), "s")
+    else:
+        keys = ("enter", "esc", "q")
 
     pages = make_pages([wrap_row(row, width) for row in rows], room)
 
     for page_number, page in enumerate(pages, start=1):
-        clear_screen(margin=False)
-        print_mode_banner(banner, width)
-        if heading:
-            print(color_line(heading + ("  (continued)" if page_number > 1 else "")))
-            print("-" * width)
-        for line in page:
-            print(color_line(line))
-        print()
+        message = None
+        while True:
+            clear_screen(margin=False)
+            print_mode_banner(banner, width)
+            if heading:
+                print(color_line(heading + ("  (continued)" if page_number > 1 else "")))
+                print("-" * width)
+            for line in page:
+                print(color_line(line))
+            if message:
+                print()
+                print(message)
+            print()
 
-        if page_number < len(pages):
-            prompt = "ENTER = more    ESC = back    Q = quit"
-        elif last:
-            prompt = "ENTER or ESC = back    Q = quit"
-        else:
-            prompt = "ENTER = next section    ESC = back    Q = quit"
-        print(color_keys(prompt), end="", flush=True)
+            if page_number < len(pages):
+                prompt = "ENTER = more    ESC = back    Q = quit"
+            elif last:
+                prompt = "ENTER or ESC = back    Q = quit"
+            else:
+                prompt = "ENTER = next section    ESC = back    Q = quit"
+            if printout:
+                print(color_keys(actions))
+            print(color_keys(prompt), end="", flush=True)
 
-        action = read_key(("enter", "esc", "q"))
+            action = read_key(keys)
+            if action == "s":
+                message = result_message("Saved a copy:", save_copy(printout))
+            elif printout and action == print_key.lower():
+                message = result_message("Sent to the printer:", send_to_printer(printout))
+            else:
+                break
         if action != "enter":
             return action
     return "enter"
@@ -438,6 +471,83 @@ def result_lines(report, master_cards, deck_cards):
     return lines
 
 
+# 6. Printing
+# 6a. Lay out the printout, one part per page
+def printout_pages(parts):
+    """
+    Return the parts, each a list of (heading, rows), as pages of plain
+    lines PRINT_WIDTH wide.
+    """
+    now = datetime.datetime.now()
+    hour = now.strftime("%I").lstrip("0")
+    stamp = f"{now:%a %b} {now.day}, {now.year} at {hour}:{now:%M %p}"
+    title = "DECK HEALTH REPORT"
+    top = [f"{title}{stamp:>{PRINT_WIDTH - len(title)}}", "=" * PRINT_WIDTH, ""]
+    pages = []
+    previous_empty = False
+    for heading, rows in parts:
+        empty = rows == [NO_ITEMS]
+        if empty and previous_empty:
+            page = pages[-1]                                                        # empty after empty: same page
+            page.append("")
+        else:
+            page = list(top)
+            pages.append(page)
+        page.extend(wrap_row(heading, PRINT_WIDTH))
+        page.append("-" * PRINT_WIDTH)
+        for row in rows:
+            page.extend(wrap_row(row, PRINT_WIDTH))
+        previous_empty = empty
+    return pages
+
+# 6b. Make one line safe for RTF
+def rtf_line(line):
+    """
+    Return the line with RTF's special characters escaped, and other non-ASCII as \\uN?.
+    """
+    out = []
+    for char in line:
+        if char in "\\{}":
+            out.append("\\" + char)
+        elif char == " ":
+            out.append("\\~")                                                       # a space that can't stretch
+        elif ord(char) > 127:
+            out.append(f"\\u{ord(char)}?")
+        else:
+            out.append(char)
+    return "".join(out) + "\\par"
+
+# 6c. Write the printout as an RTF file, a new page before each part
+def write_rtf(filename, parts):
+    """Write the parts to filename in the data folder."""
+    body = []
+    for number, page in enumerate(printout_pages(parts)):
+        if number > 0:
+            body.append("\\page")
+        body.extend(rtf_line(line) for line in page)
+    with open(csv_path(filename), mode="w", encoding="ascii", newline="") as file:
+        file.write(RTF_START + "\n" + "\n".join(body) + "\n}")
+
+# 6d. Print the parts, through whatever opens .rtf files (Word)
+def send_to_printer(parts):
+    """Write REPORT_FILE (overwritten each time) and send it to the default printer. Return its name."""
+    write_rtf(REPORT_FILE, parts)
+    os.startfile(csv_path(REPORT_FILE), "print")
+    return REPORT_FILE
+
+# 6e. Save a dated copy, without printing
+def save_copy(parts):
+    """Write the parts to a dated file, such as deck_health_2026-11-15_1907.rtf. Return its name."""
+    filename = f"deck_health_{datetime.datetime.now():%Y-%m-%d_%H%M}.rtf"
+    write_rtf(filename, parts)
+    return filename
+
+# 6f. The RESULT line after printing or saving
+def result_message(text, filename):
+    """Return the RESULT line: RESULT: in blue, the filename in HELPER."""
+    return f"{colored('RESULT:', BLUE)}  {text} {colored(filename, HELPER)}"
+
+
 # main. Run the deck check, one screen at a time
 def main():
     """Run the deck check. Return 'back' (ESC, or ENTER at the end) or 'quit' (Q)."""
@@ -484,22 +594,31 @@ def main():
         ("INCOMPLETE rows (blank acronym, name, or description)", report["incomplete"]),
     ]
 
-    screens = [("DECK HEALTH - Summary", None, summary)]
+    result = result_lines(report, master_cards, deck_cards)
+    parts = []
+    for number, (title, rows) in enumerate(sections, start=1):
+        heading = f"SECTION {number} OF {len(sections)}:  {title}  ({len(rows)})"
+        parts.append((heading, rows or [NO_ITEMS]))
+    full_report = [("RESULT", result)] + parts + [("SUMMARY", summary)]
+
+    screens = [("DECK HEALTH - Summary", None, summary, full_report, "F")]
     for number, (title, rows) in enumerate(sections, start=1):
         screens.append((
             f"DECK HEALTH - SECTION {number} OF {len(sections)}",
             f"{title}  ({len(rows)})",
-            rows or ["None. Excellent."],
+            rows or [NO_ITEMS],
+            [parts[number - 1]] if rows else None,
+            "P",
         ))
 
-    for banner, heading, lines in screens:
-        action = show_pages(banner, heading, lines)
+    for banner, heading, lines, printout, print_key in screens:
+        action = show_pages(banner, heading, lines, printout=printout, print_key=print_key)
         if action == "esc":
             return "back"
         if action == "q":
             return "quit"
 
-    action = show_pages("DECK HEALTH - Result", None, result_lines(report, master_cards, deck_cards), last=True)
+    action = show_pages("DECK HEALTH - Result", None, result, last=True, printout=full_report, print_key="F")
     return "quit" if action == "q" else "back"
 
 
