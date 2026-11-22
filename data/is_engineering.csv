@@ -14,6 +14,7 @@ CPE,Common Platform Enumeration,"A standardized, machine-readable method for nam
 CSP,Content Security Policy,"A web security standard that lets websites restrict which resources browsers can load and execute and how pages can be embedded, helping prevent cross-site scripting (XSS), code injection, and clickjacking."
 DKIM,DomainKeys Identified Mail,"An email authentication method that digitally signs outbound messages and lets receiving systems verify the signature using a public key published in DNS, confirming the signing domain’s responsibility for the message and the integrity of its signed content."
 DLP,Data Loss Prevention,Detects the unauthorized transmission or disclosure of sensitive data and prevents its occurrence.
+DMARC,"Domain-based Message Authentication, Reporting, and Conformance","An email authentication protocol that uses SPF and DKIM alignment with the visible From domain to evaluate messages, lets domain owners publish handling policies in DNS, and supports reports on domain use and authentication results."
 DNS,Domain Name System,
 E2EE,End-To-End Encryption,A security model in which information is encrypted on the sender’s device and can be decrypted only on the intended recipient’s device.
 EIGRP,Enhanced Interior Gateway Routing Protocol,A Cisco-developed dynamic routing protocol that enables routers to automatically learn and exchange route information within a network.
@@ -51,7 +52,7 @@ OSPF,Open Shortest Path First,
 PBR,Policy-Based Routing,"A routing technique that directs traffic according to defined policies, rather than only by destination IP and the routing table."
 PCAP,Packet CAPture,
 PCIe,Peripheral Component Interconnect express,A high-speed interface standard for connecting components such as SSDs and graphics cards to a computer.
-PKI,Public Key Infrastructure,
+PKI,Public Key Infrastructure,"A framework of policies, processes, hardware, software, and personnel that manages digital certificates and public-private key pairs throughout their lifecycle, including creation, distribution, storage, validation, and revocation."
 PoP,Point of Presence,"A physical location where installed network infrastructure serves as an interface between communicating entities, allowing users to connect to a service provider’s network or cloud services."
 POP3,Post Office Protocol v3,
 PPM,Personal Password Management,"The practice of securely creating, storing, organizing, protecting, and using passwords and other credentials for personal and professional accounts through password managers, strong authentication practices, and credential security controls."
@@ -69,7 +70,7 @@ SEG,Secure Email Gateway,"Cisco System’s email security platform, formerly kno
 SGT,Security Group Tag,"A unique identifier developed by Cisco Systems for TrustSec that identifies users, devices, or resources by security group, enabling access policies based on group membership rather than IP addresses."
 SIEM,Security Information and Event Management,"A security platform that centralizes, normalizes, correlates, and analyzes log and event data across an organization's environment to detect threats, support incident investigation and response, and provide security visibility through alerts, dashboards, and reports."
 SMTP,Simple Mail Transfer Protocol,
-SPF,Sender Policy Framework,
+SPF,Sender Policy Framework,"An email authentication protocol that lets domain owners publish authorized sending servers in DNS so receiving systems can check whether messages come from permitted sources, helping combat spoofing and supporting DKIM and DMARC as part of email authentication."
 SSH,Secure Shell,
 SSO,Single Sign-On,An authentication system that lets a user sign in once with a trusted identity provider and then access multiple related applications without logging in separately to each one.
 SWA,Secure Web Appliance,"A Cisco Systems on-premises web security appliance that provides SWG capabilities to inspect, filter, and control web traffic."
@@ -77,6 +78,7 @@ SWG,Secure Web Gateway,"A security capability that inspects, filters, and contro
 TACACS+,Terminal Access Controller Access-Control System +,"A centralized AAA protocol developed by Cisco Systems that controls and audits administrative access to network infrastructure devices such as routers, switches, firewalls, and wireless controllers."
 TCP,Transmission Control Protocol,"A connection-oriented transport-layer protocol that provides reliable, ordered, and error-checked data delivery between applications over an IP network."
 Telnet,TELetype over a NETwork,
+UEFI,Unified Extensible Firmware Interface,"A modern firmware standard that replaces legacy BIOS, initializes hardware during startup, and hands control to the operating system’s boot loader."
 UEM,Unified Endpoint Management,"A platform that centrally manages, secures, configures, and monitors endpoints throughout their lifecycle."
 VLAN,Virtual LAN,"A logical subdivision of a physical network into separate Layer 2 networks, or broadcast domains."
 VNC,Virtual Network Computing,A graphical desktop-sharing system that enables users to view and remotely control another computer over a network.
