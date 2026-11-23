@@ -301,7 +301,7 @@ def save_entry(entry, label, filename):
 
     print()
     print_wrapped("RESULT:  ", f"Saved. {entry['acronym']} was added to and re-sorted in:",
-                  lead_color=BLUE)
+                  lead_color=BLUE, words=("Saved",), words_color=BLUE)
     list_labels([label])
     return True
 
@@ -956,7 +956,7 @@ def edit_card(card, decks):
 
     print()
     print_wrapped("RESULT:  ", f"Saved. {new_entry['acronym']} was edited and re-sorted in:",
-                  lead_color=BLUE)
+                  lead_color=BLUE, words=("Saved",), words_color=BLUE)
     list_labels(labels)
     return new_entry
 
@@ -1035,7 +1035,7 @@ def confirm_removal_in_master(card):
         draw("kept")
         print()
         print_wrapped("RESULT:  ", f"Kept. {card['acronym']} stays in the master list as backlog.",
-                      lead_color=BLUE)
+                      lead_color=BLUE, words=("Kept",), words_color=BLUE)
         return False
 
     draw("ask")
@@ -1088,7 +1088,7 @@ def delete_card(card, decks):
 
     print()
     print_wrapped("RESULT:  ", f"Deleted. {card['acronym']} was removed from:",
-                  lead_color=BLUE)
+                  lead_color=BLUE, words=("Deleted",), words_color=BLUE)
     list_labels(labels, holds=False)
     if remaining:
         print("         It's still in:")
@@ -1105,7 +1105,7 @@ def delete_card(card, decks):
             write_sorted(MASTER_FILE, master_rows)
             print()
             print_wrapped("RESULT:  ", f"Removed. {card['acronym']} was erased from the master list",
-                          lead_color=BLUE)
+                          lead_color=BLUE, words=("Removed",), words_color=BLUE)
             print(f"         (copied first to {BACKUP_FILE}).")
     return True
 
@@ -1217,7 +1217,7 @@ def copy_card(card):
 
     print()
     print_wrapped("RESULT:  ", f"Copied. {card['acronym']} was added to and re-sorted in:",
-                  lead_color=BLUE)
+                  lead_color=BLUE, words=("Copied",), words_color=BLUE)
     list_labels([label])
     return label
 
@@ -1298,7 +1298,7 @@ def move_card(card):
 
     print()
     print_wrapped("RESULT:  ", f"Moved. {card['acronym']} was relocated from:",
-                  lead_color=BLUE)
+                  lead_color=BLUE, words=("Moved",), words_color=BLUE)
     list_labels([card["deck"]], holds=False)
     print("         to:")
     list_labels([label])
