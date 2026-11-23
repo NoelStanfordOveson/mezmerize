@@ -1,5 +1,6 @@
 acronym,full_name,description
 AI,Artificial Intelligence,"The capability of a machine to learn, reason, solve problems, make decisions, and understand language."
+AMP,Agent Management Platform,"A platform that deploys, orchestrates, secures, and manages AI agents throughout their lifecycle through access control, policy enforcement, observability, auditing, and performance management."
 AWS,Amazon Web Services,"A cloud computing platform, AWS provides on-demand infrastructure, platform, and security services for building, deploying, and securing applications without managing physical data centers."
 gen AI,generative AI,"A type of AI that creates new content, such as text, images, code, audio, or video, by learning patterns from large amounts of training data."
 GPT,Generative Pre-trained Transformer,"A generative AI model architecture based on transformers and pretrained on large datasets to generate content, with cybersecurity applications including security operations and risks such as prompt injection, data exposure, and AI-powered attacks."

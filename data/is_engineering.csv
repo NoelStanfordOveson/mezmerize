@@ -31,6 +31,7 @@ HSM,Hardware Security Module,"A physical device that securely manages cryptograp
 HTTP,HyperText Transfer Protocol,
 HTTPS,HyperTest Transfer Protocol Secure,
 IAM,Identity and Access Management,A framework of policies and technologies to ensure that the right users have the appropriate access to technology resources.
+ICMP,Internet Control Messaging Protocol,"A network-layer protocol used to report errors, communicate operational information, and support diagnostics in IP networks."
 IdP,Identity Provider,A service that stores and manages user identities.
 IDS,Intrusion Detection System,
 IoT,Internet of Things,"Physical objects embedded with sensors, processing ability, software, etc., which connect and exchange data with other devices over the Internet."
@@ -41,6 +42,7 @@ ISSE,Information Systems Security Engineer,
 JIT,Just-In-Time,"The temporary granting of privileged permissions for a specific task or time period, after which the permissions are automatically revoked."
 MDM,Mobile Device Management,A subset of UEM focused on managing and securing mobile devices.
 MFA,Multi-Factor Authentication,"A security method that requires users to verify their identity with at least two distinct factors—something they know, have, or are—before granting access."
+MIME,Multipurpose Internet Mail Extensions,"An internet standard that extends email formats to support non-ASCII text, file attachments, multiple content types, and multipart messages."
 NAC,Network Access Control,"A security framework that verifies users and devices before granting network access, enforcing policies based on identity, device type, location, and security posture."
 NAT,Network Address Translation,"A networking process that modifies IP addresses in packet headers on routers and/or firewalls, allowing multiple devices on a private network to share a single public IP address when accessing the internet."
 NDR,Network Detection and Response,
