@@ -618,10 +618,16 @@ def lookup_acronym(flashcards, deck_name):
         elif action == "c":
             editable = [(number, card) for number, card in enumerate(matches, start=1)
                         if deck_file_for(card["deck"])]
-            if len(editable) == 1:
-                card = editable[0][1]
+            versions = []                                               # the first match of each version
+            seen = set()
+            for number, card in editable:
+                if version_of(card) not in seen:
+                    seen.add(version_of(card))
+                    versions.append((number,card))
+            if len(versions) == 1:
+                card = versions[0][1]
             else:
-                picked = pick_from_matches(editable, "Copy", allow_all=False)
+                picked = pick_from_matches(versions, "Copy", allow_all=False)
                 card = picked[0] if picked else None
             if card is not None:
                 result = copy_card(card)
