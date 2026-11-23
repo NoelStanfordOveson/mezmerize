@@ -1126,15 +1126,14 @@ def choose_destination(card, verb, doing):
     print(f"\n{verb} {card['acronym']} to which deck?\n")
 
     choices = {}
-    for label, filename in BUILTIN_DECKS:
+    for number, (label, filename) in enumerate(BUILTIN_DECKS, start=1):
         held = colored(f"{label:<23}", ORANGE)                          # pad first, then color
         if label == card["deck"]:
             print(f"   {held}{colored(f'({doing} from here)', BLUE)}")
         elif label in same_card:
             print(f"   {held}{colored('(already has it)', BLUE)}")
         else:
-            number = str(len(choices) + 1)
-            choices[number] = (label, filename)
+            choices[str(number)] = (label, filename)
             note = colored(f"(has a different {card['acronym']})", BLUE) if label in same_acronym else ""
             print(f"{menu_key(number)} {label:<23}{note}".rstrip())
 
