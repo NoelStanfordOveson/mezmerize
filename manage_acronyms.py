@@ -778,7 +778,7 @@ def show_deck_finder(card, deck_name, banner="LOOKUP - Deck Finder"):
     print_mode_banner(banner)
     print()
     print("=" * CARD_WIDTH)
-    print_decks([card["deck"]])
+    print_decks(card.get("decks", [card["deck"]]))
     print(f"ACRONYM:     {card['acronym']}")
     print_wrapped("FULL NAME:   ", card["full_name"])
     print()                                                             # the rest of the card slides under here

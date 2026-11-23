@@ -25,6 +25,7 @@ FIELDS = ["acronym", "full_name", "description"]
 # 2e. decks_with_acronym(acronym)
 # 2f. deck_notes(card)
 # 2g. closest_version(card, rows)
+# 2h. merge_identical(cards)
 # 3. update_master
 
 
@@ -156,6 +157,21 @@ def closest_version(card, rows):
         return difflib.SequenceMatcher(None, text, row_text).ratio()
 
     return max(candidates, key=likeness)
+
+# 2h. Keep one copy of each exact version, with every deck that holds it
+def merge_identical(cards):
+    """
+    Return the cards with each exact version once, in their first order.
+    Each card gets "decks": the labels of every deck that holds it.
+    """
+    merged = {}
+    for card in cards:
+        key = version_of(card)
+        if key in merged:
+            merged[key]["decks"].append(card["deck"])
+        else:
+            merged[key] = dict(card, decks=[card["deck"]])
+    return list(merged.values())
 
 
 # 3. Update master.csv: add the new version, drop the old one only if no deck still uses it

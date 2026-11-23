@@ -11,10 +11,10 @@ import textwrap
 
 from mez_common import (BUILTIN_DECKS, CARD_WIDTH, DATA_FOLDER, clear_screen, csv_path,
                         input_or_esc, load_all_builtin, load_flashcards, overwrite_line,
-                        print_mode_banner, print_wrapped, read_key, say_goodbye, ORANGE,
+                        print_mode_banner, print_wrapped, read_key, say_goodbye,
                         color_keys, menu_key, SAVE_CURSOR, RESTORE_CURSOR, ERASE_BELOW)
-from mez_cards import FIELDS
-from manage_acronyms import lookup_acronym, show_deck_finder
+from mez_cards import FIELDS, merge_identical
+from manage_acronyms import lookup_acronym, print_decks, show_deck_finder
 
 VALUE_COLUMN = 13                                                           # a card's values start here
 BANNER_LINES = 3                                                            # height of the study banner
@@ -37,7 +37,7 @@ def draw_card(card, number, total, hidden=()):
     """Print the whole card. Any field named in hidden stays blank."""
     shown = {field: "" if field in hidden else card[field] for field in FIELDS}
     print(f" Card {number} of {total} ".center(CARD_WIDTH, "="))
-    print_wrapped("DECK:        ", card.get("deck", ""), lead_color=ORANGE, text_color=ORANGE)
+    print_decks(card.get("decks", [card.get("deck", "")]))
     print(f"ACRONYM:     {shown['acronym']}")
     print_wrapped("FULL NAME:   ", shown["full_name"])
     print_wrapped("DESCRIPTION: ", shown["description"])
@@ -47,7 +47,9 @@ def draw_card(card, number, total, hidden=()):
 def card_height(card):
     """Return how many screen lines the card takes once every field is filled in."""
     lines = 3                                                               # the two rules and ACRONYM:
-    for text in (card.get("deck", ""), card["full_name"], card["description"]):
+    labels = card.get("decks", [card.get("deck", "")])
+    decks = ", ".join(label.replace(" ", "\u00a0") for label in labels)
+    for text in (decks, card["full_name"], card["description"]):
         lines += len(textwrap.wrap(text, CARD_WIDTH - VALUE_COLUMN)) or 1   # a blank field still takes a line
     return lines
 
@@ -157,7 +159,7 @@ def choose_deck():
                 print("No decks found yet.")
                 input("Press ENTER to continue...")
                 continue
-            return "ALL DECKS", cards
+            return "ALL DECKS", merge_identical(cards)
 
         if choice == "c":
             print(f"\nType a deck name from the {DATA_FOLDER} folder (.csv is appended for you),")
