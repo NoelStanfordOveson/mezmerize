@@ -11,6 +11,8 @@
  * 1d. decksWithAcronym(acronym)
  * 1e. decksWithVersion(card)
  * 1f. deckNotes(card)
+ * 1g. mergeIdentical(cards)
+ * 1h. studyCards(label)
  * 2. Recents
  * 2a. loadRecent()
  * 2b. saveRecent(acronym)
@@ -124,6 +126,26 @@
     return notes;
   }
 
+  // 1g. Keep one copy of each exact version, with every deck that holds it (All decks study)
+  function mergeIdentical(cards) {
+    const merged = {}, order = [];
+    cards.forEach(function (card) {
+      const key = versionOf(card);
+      if (merged[key]) {
+        merged[key].decks.push(card.deck);
+      } else {
+        merged[key] = Object.assign({}, card, { decks: [card.deck] });
+        order.push(key);
+      }
+    });
+    return order.map(function (key) { return merged[key]; });
+  }
+
+  // 1h. The cards a study session uses: All decks shows each identical card once
+  function studyCards(label) {
+    return label === ALL ? mergeIdentical(cardsFor(ALL)) : cardsFor(label);
+  }
+
 
   // 2. Recents (kept in this browser only)
   // 2a. Read the recent lookups, newest first
@@ -166,13 +188,15 @@
       '"><kbd>' + esc(key) + "</kbd>" + esc(words) + "</button>";
   }
 
-  // 3d. A card: DECK, ACRONYM, FULL NAME, DESCRIPTION. Hidden fields stay blank, one line each.
+  // 3d. A card: DECK (or DECKS), ACRONYM, FULL NAME, DESCRIPTION. Hidden fields stay blank, one line each.
   function cardHtml(card, options) {
     options = options || {};
     const hidden = options.hidden || [];
     const fields = options.short ? ["acronym", "full_name"] : ["acronym", "full_name", "description"];
     const names = { acronym: "ACRONYM", full_name: "FULL NAME", description: "DESCRIPTION" };
-    let rows = '<dt class="holds">DECK</dt><dd class="holds">' + esc(card.deck) + "</dd>";
+    const labels = card.decks || [card.deck];
+    let rows = '<dt class="holds">' + (labels.length > 1 ? "DECKS" : "DECK") + '</dt><dd class="holds">' +
+      labels.map(function (label) { return '<span class="nowrap">' + esc(label) + "</span>"; }).join(", ") + "</dd>";
     fields.forEach(function (field) {
       const blank = hidden.indexOf(field) >= 0;
       rows += "<dt>" + names[field] + '</dt><dd class="' + (field === "acronym" ? "acronym " : "") +
@@ -211,7 +235,7 @@
     keys.a = function () { showDeckMenu(ALL); };
     keys.l = function () { startLookup(ALL, "home"); };
     rows += '<li><button type="button" class="choice" data-key="a"><span class="num">A</span>' +
-      '<span class="what">All Built-in Decks</span><span class="count">' + cardsFor(ALL).length +
+      '<span class="what">All Built-in Decks</span><span class="count">' + studyCards(ALL).length +
       " cards</span></button></li>";
     rows += '<li><button type="button" class="choice" data-key="l"><span class="num">L</span>' +
       '<span class="what">Look up an acronym in all decks</span></button></li>';
@@ -226,7 +250,7 @@
   // 4b. One deck's menu: look up, review, or quiz
   function showDeckMenu(label, note) {
     S = { screen: "menu", deck: label };
-    const cards = cardsFor(label);
+    const cards = studyCards(label);
     const keys = {
       "1": function () { startLookup(label, "menu"); },
       "2": function () { startStudy(label, "review"); },
@@ -256,7 +280,7 @@
   // 4c. Start reviewing or quizzing a deck
   function startStudy(label, mode) {
     const settings = STUDY_MODES[mode];
-    let cards = cardsFor(label);
+    let cards = studyCards(label);
     if (mode === "fullname") cards = cards.filter(function (card) { return card.full_name; });
     if (settings.shuffle) {
       for (let i = cards.length - 1; i > 0; i--) {         // shuffle the cards

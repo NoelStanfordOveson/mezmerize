@@ -32,6 +32,7 @@ button{font:inherit;color:inherit}
 h2{color:var(--ink);font-size:1.25rem;margin:0 0 14px;letter-spacing:-.01em}
 .sub{color:var(--muted);margin:-8px 0 16px}
 .holds{color:var(--holds)}
+.nowrap{white-space:nowrap}
 .report{color:var(--report)}
 
 /* menus: one row per choice */
