@@ -1,4 +1,5 @@
 __pycache__/
 *.bak
 data/recent.txt
+data/deck_health*.rtf
 .claude/

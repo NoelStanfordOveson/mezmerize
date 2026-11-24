@@ -301,7 +301,7 @@ def save_entry(entry, label, filename):
 
     print()
     print_wrapped("RESULT:  ", f"Saved. {entry['acronym']} was added to and re-sorted in:",
-                  lead_color=BLUE)
+                  lead_color=BLUE, words=("Saved",), words_color=BLUE)
     list_labels([label])
     return True
 
@@ -618,10 +618,16 @@ def lookup_acronym(flashcards, deck_name):
         elif action == "c":
             editable = [(number, card) for number, card in enumerate(matches, start=1)
                         if deck_file_for(card["deck"])]
-            if len(editable) == 1:
-                card = editable[0][1]
+            versions = []                                               # the first match of each version
+            seen = set()
+            for number, card in editable:
+                if version_of(card) not in seen:
+                    seen.add(version_of(card))
+                    versions.append((number,card))
+            if len(versions) == 1:
+                card = versions[0][1]
             else:
-                picked = pick_from_matches(editable, "Copy", allow_all=False)
+                picked = pick_from_matches(versions, "Copy", allow_all=False)
                 card = picked[0] if picked else None
             if card is not None:
                 result = copy_card(card)
@@ -778,7 +784,7 @@ def show_deck_finder(card, deck_name, banner="LOOKUP - Deck Finder"):
     print_mode_banner(banner)
     print()
     print("=" * CARD_WIDTH)
-    print_decks([card["deck"]])
+    print_decks(card.get("decks", [card["deck"]]))
     print(f"ACRONYM:     {card['acronym']}")
     print_wrapped("FULL NAME:   ", card["full_name"])
     print()                                                             # the rest of the card slides under here
@@ -956,7 +962,7 @@ def edit_card(card, decks):
 
     print()
     print_wrapped("RESULT:  ", f"Saved. {new_entry['acronym']} was edited and re-sorted in:",
-                  lead_color=BLUE)
+                  lead_color=BLUE, words=("Saved",), words_color=BLUE)
     list_labels(labels)
     return new_entry
 
@@ -1035,7 +1041,7 @@ def confirm_removal_in_master(card):
         draw("kept")
         print()
         print_wrapped("RESULT:  ", f"Kept. {card['acronym']} stays in the master list as backlog.",
-                      lead_color=BLUE)
+                      lead_color=BLUE, words=("Kept",), words_color=BLUE)
         return False
 
     draw("ask")
@@ -1088,7 +1094,7 @@ def delete_card(card, decks):
 
     print()
     print_wrapped("RESULT:  ", f"Deleted. {card['acronym']} was removed from:",
-                  lead_color=BLUE)
+                  lead_color=BLUE, words=("Deleted",), words_color=BLUE)
     list_labels(labels, holds=False)
     if remaining:
         print("         It's still in:")
@@ -1105,7 +1111,7 @@ def delete_card(card, decks):
             write_sorted(MASTER_FILE, master_rows)
             print()
             print_wrapped("RESULT:  ", f"Removed. {card['acronym']} was erased from the master list",
-                          lead_color=BLUE)
+                          lead_color=BLUE, words=("Removed",), words_color=BLUE)
             print(f"         (copied first to {BACKUP_FILE}).")
     return True
 
@@ -1126,15 +1132,14 @@ def choose_destination(card, verb, doing):
     print(f"\n{verb} {card['acronym']} to which deck?\n")
 
     choices = {}
-    for label, filename in BUILTIN_DECKS:
+    for number, (label, filename) in enumerate(BUILTIN_DECKS, start=1):
         held = colored(f"{label:<23}", ORANGE)                          # pad first, then color
         if label == card["deck"]:
             print(f"   {held}{colored(f'({doing} from here)', BLUE)}")
         elif label in same_card:
             print(f"   {held}{colored('(already has it)', BLUE)}")
         else:
-            number = str(len(choices) + 1)
-            choices[number] = (label, filename)
+            choices[str(number)] = (label, filename)
             note = colored(f"(has a different {card['acronym']})", BLUE) if label in same_acronym else ""
             print(f"{menu_key(number)} {label:<23}{note}".rstrip())
 
@@ -1218,7 +1223,7 @@ def copy_card(card):
 
     print()
     print_wrapped("RESULT:  ", f"Copied. {card['acronym']} was added to and re-sorted in:",
-                  lead_color=BLUE)
+                  lead_color=BLUE, words=("Copied",), words_color=BLUE)
     list_labels([label])
     return label
 
@@ -1299,7 +1304,7 @@ def move_card(card):
 
     print()
     print_wrapped("RESULT:  ", f"Moved. {card['acronym']} was relocated from:",
-                  lead_color=BLUE)
+                  lead_color=BLUE, words=("Moved",), words_color=BLUE)
     list_labels([card["deck"]], holds=False)
     print("         to:")
     list_labels([label])

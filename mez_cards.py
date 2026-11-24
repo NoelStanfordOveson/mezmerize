@@ -6,6 +6,7 @@ prompts, or keypresses. It imports only Python's own modules and mez_common
 (the floor below), so nothing can import in a circle.
 """
 import csv
+import difflib
 import shutil
 
 from mez_common import BUILTIN_DECKS, csv_path
@@ -22,7 +23,9 @@ FIELDS = ["acronym", "full_name", "description"]
 # 2c. find_row(rows, card)
 # 2d. decks_with_version(card)
 # 2e. decks_with_acronym(acronym)
-# 2f. Label what each deck holds, compared with this card
+# 2f. deck_notes(card)
+# 2g. closest_version(card, rows)
+# 2h. merge_identical(cards)
 # 3. update_master
 
 
@@ -135,6 +138,41 @@ def deck_notes(card):
                 found.append(note)
         notes[label] = found
     return notes
+
+# 2g. Find the row with this card's acronym that comes closest to the card
+def closest_version(card, rows):
+    """
+    Among the rows with this card's acronym (capitals ignored), return the one whose
+    full name and description read most like the card's. Return None if no row has it.
+    """
+    wanted = card["acronym"].casefold()
+    candidates = [row for row in rows if row["acronym"].casefold() == wanted]
+    if not candidates:
+        return None
+    text = f"{card['full_name']} {card['description']}"
+
+    def likeness(row):
+        """Score from 0 to 1: how alike this row's text is to the card's."""
+        row_text = f"{row['full_name']} {row['description']}"
+        return difflib.SequenceMatcher(None, text, row_text).ratio()
+
+    return max(candidates, key=likeness)
+
+# 2h. Keep one copy of each exact version, with every deck that holds it
+def merge_identical(cards):
+    """
+    Return the cards with each exact version once, in their first order.
+    Each card gets "decks": the labels of every deck that holds it.
+    """
+    merged = {}
+    for card in cards:
+        key = version_of(card)
+        if key in merged:
+            merged[key]["decks"].append(card["deck"])
+        else:
+            merged[key] = dict(card, decks=[card["deck"]])
+    return list(merged.values())
+
 
 # 3. Update master.csv: add the new version, drop the old one only if no deck still uses it
 def update_master(old_entry, new_entry):

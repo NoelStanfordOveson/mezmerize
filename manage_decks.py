@@ -11,26 +11,79 @@ Expected CSV columns (same as study_flashcards.py):
 """
 import argparse
 import csv
+import datetime
 import os
 import shutil
 import textwrap
 from collections import defaultdict
 
-from mez_common import BUILTIN_DECKS, clear_screen, csv_path, print_mode_banner, read_key, say_goodbye
-from mez_cards import version_of
+from mez_common import (BLUE, BUILTIN_DECKS, HELPER, ORANGE, clear_screen, color_keys, color_words,
+                        colored, csv_path, print_mode_banner, read_key, say_goodbye)
+from mez_cards import closest_version, version_of
 
 REQUIRED_COLUMNS = ("acronym", "full_name", "description")
 DECK_CHECK_WIDTH = 96                                       # widest the report gets, even in a big window
 ACRONYM_COLUMN = 8                                          # width of the acronym column in the report
 ACRONYM_DIVIDER = "-" * 68                                  # between acronyms in section 3
 VERSION_DIVIDER = " " * 6 + "." * 62                        # between versions of one acronym, under the labels
+REPORT_LABELS = ("TRULY LOST", "CHANGED", "INFORMATION ONLY")   # words colored BLUE in the report
+GOOD_UPKEEP = 0.05                                          # GOOD: backlog + incomplete under 5% of rows
+POOR_CLEAN = 0.80                                           # POOR: fewer than 80% of rows clean
+HEALTH_LEAD = "HEALTH OF DATA:  "                           # the Result page's last line starts with this
+RATING_COLORS = {                                           # a traffic light, on the rating word only
+    "GOOD": "\x1b[38;5;28m",                                # deeper green, unlike the key green
+    "NEEDS ATTENTION": "\x1b[38;5;220m",                    # yellow
+    "POOR": "\x1b[38;5;196m",                               # red
+}
+NO_ITEMS = "None. Excellent."                               # a section with nothing to report
+PRINT_WIDTH = 80                                            # the printout's width, in Consolas
+REPORT_FILE = "deck_health_report.rtf"                      # in the data folder; overwritten by every print
+RTF_START = r"{\rtf1\ansi\deff0{\fonttbl{\f0\fmodern Consolas;}}\margl1080\margr1080\margt1080\margb1080\f0\fs20"
 
 
+# 1. Report pages on screen
+# 1a. report_width()
+# 1b. wrap_row(row, width)
+# 1c. make_pages(blocks, room)
+# 1d. show_pages(banner, heading, rows, last=False, printout=None, print_key="F")
+# 1e. color_line(line)
+
+# 2. Loading and grouping cards
+# 2a. norm(text)
+# 2b. key_of(acronym)
+# 2c. load_csv(filename, source_label)
+# 2d. index_by_acronym(cards)
+# 2e. group_by_version(cards)
+# 2f. place_of(card)
+
+# 3. compare(master_cards, deck_cards)
+# 4. parse_args()
+
+# 5. The Result page
+# 5a. health_of(report, rows_checked)
+# 5b. how_many(count, noun)
+# 5c. next_step(report)
+# 5d. result_lines(report, master_cards, deck_cards)
+
+# 6. Printing
+# 6a. printout_pages(parts)
+# 6b. rtf_line(line)
+# 6c. write_rtf(filename, parts)
+# 6d. send_to_printer(parts)
+# 6e. save_copy(parts)
+# 6f. result_message(text, filename)
+
+# main()
+
+
+# 1. Report pages on screen
+# 1a. How wide the report can be
 def report_width():
     """The window's width, capped at DECK_CHECK_WIDTH"""
     columns = shutil.get_terminal_size(fallback=(DECK_CHECK_WIDTH, 24)).columns
     return min(columns - 1, DECK_CHECK_WIDTH)
 
+# 1b. Wrap one report row to the width
 def wrap_row(row, width):
     """Turn one report row into the screen lines it needs (long lines wrap)."""
     lines = []
@@ -43,6 +96,7 @@ def wrap_row(row, width):
         lines.extend(textwrap.wrap(part, width, subsequent_indent=indent) or [""])
     return lines
 
+# 1c. Pack the lines into pages
 def make_pages(blocks, room):
     """
     Pack blocks of lines into pages of at most 'room' lines each.
@@ -58,49 +112,90 @@ def make_pages(blocks, room):
             pages[-1].append(line)
     return pages
 
-def show_pages(banner, heading, rows, last=False):
+# 1d. Show the report one window-full at a time
+def show_pages(banner, heading, rows, last=False, printout=None, print_key="F"):
     """
     Show rows one window-full at a time, with the banner at the top of every page.
+    With a printout (a list of (heading, rows) parts), print_key prints it and S saves a copy.
     Returns 'enter' (go on), 'esc' (back), or 'q' (quit).
     """
     width = report_width()
     height = shutil.get_terminal_size(fallback=(DECK_CHECK_WIDTH, 24)).lines
     top_lines = 3 + (2 if heading else 0)                   # bannner, plus heading and its rule
     room = max(height - top_lines - 2, 1)                   # minus a blank line and the prompt
+    if printout:
+        room = max(room - 3, 1)                             # the action line, and a blank line + RESULT
+        what = "print full report" if print_key == "F" else "print this section"
+        actions = f"{print_key} = {what}    S = save a copy"
+        keys = ("enter", "esc", "q", print_key.lower(), "s")
+    else:
+        keys = ("enter", "esc", "q")
 
     pages = make_pages([wrap_row(row, width) for row in rows], room)
 
     for page_number, page in enumerate(pages, start=1):
-        clear_screen(margin=False)
-        print_mode_banner(banner, width)
-        if heading:
-            print(heading + ("  (continued)" if page_number > 1 else ""))
-            print("-" * width)
-        for line in page:
-            print(line)
-        print()
+        message = None
+        while True:
+            clear_screen(margin=False)
+            print_mode_banner(banner, width)
+            if heading:
+                print(color_line(heading + ("  (continued)" if page_number > 1 else "")))
+                print("-" * width)
+            for line in page:
+                print(color_line(line))
+            if message:
+                print()
+                print(message)
+            print()
 
-        if page_number < len(pages):
-            prompt = "ENTER = more     ESC = back     Q = quit"
-        elif last:
-            prompt = "ENTER or ESC = back     Q = quit"
-        else:
-            prompt = "ENTER = next section     ESC = back     Q = quit"
-        print(prompt, end="", flush=True)
+            if page_number < len(pages):
+                prompt = "ENTER = more    ESC = back    Q = quit"
+            elif last:
+                prompt = "ENTER or ESC = back    Q = quit"
+            else:
+                prompt = "ENTER = next section    ESC = back    Q = quit"
+            if printout:
+                print(color_keys(actions))
+            print(color_keys(prompt), end="", flush=True)
 
-        action = read_key(("enter", "esc", "q"))
+            action = read_key(keys)
+            if action == "s":
+                message = result_message("Saved a copy:", save_copy(printout))
+            elif printout and action == print_key.lower():
+                message = result_message("Sent to the printer:", send_to_printer(printout))
+            else:
+                break
         if action != "enter":
             return action
     return "enter"
 
+# 1e. Color one report line: *results* blue, *holding* orange, *candidates* HELPER, the rating.
+def color_line(line):
+    """Return the line with its report labels, deck labels, and file names colored. Use after wrapping."""
+    line = color_words(line, REPORT_LABELS, BLUE)
+    for label, filename in BUILTIN_DECKS:
+        whole = label.replace(" ", "\u00a0")
+        line = line.replace(f"{whole}\u00a0(", f"{colored(whole, ORANGE)}\u00a0(")
+        line = line.replace(f"({filename})", f"({colored(filename, HELPER)})")
+    line = line.replace("master line", f"{colored('master', HELPER)} line")
+    if line.startswith(HEALTH_LEAD):
+        for rating, color in RATING_COLORS.items():
+            line = line.replace(f"{HEALTH_LEAD}{rating} ", f"{HEALTH_LEAD}{colored(rating, color)} ")
+    return line
+
+
+# 2. Loading and grouping cards
+# 2a. Trim the spaces off a field
 def norm(text):
     """Strip leftover spaces so ' CIA ' and 'CIA' count as the same."""
     return (text or "").strip()
 
+# 2b. An acronym, ready to compare (capitals ignored)
 def key_of(acronym):
     """Compare acronyms case-insensitively: 'Cia' == 'CIA'."""
     return norm(acronym).casefold()
 
+# 2c. Load one CSV into a list of cards
 def load_csv(filename, source_label):
     """
     Load one CSV into a list of card dicts.
@@ -144,6 +239,7 @@ def load_csv(filename, source_label):
             })
     return cards, None
 
+# 2d. Group cards by acronym
 def index_by_acronym(cards):
     """
     Group cards by normalized acronym.
@@ -156,6 +252,7 @@ def index_by_acronym(cards):
         grouped[key_of(card["acronym"])].append(card)
     return grouped
 
+# 2e. Group cards by exact version
 def group_by_version(cards):
     """
     Group cards by exact version (see version_of in mez_cards).
@@ -168,18 +265,24 @@ def group_by_version(cards):
         grouped[version_of(card)].append(card)
     return grouped
 
+# 2f. Say where a card lives
 def place_of(card):
     """Say where a card lives: its file and line number, for the report."""
     return f"{card['source']} line {card['line']}"
 
+
+# 3. Run the six health checks
 def compare(master_cards, deck_cards):
     master_versions = group_by_version(master_cards)
     deck_versions = group_by_version(deck_cards)
+    integrity = set()
+    upkeep = set()
 
     # --- 1. In master, no deck uses this version ---
     missing_from_decks = []
     for card in master_cards:
         if version_of(card) not in deck_versions:
+            upkeep.add(place_of(card))
             missing_from_decks.append(
                 f"  {card['acronym'] or '(blank acronym)':>{ACRONYM_COLUMN}}  |  {card['full_name']}"
                 f"  [master line {card['line']}]"
@@ -187,12 +290,20 @@ def compare(master_cards, deck_cards):
 
     # --- 2. In a deck, the master list lacks this version ---
     extra_in_decks = []
+    lead = f"  {'':>{ACRONYM_COLUMN}}  |  "
     for card in deck_cards:
         if version_of(card) not in master_versions:
-            extra_in_decks.append(
-                f"  {card['acronym'] or '(blank acronym)':>{ACRONYM_COLUMN}}  |  {card['full_name']}"
-                f"  [{place_of(card)}]"
-            )
+            integrity.add(place_of(card))
+            row = (f"  {card['acronym'] or '(blank acronym)':>{ACRONYM_COLUMN}}  |  {card['full_name']}"
+                   f"  [{place_of(card)}]")
+            closest = closest_version(card, master_cards)
+            if closest is None:
+                row += f"\n{lead}TRULY LOST: no card with this acronym in the master list"
+            else:
+                row += (f"\n{lead}CHANGED. Closest in the master list, line {closest['line']}:"
+                        f"\n{lead}NAME: {closest['full_name']}"
+                        f"\n{lead}DESC: {closest['description']}")
+            extra_in_decks.append(row)
 
     # --- 3. Same acronym, more than one version (information only) ---
     multi_version = []
@@ -215,6 +326,7 @@ def compare(master_cards, deck_cards):
     master_dupes = []
     for cards in master_versions.values():
         if len(cards) > 1:
+            integrity.update(place_of(card) for card in cards[1:])
             lines = ", ".join(str(card["line"]) for card in cards)
             master_dupes.append(
                 f"  {cards[0]['acronym']} appears {len(cards)} times in master (lines {lines})"
@@ -228,6 +340,7 @@ def compare(master_cards, deck_cards):
             by_deck[card["source"]].append(card)
         for source, copies in by_deck.items():
             if len(copies) > 1:
+                integrity.update(place_of(card) for card in copies[1:])
                 lines = ", ".join(str(card["line"]) for card in copies)
                 deck_dupes.append(
                     f"  {copies[0]['acronym']} appears {len(copies)} times in {source} (lines {lines})"
@@ -238,6 +351,7 @@ def compare(master_cards, deck_cards):
     for card in master_cards + deck_cards:
         holes = [field for field in REQUIRED_COLUMNS if not card[field]]
         if holes:
+            upkeep.add(place_of(card))
             incomplete.append(
                 f"  {card['source']} line {card['line']}: missing {', '.join(holes)}"
                 f"  (acronym={card['acronym']!r})"
@@ -250,8 +364,12 @@ def compare(master_cards, deck_cards):
         "master_dupes": master_dupes,
         "deck_dupes": deck_dupes,
         "incomplete": incomplete,
+        "integrity": integrity,
+        "upkeep": upkeep,
     }
 
+
+# 4. Read the master list's filename from the command line
 def parse_args():
     parser = argparse.ArgumentParser(
         description="Compare a master acronym CSV to the merged built-in decks."
@@ -270,6 +388,167 @@ def parse_args():
     return parser.parse_args()
 
 
+# 5. The Result page
+# 5a. Rate the data: GOOD, NEEDS ATTENTION, or POOR
+def health_of(report, rows_checked):
+    """Return (rating, clean): the rating, and how many rows have no problem."""
+    flagged = report["integrity"] | report["upkeep"]
+    clean = rows_checked - len(flagged)
+    if not report["integrity"] and len(report["upkeep"]) < GOOD_UPKEEP * rows_checked:
+        rating = "GOOD"
+    elif clean >= POOR_CLEAN * rows_checked:
+        rating = "NEEDS ATTENTION"
+    else:
+        rating = "POOR"
+    return rating, clean
+
+# 5b. Say how many, with "is" or "are"
+def how_many(count, noun):
+    """Return '1 card is' or '9 cards are'."""
+    if count == 1:
+        return f"1 {noun} is"
+    return f"{count} {noun}s are"
+
+# 5c. Pick the first job to do
+def next_step(report):
+    """Return the Next step sentence, from the first section with items."""
+    lost = sum("TRULY LOST" in row for row in report["extra_in_decks"])
+    changed = len(report["extra_in_decks"]) - lost
+    incomplete = len(report["incomplete"])
+    master_dupes = len(report["master_dupes"])
+    deck_dupes = len(report["deck_dupes"])
+    backlog = len(report["missing_from_decks"])
+    steps = [
+        (lost, f"{how_many(lost, 'card')} TRULY LOST from the master list (SECTION 2)."),
+        (changed, f"{how_many(changed, 'card')} CHANGED from the master list (SECTION 2)."),
+        (incomplete, f"{how_many(incomplete, 'row')} missing a field (SECTION 6)."),
+        (master_dupes, f"{how_many(master_dupes, 'version')} in the master list twice (SECTION 4)."),
+        (deck_dupes, f"{how_many(deck_dupes, 'version')} in one deck twice (SECTION 5)."),
+        (backlog, f"{how_many(backlog, 'backlog card')} in no deck (SECTION 1)."),
+    ]
+
+    for count, sentence in steps:
+        if count:
+            return f"Next step: {sentence}"
+    return "Next step: none. All decks match the master list."
+
+# 5d. Build the lines of the Result page
+def result_lines(report, master_cards, deck_cards):
+    """Return the DECK HEALTH - Result page as a list of lines."""
+    now = datetime.datetime.now()
+    hour = now.strftime("%I").lstrip("0")
+    rows_checked = len(master_cards) + len(deck_cards)
+    rating, clean = health_of(report, rows_checked)
+    share = round(100 * clean / rows_checked) if rows_checked else 100
+    problems = [
+        ("1. Backlog, In No Deck", report["missing_from_decks"]),
+        ("2. In A Deck, Missing From Master", report["extra_in_decks"]),
+        ("4. Duplicates In Master", report["master_dupes"]),
+        ("5. Duplicates Within A Deck", report["deck_dupes"]),
+        ("6. Incomplete Rows", report["incomplete"]),
+    ]
+
+    lines = [
+        f"Checked {now:%a %b} {now.day}, {now.year} at {hour}:{now:%M %p}",
+        "",
+        f"{'Decks checked:':<22}{len(BUILTIN_DECKS):>6}",
+        f"{'Cards in decks:':<22}{len(deck_cards):>6}",
+        f"{'Versions in master:':<22}{len(master_cards):>6}",
+        f"{'Backlog (master only):':<22}{len(report['missing_from_decks']):>6}",
+        "",
+        "Problems by Section:",
+    ]
+
+    for name, items in problems:
+        lines.append(f"  {name:<40}{len(items):>4}")
+    lines.append("")
+    lines.append(f"{'Info by Section:':<30}INFORMATION ONLY")
+    lines.append(f"  {'3. Acronyms With More Than One Version':<40}{len(report['multi_version']):>4}")
+    lines.append("")
+    lines.append(next_step(report))
+    lines.append("")
+    lines.append(f"{HEALTH_LEAD}{rating}   ({clean} of {rows_checked} rows clean, {share}%)")
+    return lines
+
+
+# 6. Printing
+# 6a. Lay out the printout, one part per page
+def printout_pages(parts):
+    """
+    Return the parts, each a list of (heading, rows), as pages of plain
+    lines PRINT_WIDTH wide.
+    """
+    now = datetime.datetime.now()
+    hour = now.strftime("%I").lstrip("0")
+    stamp = f"{now:%a %b} {now.day}, {now.year} at {hour}:{now:%M %p}"
+    title = "DECK HEALTH REPORT"
+    top = [f"{title}{stamp:>{PRINT_WIDTH - len(title)}}", "=" * PRINT_WIDTH, ""]
+    pages = []
+    previous_empty = False
+    for heading, rows in parts:
+        empty = rows == [NO_ITEMS]
+        if empty and previous_empty:
+            page = pages[-1]                                                        # empty after empty: same page
+            page.append("")
+        else:
+            page = list(top)
+            pages.append(page)
+        page.extend(wrap_row(heading, PRINT_WIDTH))
+        page.append("-" * PRINT_WIDTH)
+        for row in rows:
+            page.extend(wrap_row(row, PRINT_WIDTH))
+        previous_empty = empty
+    return pages
+
+# 6b. Make one line safe for RTF
+def rtf_line(line):
+    """
+    Return the line with RTF's special characters escaped, and other non-ASCII as \\uN?.
+    """
+    out = []
+    for char in line:
+        if char in "\\{}":
+            out.append("\\" + char)
+        elif char == " ":
+            out.append("\\~")                                                       # a space that can't stretch
+        elif ord(char) > 127:
+            out.append(f"\\u{ord(char)}?")
+        else:
+            out.append(char)
+    return "".join(out) + "\\par"
+
+# 6c. Write the printout as an RTF file, a new page before each part
+def write_rtf(filename, parts):
+    """Write the parts to filename in the data folder."""
+    body = []
+    for number, page in enumerate(printout_pages(parts)):
+        if number > 0:
+            body.append("\\page")
+        body.extend(rtf_line(line) for line in page)
+    with open(csv_path(filename), mode="w", encoding="ascii", newline="") as file:
+        file.write(RTF_START + "\n" + "\n".join(body) + "\n}")
+
+# 6d. Print the parts, through whatever opens .rtf files (Word)
+def send_to_printer(parts):
+    """Write REPORT_FILE (overwritten each time) and send it to the default printer. Return its name."""
+    write_rtf(REPORT_FILE, parts)
+    os.startfile(csv_path(REPORT_FILE), "print")
+    return REPORT_FILE
+
+# 6e. Save a dated copy, without printing
+def save_copy(parts):
+    """Write the parts to a dated file, such as deck_health_2026-11-15_1907.rtf. Return its name."""
+    filename = f"deck_health_{datetime.datetime.now():%Y-%m-%d_%H%M}.rtf"
+    write_rtf(filename, parts)
+    return filename
+
+# 6f. The RESULT line after printing or saving
+def result_message(text, filename):
+    """Return the RESULT line: RESULT: in blue, the filename in HELPER."""
+    return f"{colored('RESULT:', BLUE)}  {text} {colored(filename, HELPER)}"
+
+
+# main. Run the deck check, one screen at a time
 def main():
     """Run the deck check. Return 'back' (ESC, or ENTER at the end) or 'quit' (Q)."""
     args = parse_args()
@@ -288,7 +567,8 @@ def main():
     deck_cards = []
     load_errors = []
     for label, filename in BUILTIN_DECKS:
-        cards, error = load_csv(filename, f"{label} ({filename})")
+        whole = label.replace(" ", "\u00a0")
+        cards, error = load_csv(filename, f"{whole}\u00a0({filename})")
         if error:
             load_errors.append(error)
         else:
@@ -314,28 +594,31 @@ def main():
         ("INCOMPLETE rows (blank acronym, name, or description)", report["incomplete"]),
     ]
 
-    problem_count = sum(len(items) for name, items in report.items() if name != "multi_version")
-    if problem_count == 0:
-        verdict = "All master entries match the merged decks. Nice."
-    else:
-        verdict = f"Finished. {problem_count} item(s) to review."
+    result = result_lines(report, master_cards, deck_cards)
+    parts = []
+    for number, (title, rows) in enumerate(sections, start=1):
+        heading = f"SECTION {number} OF {len(sections)}:  {title}  ({len(rows)})"
+        parts.append((heading, rows or [NO_ITEMS]))
+    full_report = [("RESULT", result)] + parts + [("SUMMARY", summary)]
 
-    screens = [("DECK HEALTH - Summary", None, summary)]
+    screens = [("DECK HEALTH - Summary", None, summary, full_report, "F")]
     for number, (title, rows) in enumerate(sections, start=1):
         screens.append((
             f"DECK HEALTH - SECTION {number} OF {len(sections)}",
             f"{title}  ({len(rows)})",
-            rows or ["None. Excellent."],
+            rows or [NO_ITEMS],
+            [parts[number - 1]] if rows else None,
+            "P",
         ))
 
-    for banner, heading, lines in screens:
-        action = show_pages(banner, heading, lines)
+    for banner, heading, lines, printout, print_key in screens:
+        action = show_pages(banner, heading, lines, printout=printout, print_key=print_key)
         if action == "esc":
             return "back"
         if action == "q":
             return "quit"
 
-    action = show_pages("DECK HEALTH - Result", None, [verdict], last=True)
+    action = show_pages("DECK HEALTH - Result", None, result, last=True, printout=full_report, print_key="F")
     return "quit" if action == "q" else "back"
 
 

@@ -1,7 +1,9 @@
 acronym,full_name,description
 AI,Artificial Intelligence,"The capability of a machine to learn, reason, solve problems, make decisions, and understand language."
+AMP,Agent Management Platform,"A platform that deploys, orchestrates, secures, and manages AI agents throughout their lifecycle through access control, policy enforcement, observability, auditing, and performance management."
 AWS,Amazon Web Services,"A cloud computing platform, AWS provides on-demand infrastructure, platform, and security services for building, deploying, and securing applications without managing physical data centers."
 gen AI,generative AI,"A type of AI that creates new content, such as text, images, code, audio, or video, by learning patterns from large amounts of training data."
+GPT,Generative Pre-trained Transformer,"A generative AI model architecture based on transformers and pretrained on large datasets to generate content, with cybersecurity applications including security operations and risks such as prompt injection, data exposure, and AI-powered attacks."
 LLM,Large Language Model,An AI model trained on large amounts of text to understand and generate human language.
 MCP,Model Context Protocol,"An open standard introduced by Anthropic that lets AI assistants connect to tools, data sources, repositories, and services through a common protocol, reducing the need for custom integrations."
 ML,Machine Learning,The process of training a computer system to improve its performance by learning from data and experience.

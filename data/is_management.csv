@@ -5,6 +5,7 @@ ARO,Annualized Rate of Occurrence,An estimate of how often a threat would be suc
 AV,Asset Value,"Represents the total value of an asset, calculated based on the potential financial impact of a security incident—crucial for risk management and security assessments."
 BCP,Business Continuity Plan,The capability of an organization to continue the delivery of products or services following a disruptive incident.
 BIA,Business Impact Analysis,"The process of identifying critical business functions, assessing the effects of their disruption, and defining recovery priorities and requirements."
+DLP,Data Loss Prevention,Detects the unauthorized transmission or disclosure of sensitive data and prevents its occurrence.
 EF,Exposure Factor,The subjective potential percentage of loss to a specific asset if a specific threat is realized.
 ERP,Enterprise Resource Planning,"Business management software used by an organization to collect, store, manage, and interpret data from many business activities."
 ESA,Enterprise Security Architecture,"A strategic framework that integrates an organization’s people, processes, technologies, policies, and security controls to protect business operations, systems, data, and infrastructure while supporting confidentiality, integrity, availability, and regulatory compliance."
@@ -13,7 +14,11 @@ KPI,Key Performance Indicator,"A measurable value that indicates how effectively
 M&A,Mergers & Acquisitions,"Refers to transactions in which companies combine with, purchase, or take control of other companies or business assets."
 MTTD,Mean Time to Detect,Measures the average time from the start of a security incident to its detection.
 MTTR,Mean Time to Respond,Measures the average time it takes an organization to respond to and recover from a security incident after detection.
-ROI,Return on Investment,
+PoV,Proof of Value,"A structured evaluation that measures a product, service, or solution’s business, operational, and technical value in a real-world environment, validating expected outcomes, ROI, and business impact before a purchasing decision."
+RFI,Request For Information,"A formal document used to gather information about vendors’ products, services, capabilities, and solutions to evaluate available options and refine requirements before making purchasing or project decisions or issuing an RFP or RFQ."
+RFP,Request For Proposal,"A formal document that requests detailed vendor proposals and specifies business requirements, technical specifications, evaluation criteria, timelines, and contractual expectations so organizations can compare solutions and select the best fit."
+RFQ,Request For Quotation,"A formal document that requests pricing, licensing, and commercial terms for a clearly defined product or service, enabling vendor comparison primarily on cost, delivery, and contractual terms."
+ROI,Return on Investment,A financial performance metric that compares an investment’s return with its cost to assess whether the value gained justifies the resources invested.
 SOC,Security Operations Center,"A dedicated site and centralized team that monitors, detects, investigates, and responds to cybersecurity threats across an organization’s IT environment."
 SSP,System Security Plans,
 VEM,Vulnerability Exposure Management,"The continuous process of identifying, assessing, prioritizing, and reducing security exposures by focusing remediation on vulnerabilities and misconfigurations that pose the greatest business risk."
