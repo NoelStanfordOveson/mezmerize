@@ -91,6 +91,31 @@ offering.
   save is byte-identical to pack_decks.py's pack; save, reload, save again comes back the
   same; 10-deck pack, no master rows, no-label row, plain deck file, non-deck file, phone
   width. Next: editing (add, edit, copy, move, delete) on My decks.
+- 2026-11-25: Web editing built: add, edit, delete (with the orphan and master screens),
+  copy, and move, on My decks, by the PowerShell rules; a change on the ClearDay decks first
+  offers to make My decks from them. Tested in the browser: edit one deck of two identical
+  (master keeps the old version, adds the new); add with prefill, exact-duplicate refusal,
+  different-description warning and N; copy (master untouched when it has the version);
+  move with the destination notes; delete from (2) decks, orphan, typed removal with each
+  hint; ESC on a confirm; phone width. Not yet tested: a web-edited pack through
+  unpack_decks.py into PowerShell.
+- 2026-11-25: Decided with Alex: on the hub, mezmerize is a regular page (or a module on a
+  page) for now; later a quick reference opened with Alt+M as a pop-up window that can be
+  moved anywhere (lookups and cards only; anything else opens the main window), with a
+  button to dock it into a panel on the page and back.
+- 2026-11-25: Built: the two-tab fix (windows share My decks and pick up each other's
+  changes; ENTER re-checks the decks), quick mode (`?mode=quick`), the main-window hand-off
+  (`?lookup=...&do=...`), launcher.js (Alt+M, dock / pop out), launcher-demo.html. Tested
+  in the browser pane: quick lookup, visiting, ESC back then close, W and E hand-offs, the
+  main window starting the action, docking with the lookup carried over, ESC closing the
+  panel, two tabs adding and editing without losing either change. Not testable in the
+  pane: a real pop-up window (the pane opens it in the same tab); check in Chrome or Edge.
+- 2026-11-25: Added the ✕ (closes the pop-up or the panel) and the pop-up's place: pop out
+  returns it to where it was docked from, at the same size, and Alt+M reopens it where it
+  was last closed. Tested in the pane (the open position and size, the ✕, saving on close);
+  a real move across screens still needs a check in Chrome or Edge.
+- Someday: "Forget My decks on this computer" (shared machines); a page per exam
+  (`?pack=security-plus.csv` opening with that pack loaded).
 
 ## Open questions
 

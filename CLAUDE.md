@@ -9,8 +9,8 @@ mezmerize: a command-line flashcard app for learning acronyms. Pure Python stand
 editing an existing card is Windows-only (it uses the console's own line editor).
 
 This folder (`mezmerize-win`, branch `web`) also builds the **web version**: `web/` is one
-self-contained folder (index.html, mezmerize.css, mezmerize.js, decks.js) with study and
-lookup only, no editing. It depends on nothing outside itself (no Joomla, no PHP), so it can
+self-contained folder (index.html, mezmerize.css, mezmerize.js, decks.js) with study, lookup,
+and changing cards in My decks. It depends on nothing outside itself (no Joomla, no PHP), so it can
 live on the hub now and move to its own address or SharePoint later. The plan and decisions
 are in claude/bookmarks.md.
 
@@ -40,6 +40,34 @@ py -m http.server 8765 --bind 127.0.0.1 --directory web   # web: try it at http:
   format. A file's master list is kept exactly; with none, one is built from its decks.
   A plain deck file's label comes from its name (`my_deck.csv` -> `My Deck`).
   Screens say "My decks", never "your".
+- Changing cards on the web (section 5 of mezmerize.js): add, edit, delete, copy, and move
+  follow the PowerShell rules and screens above (scope D / A, Add anyway?, CAUTION cards with
+  file headings, RESULT wording, the orphan and master screens, destination lists), from a
+  lookup's action keys (`A = add` after any lookup; E / D / C / M with a card found). They
+  change My decks only: the ClearDay decks are shared, so the first change offers to make
+  My decks from them (Make a Copy). Each change re-sorts, marks My decks changed, and keeps
+  them in the browser; the deck list shows `(changes not yet saved to a file)` until S saves
+  them. File names on CAUTION cards come from the labels (fileFor). No Q key on the web.
+  Each confirmed change looks the decks up again at ENTER (missingFrom), so a change made
+  in another window shows `Can't edit. ... is no longer in ...` instead of being overwritten.
+- Several windows: every window of the same site shares My decks (and Recents). A window
+  that sees My decks change elsewhere (the `storage` event) switches to the new copy, so
+  two tabs never undo each other.
+- Quick reference: `index.html?mode=quick` is lookups and cards only (deck finder and
+  visiting too). Keys: A / E / D / C / M and `W = main window` open the full app in one
+  reused window (`mezmerize-main`) at `?lookup=<acronym>&do=<key>`, which runs the lookup
+  and starts that action; `P = panel` (pop-up opened by the launcher) or `P = pop out`
+  (docked); ESC goes back to all decks after a visit, then closes; Alt+M or the ✕ in the
+  banner closes it.
+- launcher.js: one line on a hub page (or in the Joomla template) gives that page Alt+M,
+  which opens the quick reference in its own pop-up window (460 x 700, near the right edge,
+  reused). P docks it into a panel on the page (an iframe, `&docked=1`) and back out; the
+  lookup goes along (`&q=`). It talks to the quick reference with postMessage
+  (`{mezmerize: "dock" | "popout" | "close", query, place}`), checked against the app's origin.
+  Place: the pop-up sends its spot and size (`place`: x, y, w, h) when it docks, and pop out
+  reopens it there; it also saves its place on closing (localStorage `mezmerize.window`), so
+  the next Alt+M opens it where it was left. The first time, it opens near the right edge.
+  launcher-demo.html stands in for a hub page for testing; it needn't be uploaded.
 - A **deck pack** is one CSV holding up to 8 decks and the master list:
   `deck,acronym,full_name,description`, the deck's label on every row, master rows labeled
   `(master)` (a label no deck may use). The filename isn't stored; it comes from the label.
