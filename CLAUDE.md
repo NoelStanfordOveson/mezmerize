@@ -22,12 +22,25 @@ py study_flashcards.py   # study only (lookup, review, quiz by acronym or by ful
 py manage_acronyms.py    # look up, add, edit, delete, copy, or move acronyms
 py manage_decks.py       # deck health: audit data/master.csv against the decks
 py export_decks.py       # web: copy the built-in decks into web/decks.js
+py pack_decks.py         # roll the decks and the master list into one deck pack (in Downloads)
+py unpack_decks.py       # split the newest pack in Downloads back into the deck files
 py -m http.server 8765 --bind 127.0.0.1 --directory web   # web: try it at http://localhost:8765/
 ```
 
 ## Web version
 
 - web/decks.js is made by export_decks.py; never edit it by hand. Export again after cards change.
+- A **deck pack** is one CSV holding up to 8 decks and the master list:
+  `deck,acronym,full_name,description`, the deck's label on every row, master rows labeled
+  `(master)` (a label no deck may use). The filename isn't stored; it comes from the label.
+  Written with a byte-order mark (utf-8-sig) for Excel. pack_decks.py names each new pack
+  `mezmerize_decks_YYYY-MM-DD_HHMM.csv` in Downloads, so it never overwrites one.
+  unpack_decks.py takes the newest `mezmerize_decks*.csv` in Downloads (or a file named on
+  the command line), shows each file's count now and in the pack, and writes only on Y:
+  the decks matching the 8 built-in labels (ignoring capitals), then master.csv through
+  write_sorted (master.bak first). Decks not in the pack are left alone; other labels are
+  listed as skipped. A pack with no master rows keeps today's master list and adds the
+  versions it lacks. Run it in `mezmerize-use`, where card work happens.
 - mezmerize.js follows the PowerShell app's rules (versions, deck notes, Also in / Found in,
   Recents, deck finder, visiting) and its keys (ENTER, ESC, +, numbers, letters); every key
   is also a button. Recents live in the browser (localStorage), 25 kept.
@@ -334,8 +347,8 @@ py -m http.server 8765 --bind 127.0.0.1 --directory web   # web: try it at http:
 ## How to work with me
 
 - I'm learning Python and type every code change myself. Don't edit code files directly.
-  Exception: in `mezmerize-win`, Claude builds the web version itself (web/, export_decks.py)
-  and asks me before moving on when a decision is mine.
+  Exception: in `mezmerize-win`, Claude builds the web version itself (web/, export_decks.py,
+  pack_decks.py, unpack_decks.py) and asks me before moving on when a decision is mine.
 - Questions: say what's being decided and why now, explain each option in plain words (what
   happens, what it changes later), and give a recommendation. If I didn't follow, explain,
   then ask the question again.

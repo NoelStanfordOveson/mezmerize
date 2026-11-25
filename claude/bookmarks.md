@@ -38,12 +38,53 @@ offering.
   domain, a frame-ancestors header, and a test of Cloudflare Access inside a SharePoint
   frame); (3) an SPFx web part reusing the same JavaScript (needs the app catalog).
 
+- 2026-11-25: Colleagues edit cards on the web too (not just Alex). Proposed design, pending
+  Alex's answers: every web save is one commit on GitHub `main` (deck + master.csv together,
+  the colleague as author), so GitHub stays the one true copy; a small PHP file on the hub
+  hands the page its cards straight from GitHub (behind the guard, so the decks stay
+  private and no export/upload is needed after card changes); a second PHP file saves,
+  checking who's signed in (the Cloudflare token's email) and applying the same rules as
+  the PowerShell app. Alex creates a GitHub token limited to this repo and stores it on
+  the server outside the website (never in chat).
+- 2026-11-25: Alex's ideal replaces that design: bring-your-own decks. Up to 8 decks loaded
+  at a time; anyone can load their own decks and edit them. One compact file holds all of
+  a person's decks (a "deck pack"); the start screen offers to change out the decks; at the
+  end the pack is saved, and a utility can split it into the standard 8 deck files for the
+  Python app. The deck's label travels inside the file. Proposed (pending Alex): edits stay
+  in that person's browser and their pack file, so no server saving, GitHub token, or editor
+  list is needed; the ClearDay decks stay the shared starting set.
+- 2026-11-25: Deck pack format: one CSV with a deck column,
+  `deck,acronym,full_name,description`, the deck's label on every row. The filename isn't
+  stored; it comes from the label by the usual rule (`GRC/Frameworks` -> `grc_frameworks.csv`).
+  A single deck is a pack with one label. (Considered and passed over: label records above
+  each deck, which Excel sorting scrambles; the label inside the acronym as `Label|ABAC`,
+  the same size but harder to edit. `+` can't be a separator: CySA+, MCP+I, TACACS+.)
+- 2026-11-25: A pack carries the master list, as rows labeled `(master)` (a reserved label no
+  deck may use). The web app keeps it current with the PowerShell rules (add a new version;
+  drop the old one only if no deck uses it; never remove backlog). A pack loaded without
+  master rows gets one built from its decks. A round trip (pack, web edits, split back
+  into files) loses nothing, backlog included.
+- 2026-11-25: Defaults (Alex can change any): a pack with more than 8 decks asks which 8 to
+  load; deck labels are any text except `(master)`, and no two alike ignoring capitals;
+  work is kept in the browser between visits, and Save decks downloads the pack (the
+  browser copy can be lost if site data is cleared). The split utility writes the decks
+  whose labels match the Python app's 8 built-in decks, plus master.csv, and lists any
+  others it skipped.
+
 ## Progress
 
 - 2026-11-19: First web version built in `web/` (study and lookup, no editing), plus
   `export_decks.py`. Tested locally in the browser pane: deck list, deck menu, Review,
   Quiz by Acronym, Quiz by Full Name, lookup with Also in / Found in and identical counts,
-  Recents with the arrow keys, deck finder, visiting, phone width. Not committed yet.
+  Recents with the arrow keys, deck finder, visiting, phone width. Committed and published.
+- 2026-11-23: All decks study shows each identical card once (DECKS: line), matching the
+  PowerShell app. main merged into web; decks re-exported (317 cards, 279 in All decks).
+- 2026-11-25: pack_decks.py and unpack_decks.py built (Claude builds them, like
+  export_decks.py). Tested on a scratch copy: pack then unpack changes nothing; a hand-edited
+  pack (no master rows, a new card with a comma, a lowercase label, an unknown deck, a row
+  with no label) writes the right files and reports the rest; N writes nothing.
+  Found on the way: 9 IS Engineering cards with blank descriptions (DNS, FTP, GCP, IP, OSPF,
+  POP3, SMTP, SSH, Telnet) aren't in master.csv (strays, as of the 2026-11-23 data).
 
 ## Open questions
 
