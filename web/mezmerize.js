@@ -1,6 +1,8 @@
 /*
  * mezmerize.js: the web version of mezmerize (study and lookup; no editing yet).
- * The cards come from decks.js, which export_decks.py writes from the data folder.
+ * The ClearDay decks come from decks.js, which export_decks.py writes from the data folder.
+ * Anyone can load their own decks instead (a deck pack, or plain deck files): up to 8 at
+ * once, kept in this browser, and saved back to a deck pack file.
  * Every screen works with the keys from the PowerShell app (ENTER, ESC, +, numbers,
  * letters) and with clicks or taps.
  *
@@ -13,17 +15,28 @@
  * 1f. deckNotes(card)
  * 1g. mergeIdentical(cards)
  * 1h. studyCards(label)
- * 2. Recents
+ * 1i. clearDaySet()
+ * 1j. useSet(set)
+ * 1k. parseCsv(text)
+ * 1l. labelFromFilename(name)
+ * 1m. readDeckFile(name, text, into)
+ * 1n. sortCards(cards)
+ * 1o. makeSet(name, decks, master)
+ * 1p. packCsv(set)
+ * 2. Kept in this browser only
  * 2a. loadRecent()
  * 2b. saveRecent(acronym)
+ * 2c. loadMine()
+ * 2d. saveMine(set)
+ * 2e. saveUsing(kind), loadUsing()
  * 3. Drawing helpers
- * 3a. esc(text)
+ * 3a. esc(text), plural(count, word)
  * 3b. banner(major, minor)
  * 3c. keyButton(key, words, main)
  * 3d. cardHtml(card, options)
  * 3e. show(html, keys)
  * 4. Screens
- * 4a. showHome()
+ * 4a. showHome(), setLine()
  * 4b. showDeckMenu(label, note)
  * 4c. startStudy(label, mode)
  * 4d. showStudyCard()
@@ -32,6 +45,10 @@
  * 4g. runLookup(query)
  * 4h. leaveLookup()
  * 4i. showFinder(card, from)
+ * 4j. showDecks(message), pickFiles()
+ * 4k. loadFiles(files), finishLoad(name, decks, master, problems)
+ * 4l. showPick(name, decks, master, problems)
+ * 4m. saveDecks()
  * 5. Keys and clicks
  * 5a. keyName(event)
  * 5b. onKey(event)
@@ -53,11 +70,16 @@
     fullname: { banner: "Quiz by Full Name", hidden: ["acronym", "description"],   shuffle: true },
   };
 
-  const DECKS = ((window.MEZ_DECKS && window.MEZ_DECKS.decks) || []).map(function (deck) {
-    return { label: deck.label, cards: deck.cards.map(function (card) {
-      return Object.assign({}, card, { deck: deck.label });
-    }) };
-  });
+  const MAX_DECKS = 8;                                     // decks in use at once (keys 1-8)
+  const MASTER_LABEL = "(master)";                         // the master list's label in a deck pack
+  const PACK_FIELDS = ["deck", "acronym", "full_name", "description"];
+  const FIELDS = ["acronym", "full_name", "description"];
+  const MINE_KEY = "mezmerize.mydecks";                    // this browser's copy of the user's own decks
+  const USING_KEY = "mezmerize.using";                     // "mine" or "clearday": the set last in use
+
+  let SET = null;                                          // the deck set in use: see clearDaySet()
+  let DECKS = [];                                          // its decks; each card knows its deck
+  let MASTER = [];                                         // its master list
 
   const app = document.getElementById("app");
   let S = {};                                             // what's on screen now
@@ -146,8 +168,133 @@
     return label === ALL ? mergeIdentical(cardsFor(ALL)) : cardsFor(label);
   }
 
+  // 1i. The ClearDay decks, from decks.js
+  function clearDaySet() {
+    const data = window.MEZ_DECKS || {};
+    return { kind: "clearday", name: "ClearDay decks", date: data.exported || "",
+             decks: data.decks || [], master: data.master || [], changed: false };
+  }
 
-  // 2. Recents (kept in this browser only)
+  // 1j. Put a deck set in use
+  function useSet(set) {
+    SET = set;
+    DECKS = set.decks.map(function (deck) {
+      return { label: deck.label, cards: deck.cards.map(function (card) {
+        return Object.assign({}, card, { deck: deck.label });
+      }) };
+    });
+    MASTER = set.master;
+    saveUsing(set.kind);
+  }
+
+  // 1k. Split CSV text into rows of fields (quotes, commas, and line breaks inside quotes)
+  function parseCsv(text) {
+    text = text.replace(/^﻿/, "");                    // a byte-order mark isn't data
+    const rows = [];
+    let row = [], field = "", quoted = false;
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      if (quoted) {
+        if (ch !== '"') field += ch;
+        else if (text[i + 1] === '"') { field += '"'; i++; }
+        else quoted = false;
+      } else if (ch === '"') {
+        quoted = true;
+      } else if (ch === ",") {
+        row.push(field); field = "";
+      } else if (ch === "\n" || ch === "\r") {
+        if (ch === "\r" && text[i + 1] === "\n") i++;
+        row.push(field); rows.push(row); row = []; field = "";
+      } else {
+        field += ch;
+      }
+    }
+    if (field || row.length) { row.push(field); rows.push(row); }
+    return rows;
+  }
+
+  // 1l. A deck's label from a plain deck file's name: is_engineering.csv -> Is Engineering
+  function labelFromFilename(name) {
+    let label = name.replace(/\.[^.]*$/, "").replace(/_/g, " ").trim();
+    if (label === label.toLowerCase()) {
+      label = label.replace(/\b\w/g, function (ch) { return ch.toUpperCase(); });
+    }
+    return label;
+  }
+
+  // 1m. Read one file: a deck pack (with a deck column) or a plain deck (acronym,full_name,description)
+  // Adds its cards to into: { decks: {key: {label, cards}}, order: [keys], master: [] or null, problems: [] }
+  function readDeckFile(name, text, into) {
+    const rows = parseCsv(text).filter(function (row) { return row.some(function (f) { return f.trim(); }); });
+    if (!rows.length) { into.problems.push(name + ": the file is empty."); return; }
+    const header = rows[0].map(function (f) { return f.trim().toLowerCase(); });
+    const isPack = header.indexOf("deck") >= 0;
+    const needed = isPack ? PACK_FIELDS : FIELDS;
+    const missing = needed.filter(function (f) { return header.indexOf(f) < 0; });
+    if (missing.length) {
+      into.problems.push(name + ": isn't a deck file (the first line needs " + needed.join(",") + ").");
+      return;
+    }
+    const at = {};
+    needed.forEach(function (f) { at[f] = header.indexOf(f); });
+    const last = header.length - 1;
+    rows.slice(1).forEach(function (row, i) {
+      if (row.length > header.length && at.description === last) {  // unquoted commas split the description
+        row = row.slice(0, last).concat([row.slice(last).join(",")]);
+      }
+      const card = {};
+      FIELDS.forEach(function (f) { card[f] = (row[at[f]] || "").trim(); });
+      if (!card.acronym && !card.full_name && !card.description) return;
+      const label = isPack ? (row[at.deck] || "").trim() : labelFromFilename(name);
+      if (!label) { into.problems.push(name + " line " + (i + 2) + ": " + card.acronym + " has no deck label."); return; }
+      const key = fold(label);
+      if (key === MASTER_LABEL) { (into.master = into.master || []).push(card); return; }
+      if (!into.decks[key]) { into.decks[key] = { label: label, cards: [] }; into.order.push(key); }
+      into.decks[key].cards.push(card);
+    });
+  }
+
+  // 1n. Sort a deck's cards by acronym, ignoring capitals
+  function sortCards(cards) {
+    return cards.sort(function (a, b) {
+      const x = fold(a.acronym), y = fold(b.acronym);
+      return x < y ? -1 : x > y ? 1 : 0;
+    });
+  }
+
+  // 1o. A deck set from chosen decks. A master list in the file is kept exactly as it is;
+  // with none, one is built from the decks (every version once).
+  function makeSet(name, decks, master) {
+    let list = master ? master.slice() : [];
+    if (!master) {
+      const known = {};
+      decks.forEach(function (deck) {
+        deck.cards.forEach(function (card) {
+          if (!known[versionOf(card)]) { list.push(card); known[versionOf(card)] = true; }
+        });
+      });
+    }
+    return { kind: "mine", name: name, date: new Date().toISOString().slice(0, 10),
+             decks: decks.map(function (deck) { return { label: deck.label, cards: sortCards(deck.cards.slice()) }; }),
+             master: sortCards(list), changed: false };
+  }
+
+  // 1p. A deck set as deck pack text: the decks in order, then the master list
+  function packCsv(set) {
+    const quote = function (text) {
+      return /[",\r\n]|^\s|\s$/.test(text) ? '"' + text.replace(/"/g, '""') + '"' : text;
+    };
+    const lines = [PACK_FIELDS.join(",")];
+    const add = function (label, card) {
+      lines.push([label, card.acronym, card.full_name, card.description].map(quote).join(","));
+    };
+    set.decks.forEach(function (deck) { deck.cards.forEach(function (card) { add(deck.label, card); }); });
+    set.master.forEach(function (card) { add(MASTER_LABEL, card); });
+    return "﻿" + lines.join("\n") + "\n";
+  }
+
+
+  // 2. Kept in this browser only: Recents and the user's own decks
   // 2a. Read the recent lookups, newest first
   function loadRecent() {
     try {
@@ -167,6 +314,35 @@
     } catch (e) { /* a convenience: never stop a lookup over it */ }
   }
 
+  // 2c. The user's own decks as this browser last kept them, or null
+  function loadMine() {
+    try {
+      const mine = JSON.parse(localStorage.getItem(MINE_KEY) || "null");
+      return mine && Array.isArray(mine.decks) && Array.isArray(mine.master) ? mine : null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // 2d. Keep the user's own decks in this browser; false if the browser wouldn't keep them
+  function saveMine(set) {
+    try {
+      localStorage.setItem(MINE_KEY, JSON.stringify(set));
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  // 2e. Remember which set was last in use ("mine" or "clearday")
+  function saveUsing(kind) {
+    try { localStorage.setItem(USING_KEY, kind); } catch (e) { /* a convenience */ }
+  }
+
+  function loadUsing() {
+    try { return localStorage.getItem(USING_KEY) || "clearday"; } catch (e) { return "clearday"; }
+  }
+
 
   // 3. Drawing helpers
   // 3a. Make text safe to put inside HTML
@@ -174,6 +350,11 @@
     return String(text == null ? "" : text).replace(/[&<>"']/g, function (ch) {
       return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[ch];
     });
+  }
+
+  // A word for a count: " card" for 1, " cards" otherwise
+  function plural(count, word) {
+    return word + (count === 1 ? "" : "s");
   }
 
   // 3b. The banner: MAJOR - Minor
@@ -230,21 +411,30 @@
       keys[n] = function () { showDeckMenu(deck.label); };
       rows += '<li><button type="button" class="choice" data-key="' + n + '"><span class="num">' + n +
         '</span><span class="what">' + esc(deck.label) + '</span><span class="count">' +
-        deck.cards.length + " cards</span></button></li>";
+        deck.cards.length + plural(deck.cards.length, " card") + "</span></button></li>";
     });
     keys.a = function () { showDeckMenu(ALL); };
     keys.l = function () { startLookup(ALL, "home"); };
     rows += '<li><button type="button" class="choice" data-key="a"><span class="num">A</span>' +
-      '<span class="what">All Built-in Decks</span><span class="count">' + studyCards(ALL).length +
-      " cards</span></button></li>";
+      '<span class="what">' + (SET.kind === "clearday" ? "All Built-in Decks" : "All My Decks") +
+      '</span><span class="count">' + studyCards(ALL).length + plural(studyCards(ALL).length, " card") +
+      "</span></button></li>";
     rows += '<li><button type="button" class="choice" data-key="l"><span class="num">L</span>' +
       '<span class="what">Look up an acronym in all decks</span></button></li>';
+    keys.d = showDecks;
+    rows += '<li><button type="button" class="choice" data-key="d"><span class="num">D</span>' +
+      '<span class="what">Change decks</span><span class="count">load, save, or switch</span></button></li>';
 
     show(banner("Study Mode", "Deck List") + "<h2>Which deck to study?</h2>" +
-      '<ul class="menu">' + rows + "</ul>" +
-      '<p class="foot">Cards are added and edited in the desktop version of mezmerize.' +
-      (window.MEZ_DECKS && window.MEZ_DECKS.exported ? " Decks as of " + esc(window.MEZ_DECKS.exported) + "." : "") +
-      "</p>", keys);
+      '<p class="sub">' + setLine() + "</p>" +
+      '<ul class="menu">' + rows + "</ul>", keys);
+  }
+
+  // What's in use, in one line: "ClearDay decks, as of 2026-11-23" or "My decks: <file>, loaded ..."
+  function setLine() {
+    if (SET.kind === "clearday") return "ClearDay decks" + (SET.date ? ", as of " + esc(SET.date) : "");
+    return "My decks: " + esc(SET.name) + ", loaded " + esc(SET.date) +
+      (SET.changed ? ' <span class="report">(changes not yet saved to a file)</span>' : "");
   }
 
   // 4b. One deck's menu: look up, review, or quiz
@@ -270,7 +460,7 @@
         '</span><span class="what">' + c[1] + "</span></button></li>";
     });
     show(banner("Study Mode", "Menu") +
-      "<h2>Deck: " + (label === ALL ? "All Built-in Decks" : '<span class="holds">' + esc(label) + "</span>") + "</h2>" +
+      "<h2>Deck: " + (label === ALL ? (SET.kind === "clearday" ? "All Built-in Decks" : "All My Decks") : '<span class="holds">' + esc(label) + "</span>") + "</h2>" +
       '<p class="sub">' + cards.length + " flashcards</p>" +
       (note ? '<p class="note">' + esc(note) + "</p>" : "") +
       '<ul class="menu">' + rows + "</ul>" +
@@ -507,6 +697,138 @@
       keyButton("+", "back to card") + keyButton("ESC", "back to card") + "</div>", keys);
   }
 
+  // 4j. Change decks: load a deck pack or deck files, save these decks, or switch sets
+  function showDecks(message) {
+    S = { screen: "decks" };
+    const mine = loadMine();
+    const keys = { esc: showHome, l: pickFiles, s: saveDecks };
+    const choices = [
+      ["L", "Load a deck pack or deck files", "from this computer"],
+      ["S", "Save these decks to a file", "one deck pack, to Downloads"],
+    ];
+    if (SET.kind === "mine") {
+      keys.c = function () { useSet(clearDaySet()); showDecks("Now using the ClearDay decks."); };
+      choices.push(["C", "Use the ClearDay decks", "My decks stay kept here"]);
+    } else if (mine) {
+      keys.m = function () { useSet(mine); showDecks("Now using My decks: " + esc(mine.name) + "."); };
+      choices.push(["M", "Use My decks", mine.name]);
+    }
+    let rows = "";
+    choices.forEach(function (c) {
+      rows += '<li><button type="button" class="choice" data-key="' + c[0].toLowerCase() + '"><span class="num">' +
+        c[0] + '</span><span class="what">' + esc(c[1]) + '</span><span class="count">' + esc(c[2]) +
+        "</span></button></li>";
+    });
+    show(banner("Decks", "Change Decks") +
+      "<h2>In use: " + (SET.kind === "clearday" ? "ClearDay decks" : "My decks") + "</h2>" +
+      '<p class="sub">' + setLine() + "</p>" +
+      (message ? '<div class="note">' + message + "</div>" : "") +
+      '<ul class="menu">' + rows + "</ul>" +
+      '<div class="drop" data-key="l">Or drop deck files here. A deck pack holds up to ' + MAX_DECKS +
+      ' decks and the master list (<code>deck,acronym,full_name,description</code>); a plain deck file ' +
+      "(<code>acronym,full_name,description</code>) takes its name from the file.</div>" +
+      '<p class="foot">My decks are kept in this browser between visits. Save them to a file to keep them ' +
+      "safe, to use them on another computer, or to split them back into deck files with " +
+      "<code>py unpack_decks.py</code>.</p>" +
+      '<input type="file" id="mez-file" accept=".csv,text/csv" multiple hidden>' +
+      '<div class="keys">' + keyButton("ESC", "deck list") + "</div>", keys);
+    document.getElementById("mez-file").addEventListener("change", function (event) {
+      loadFiles(event.target.files);
+    });
+  }
+
+  // Open the file picker
+  function pickFiles() {
+    const input = document.getElementById("mez-file");
+    if (input) input.click();
+  }
+
+  // 4k. Read the chosen files; up to 8 decks load at once, more go to the pick screen
+  function loadFiles(files) {
+    files = Array.prototype.slice.call(files || []);
+    if (!files.length) return;
+    if (SET.kind === "mine" && SET.changed &&
+        !window.confirm("My decks have changes not yet saved to a file. Load other decks anyway?")) return;
+    const into = { decks: {}, order: [], master: null, problems: [] };
+    Promise.all(files.map(function (file) {
+      return file.text().then(function (text) { readDeckFile(file.name, text, into); });
+    })).then(function () {
+      const decks = into.order.map(function (key) { return into.decks[key]; });
+      const name = files.length === 1 ? files[0].name : files.length + " files";
+      const problems = into.problems.length ?
+        '<p class="report">' + into.problems.map(esc).join("<br>") + "</p>" : "";
+      if (!decks.length) {
+        showDecks('<p class="report">No decks found.</p>' + problems);
+      } else if (decks.length > MAX_DECKS) {
+        showPick(name, decks, into.master, problems);
+      } else {
+        finishLoad(name, decks, into.master, problems);
+      }
+    });
+  }
+
+  // Put the loaded decks in use and keep them in this browser
+  function finishLoad(name, decks, master, problems) {
+    const set = makeSet(name, decks, master);
+    const kept = saveMine(set);
+    useSet(set);
+    let note = "<p>Loaded " + decks.length + " deck" + (decks.length > 1 ? "s" : "") + " from " + esc(name) + ".</p>";
+    if (!master) note += "<p>No master list in the file: one was made from the decks.</p>";
+    if (!kept) note += '<p class="report">This browser wouldn\'t keep them: save them to a file before leaving.</p>';
+    showDecks(note + (problems || ""));
+  }
+
+  // 4l. More than 8 decks: choose which to load
+  function showPick(name, decks, master, problems) {
+    const chosen = decks.map(function (deck, i) { return i < MAX_DECKS; });
+    function draw() {
+      S = { screen: "pick" };
+      const count = chosen.filter(Boolean).length;
+      const keys = { esc: function () { showDecks("Nothing was loaded."); } };
+      let rows = "";
+      decks.forEach(function (deck, i) {
+        const n = String(i + 1);
+        const toggle = function () { chosen[i] = !chosen[i]; draw(); };
+        if (i < 9) keys[n] = toggle;
+        keys["pick" + i] = toggle;
+        rows += '<li><button type="button" class="choice' + (chosen[i] ? " on" : "") + '" data-key="' +
+          (i < 9 ? n : "pick" + i) + '" aria-pressed="' + chosen[i] + '"><span class="num">' +
+          (i < 9 ? n : "") + '</span><span class="what">' + esc(deck.label) + '</span><span class="count">' +
+          deck.cards.length + plural(deck.cards.length, " card") + (chosen[i] ? " ✓" : "") + "</span></button></li>";
+      });
+      const ready = count > 0 && count <= MAX_DECKS;
+      if (ready) keys.enter = function () {
+        finishLoad(name, decks.filter(function (deck, i) { return chosen[i]; }), master, problems);
+      };
+      show(banner("Decks", "Choose Decks") +
+        "<h2>" + esc(name) + " has " + decks.length + " decks</h2>" +
+        '<p class="sub">Choose up to ' + MAX_DECKS + ". " +
+        '<span class="' + (ready ? "" : "report") + '">' + count + " chosen.</span></p>" +
+        '<ul class="menu">' + rows + "</ul>" +
+        '<div class="keys">' + (ready ? keyButton("ENTER", "load these", true) : "") +
+        keyButton("ESC", "cancel") + "</div>", keys);
+    }
+    draw();
+  }
+
+  // 4m. Save the decks in use as one deck pack (the browser puts it in Downloads)
+  function saveDecks() {
+    const now = new Date();
+    const pad = function (n) { return String(n).padStart(2, "0"); };
+    const name = "mezmerize_decks_" + now.getFullYear() + "-" + pad(now.getMonth() + 1) + "-" + pad(now.getDate()) +
+      "_" + pad(now.getHours()) + pad(now.getMinutes()) + ".csv";
+    const url = URL.createObjectURL(new Blob([packCsv(SET)], { type: "text/csv;charset=utf-8" }));
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = name;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    setTimeout(function () { URL.revokeObjectURL(url); }, 1000);
+    if (SET.kind === "mine") { SET.changed = false; saveMine(SET); }
+    showDecks("<p>Saved " + SET.decks.length + " decks and the master list as " + esc(name) + ".</p>");
+  }
+
 
   // 5. Keys and clicks
   // 5a. A key's name as the screens use it: enter, esc, +, 1, a, ...
@@ -620,14 +942,24 @@
   }
 
 
-  // 7. Start
+  // 7. Start: the set last in use (the user's own decks if this browser kept them), else ClearDay
   document.addEventListener("keydown", onKey);
   app.addEventListener("click", onClick);
   app.addEventListener("submit", function (event) { event.preventDefault(); });
+  document.addEventListener("dragover", function (event) {
+    if (S.screen === "decks") { event.preventDefault(); app.classList.add("dropping"); }
+  });
+  document.addEventListener("dragleave", function () { app.classList.remove("dropping"); });
+  document.addEventListener("drop", function (event) {
+    app.classList.remove("dropping");
+    if (S.screen !== "decks") return;
+    event.preventDefault();
+    loadFiles(event.dataTransfer.files);
+  });
   if ("ResizeObserver" in window) new ResizeObserver(reportHeight).observe(document.documentElement);
-  if (!DECKS.length) {
-    show(banner("Mezmerize") + '<p class="note">No decks found. Run  py export_decks.py  to make decks.js.</p>');
-  } else {
-    showHome();
-  }
+  const mine = loadMine();
+  useSet(loadUsing() === "mine" && mine ? mine : clearDaySet());
+  if (DECKS.length) showHome();
+  else showDecks('<p class="report">No ClearDay decks found (run  py export_decks.py  to make decks.js). ' +
+    "Load a deck pack or deck files to begin.</p>");
 })();

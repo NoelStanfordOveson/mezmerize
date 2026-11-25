@@ -99,9 +99,18 @@ button.deckrow:hover,button.deckrow:focus-visible{background:var(--bg-alt);outli
 .match-tools{display:flex;justify-content:flex-end;padding:0 18px 12px;margin-top:-6px}
 
 .note{color:var(--report);margin:0 0 14px}
+.note p{margin:0 0 4px}
+.choice.on{border-color:var(--choice);background:#f2f8f3}
+.choice.on .num{background:var(--choice);color:#fff}
+.drop{border:2px dashed var(--line);border-radius:var(--radius);padding:16px 18px;color:var(--muted);font-size:.92rem;cursor:pointer;margin:0 0 6px}
+.drop:hover,.dropping .drop{border-color:var(--ink-2);background:var(--bg-alt);color:var(--text)}
+code{font-family:Consolas,"Cascadia Mono",monospace;font-size:.88em;background:var(--bg-alt);border-radius:4px;padding:0 4px}
 .foot{margin-top:26px;color:var(--muted);font-size:.85rem;border-top:1px solid var(--line);padding-top:12px}
 
 @media (max-width:520px){
+  .choice{flex-wrap:wrap;row-gap:2px}
+  .choice .what{flex:1 1 10em}
+  .choice .count{margin-left:auto}
   .fields{grid-template-columns:1fr;gap:2px}
   .fields dd{margin-bottom:8px}
   .deckrow{grid-template-columns:30px 1fr}

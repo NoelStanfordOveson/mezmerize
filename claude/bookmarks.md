@@ -85,6 +85,12 @@ offering.
   with no label) writes the right files and reports the rest; N writes nothing.
   Found on the way: 9 IS Engineering cards with blank descriptions (DNS, FTP, GCP, IP, OSPF,
   POP3, SMTP, SSH, Telnet) aren't in master.csv (strays, as of the 2026-11-23 data).
+- 2026-11-25: Web Change decks built: load a pack or plain deck files (pick or drop), Choose
+  Decks for more than 8, save a pack, switch between ClearDay decks and My decks; kept in
+  the browser between visits. export_decks.py now includes the master list. Tested: the web
+  save is byte-identical to pack_decks.py's pack; save, reload, save again comes back the
+  same; 10-deck pack, no master rows, no-label row, plain deck file, non-deck file, phone
+  width. Next: editing (add, edit, copy, move, delete) on My decks.
 
 ## Open questions
 

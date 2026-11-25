@@ -29,7 +29,17 @@ py -m http.server 8765 --bind 127.0.0.1 --directory web   # web: try it at http:
 
 ## Web version
 
-- web/decks.js is made by export_decks.py; never edit it by hand. Export again after cards change.
+- web/decks.js is made by export_decks.py (the 8 decks and the master list); never edit it by
+  hand. Export again after cards change.
+- Deck sets: the web app uses either the ClearDay decks (decks.js) or **My decks**, loaded
+  on the Change decks screen (D on the deck list): a deck pack or plain deck files, picked or
+  dropped on the page. Up to MAX_DECKS (8) load at once; more go to the Choose Decks screen
+  (numbers toggle, ENTER loads). My decks are kept in the browser (localStorage
+  `mezmerize.mydecks`; `mezmerize.using` remembers which set is in use) and saved with
+  S = save, which downloads a pack named like pack_decks.py's, byte for byte the same
+  format. A file's master list is kept exactly; with none, one is built from its decks.
+  A plain deck file's label comes from its name (`my_deck.csv` -> `My Deck`).
+  Screens say "My decks", never "your".
 - A **deck pack** is one CSV holding up to 8 decks and the master list:
   `deck,acronym,full_name,description`, the deck's label on every row, master rows labeled
   `(master)` (a label no deck may use). The filename isn't stored; it comes from the label.

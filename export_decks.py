@@ -1,22 +1,23 @@
 """
 export_decks: copy the built-in decks into the web app.
-Reads every built-in deck in the data folder and writes web/decks.js, the file the
-web page loads its cards from. Run it after cards change: py export_decks.py
+Reads every built-in deck and the master list in the data folder and writes web/decks.js,
+the file the web page loads its cards from. Run it after cards change: py export_decks.py
 """
 import json
 import os
 from datetime import date
 
 from mez_common import BUILTIN_DECKS, csv_path, load_flashcards, program_folder
-from mez_cards import FIELDS
+from mez_cards import FIELDS, MASTER_FILE, read_rows
 
 WEB_FOLDER = "web"                                                          # the web app's folder
 DECKS_FILE = "decks.js"                                                     # the file the web page loads
 
 
 # 1. build_decks()
-# 2. write_decks(decks)
-# 3. Main program
+# 2. build_master()
+# 3. write_decks(decks, master)
+# 4. Main program
 
 
 # 1. Gather every built-in deck, in menu order
@@ -32,11 +33,23 @@ def build_decks():
         decks.append({"label": label, "cards": cards})
     return decks
 
-# 2. Write the decks as a JavaScript file the web page can load
-def write_decks(decks):
+
+# 2. The master list: every version in use, plus the backlog
+def build_master():
+    """Return the master list's cards, sorted by acronym (empty if there's no master.csv)."""
+    if not os.path.exists(csv_path(MASTER_FILE)):
+        print(f"Skipped {MASTER_FILE}: file not found.")
+        return []
+    master = read_rows(MASTER_FILE)
+    master.sort(key=lambda card: card["acronym"].casefold())
+    return master
+
+
+# 3. Write the decks as a JavaScript file the web page can load
+def write_decks(decks, master):
     """Write web/decks.js and return its full path."""
     path = os.path.join(program_folder(), WEB_FOLDER, DECKS_FILE)
-    data = {"exported": date.today().isoformat(), "decks": decks}
+    data = {"exported": date.today().isoformat(), "decks": decks, "master": master}
     with open(path, mode="w", encoding="utf-8", newline="\n") as file:
         file.write("// Made by export_decks.py from the data folder. Don't edit by hand:\n")
         file.write("// change the cards, then run  py export_decks.py  again.\n")
@@ -46,13 +59,14 @@ def write_decks(decks):
     return path
 
 
-# 3. Main program
+# 4. Main program
 def main():
     """Export the decks and say what was written."""
     decks = build_decks()
-    path = write_decks(decks)
+    master = build_master()
+    path = write_decks(decks, master)
     total = sum(len(deck["cards"]) for deck in decks)
-    print(f"Wrote {total} cards from {len(decks)} decks to {path}")
+    print(f"Wrote {total} cards from {len(decks)} decks, and {len(master)} master rows, to {path}")
 
 
 # This runs the program when you type: py export_decks.py
