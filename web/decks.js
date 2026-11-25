@@ -1,7 +1,7 @@
 // Made by export_decks.py from the data folder. Don't edit by hand:
 // change the cards, then run  py export_decks.py  again.
 window.MEZ_DECKS = {
- "exported": "2026-11-21",
+ "exported": "2026-11-23",
  "decks": [
   {
    "label": "AI Security",
@@ -12,6 +12,11 @@ window.MEZ_DECKS = {
      "description": "The capability of a machine to learn, reason, solve problems, make decisions, and understand language."
     },
     {
+     "acronym": "AMP",
+     "full_name": "Agent Management Platform",
+     "description": "A platform that deploys, orchestrates, secures, and manages AI agents throughout their lifecycle through access control, policy enforcement, observability, auditing, and performance management."
+    },
+    {
      "acronym": "AWS",
      "full_name": "Amazon Web Services",
      "description": "A cloud computing platform, AWS provides on-demand infrastructure, platform, and security services for building, deploying, and securing applications without managing physical data centers."
@@ -20,6 +25,11 @@ window.MEZ_DECKS = {
      "acronym": "gen AI",
      "full_name": "generative AI",
      "description": "A type of AI that creates new content, such as text, images, code, audio, or video, by learning patterns from large amounts of training data."
+    },
+    {
+     "acronym": "GPT",
+     "full_name": "Generative Pre-trained Transformer",
+     "description": "A generative AI model architecture based on transformers and pretrained on large datasets to generate content, with cybersecurity applications including security operations and risks such as prompt injection, data exposure, and AI-powered attacks."
     },
     {
      "acronym": "LLM",
@@ -120,6 +130,11 @@ window.MEZ_DECKS = {
      "acronym": "CySA+",
      "full_name": "CyberSecurity Analyst Plus",
      "description": "A CompTIA certification validating the skills to detect, analyze, and respond to security threats using threat monitoring, vulnerability management, and incident response techniques."
+    },
+    {
+     "acronym": "ISC2",
+     "full_name": "International Information System Security Certification Consortium",
+     "description": "A global nonprofit association-style professional organization that develops and administers cybersecurity certifications, training, and professional development programs for information security practitioners."
     },
     {
      "acronym": "ISSAP",
@@ -242,6 +257,16 @@ window.MEZ_DECKS = {
      "description": "A model that grants or denies access based on attributes of the user, resource, action, and environment against defined policies."
     },
     {
+     "acronym": "ACP",
+     "full_name": "Access Control Policy",
+     "description": "A set of rules that governs who may access information and resources, under what conditions, and how that access is managed."
+    },
+    {
+     "acronym": "AMP",
+     "full_name": "Advanced Malware Protection",
+     "description": "A security technology that uses signatures, behavioral analysis, sandboxing, and threat intelligence to detect, block, analyze, and respond to malware."
+    },
+    {
      "acronym": "ATT&CK",
      "full_name": "Adversarial Tactics, Techniques, & Common Knowledge",
      "description": "A cybersecurity framework and knowledge base maintained by MITRE that catalogs real-world attacker tactics and techniques to support threat detection, hunting, incident response, and security architecture."
@@ -280,6 +305,11 @@ window.MEZ_DECKS = {
      "acronym": "CIA",
      "full_name": "Confidentiality, Integrity, Availability",
      "description": "A foundational cybersecurity model—Confidentiality, Integrity, and Availability—used to guide security controls and assess information—system risks."
+    },
+    {
+     "acronym": "CIAM",
+     "full_name": "Customer Identity and Access Management",
+     "description": "A set of technologies, processes, and policies that manages customer identities, authentication, authorization, consent, and preferences for digital services, providing self-service registration and login, MFA, SSO, and protection against credential-based attacks while supporting a seamless user experience and scalability."
     },
     {
      "acronym": "CMMC",
@@ -337,6 +367,11 @@ window.MEZ_DECKS = {
      "description": "Detects the unauthorized transmission or disclosure of sensitive data and prevents its occurrence."
     },
     {
+     "acronym": "DMARC",
+     "full_name": "Domain-based Message Authentication, Reporting, and Conformance",
+     "description": "An email authentication protocol that uses SPF and DKIM alignment with the visible From domain to evaluate messages, lets domain owners publish handling policies in DNS, and supports reports on domain use and authentication results."
+    },
+    {
      "acronym": "EBD",
      "full_name": "Entity-Based Detection",
      "description": ""
@@ -375,6 +410,11 @@ window.MEZ_DECKS = {
      "acronym": "ESC",
      "full_name": "Endpoint Security Client",
      "description": "Software installed on endpoint devices that communicates with a central security platform to enforce policies, monitor activity, and help prevent, detect, and respond to threats."
+    },
+    {
+     "acronym": "GPG",
+     "full_name": "GNU Privacy Guard",
+     "description": "An open-source tool that implements OpenPGP to encrypt data, digitally sign files and messages, and verify the authenticity and integrity of communications and software."
     },
     {
      "acronym": "HSM",
@@ -452,6 +492,11 @@ window.MEZ_DECKS = {
      "description": "Inspects and controls network traffic, identifies applications, and blocks attacks and exploits."
     },
     {
+     "acronym": "NVD",
+     "full_name": "National Vulnerability Database",
+     "description": "A U.S. government repository maintained by NIST that enriches CVE records with vulnerability analysis, severity scores, and metadata to support standards-based vulnerability management for publicly disclosed software and hardware vulnerabilities."
+    },
+    {
      "acronym": "OT",
      "full_name": "Operational Technology",
      "description": "Hardware and software used to monitor control and automate physical processes in industrial settings."
@@ -482,6 +527,11 @@ window.MEZ_DECKS = {
      "description": "Any information that can identify, distinguish, or trace an individual, alone or combined with other information."
     },
     {
+     "acronym": "PKI",
+     "full_name": "Public Key Infrastructure",
+     "description": "A framework of policies, processes, hardware, software, and personnel that manages digital certificates and public-private key pairs throughout their lifecycle, including creation, distribution, storage, validation, and revocation."
+    },
+    {
      "acronym": "PLC",
      "full_name": "Programmable Logic Controller",
      "description": "A core ICS foundational component, rugged industrial computers are used in automation and to monitor inputs from sensors, switches, etc., in order to execute programmed logic, and to control outputs such as motors, valves, and relays in real time."
@@ -495,6 +545,11 @@ window.MEZ_DECKS = {
      "acronym": "RMF",
      "full_name": "Risk Management Framework",
      "description": "Commonly refers to the NIST Risk Management Framework, a structured process for identifying, assessing, mitigating, and continuously monitoring security and privacy risks throughout a system’s lifecycle."
+    },
+    {
+     "acronym": "SASE",
+     "full_name": "Secure Access Service Edge",
+     "description": "A cloud-delivered architecture that combines networking and security services—such as SD-WAN, secure web gateways, CASB, firewalls, and Zero Trust Network Access—to provide secure access to applications and resources from anywhere."
     },
     {
      "acronym": "SCADA",
@@ -530,6 +585,11 @@ window.MEZ_DECKS = {
      "acronym": "SOC",
      "full_name": "Security Operations Center",
      "description": "A dedicated site and centralized team that monitors, detects, investigates, and responds to cybersecurity threats across an organization’s IT environment."
+    },
+    {
+     "acronym": "SPF",
+     "full_name": "Sender Policy Framework",
+     "description": "An email authentication protocol that lets domain owners publish authorized sending servers in DNS so receiving systems can check whether messages come from permitted sources, helping combat spoofing and supporting DKIM and DMARC as part of email authentication."
     },
     {
      "acronym": "SSE",
@@ -570,6 +630,11 @@ window.MEZ_DECKS = {
      "acronym": "UEBA",
      "full_name": "User and Entity Behavior Analytics",
      "description": "A cybersecurity capability that uses analytics, machine learning, and behavioral baselines to detect anomalous activity across users, devices, and applications that may signal malicious behavior, compromised accounts, insider threats, or advanced attacks."
+    },
+    {
+     "acronym": "WAF",
+     "full_name": "Web Application Firewall",
+     "description": "A security control that inspects HTTP/HTTPS traffic to protect web applications from attacks that traditional network firewalls may not detect."
     },
     {
      "acronym": "WSA",
@@ -639,7 +704,7 @@ window.MEZ_DECKS = {
     {
      "acronym": "API",
      "full_name": "Application Programming Interface",
-     "description": "A set of rules that allows different software applications to communicate with each other."
+     "description": "A defined set of rules and methods that enables applications, services, and systems to communicate and exchange data, supporting integration, automation, and interoperability without direct access to their underlying code."
     },
     {
      "acronym": "CAPTCHA",
@@ -712,6 +777,21 @@ window.MEZ_DECKS = {
      "description": "REST is an architectural style for web services using APIs that define constraints for distributed, Internet-scale hypermedia systems commonly using HTTP methods such as GET, POST, PUT, and DELETE."
     },
     {
+     "acronym": "SAST",
+     "full_name": "Static Appliation Security Testing",
+     "description": "A security testing method that analyzes an application’s source code, bytecode, or binaries without executing it to identify vulnerabilities and coding weaknesses."
+    },
+    {
+     "acronym": "SCA",
+     "full_name": "Software Composition Analysis",
+     "description": "A security testing method that identifies, inventories, and evaluates open-source and third-party software components for vulnerabilities, license compliance, and dependency risks."
+    },
+    {
+     "acronym": "SOAP",
+     "full_name": "Simple Object Access Protocol",
+     "description": "A protocol for exchanging structured information between systems through XML-based messages over transports such as HTTP, HTTPS, or SMTP."
+    },
+    {
      "acronym": "SPIFFE",
      "full_name": "Secure Production Identity Framework For Everyone",
      "description": "An open standard that provides cryptographically verifiable identities for workloads and services, enabling mutual authentication and Zero Trust communication."
@@ -775,6 +855,11 @@ window.MEZ_DECKS = {
      "acronym": "AICPA",
      "full_name": "American Institute of Certified Public Accountants",
      "description": "The AICPA’s Trust Services Criteria provide a framework that independent CPA firms use to audit and report on a service organization’s security controls."
+    },
+    {
+     "acronym": "API",
+     "full_name": "Application Programming Interface",
+     "description": "A defined set of rules and methods that enables applications, services, and systems to communicate and exchange data, supporting integration, automation, and interoperability without direct access to their underlying code."
     },
     {
      "acronym": "ATT&CK",
@@ -847,6 +932,16 @@ window.MEZ_DECKS = {
      "description": "Data privacy protection framework applying to the European Union."
     },
     {
+     "acronym": "GSA",
+     "full_name": "General Services Administration",
+     "description": "An independent U.S. federal agency that centralizes procurement, contracting, property management, and shared services, helping federal agencies acquire products, services, technology, and facilities through standardized contracts and purchasing programs."
+    },
+    {
+     "acronym": "GWAC",
+     "full_name": "Government-Wide Acquisition Contract",
+     "description": "A multiple-award contract vehicle that enables all U.S. federal agencies to procure IT products and services, including cybersecurity solutions, from pre-vetted vendors through a streamlined acquisition process that reduces procurement timelines."
+    },
+    {
      "acronym": "HIPAA",
      "full_name": "Health Insurance Portability and Accountability Act",
      "description": "A law that prohibits covered entities from disclosing protected health information without a patient’s authorization, except as permitted or required by law."
@@ -875,6 +970,11 @@ window.MEZ_DECKS = {
      "acronym": "NIST",
      "full_name": "National Institute of Standards and Technology",
      "description": "A U.S. federal agency that develops standards, guidelines, and tools for fields such as cybersecurity, measurement science, and technology."
+    },
+    {
+     "acronym": "NVD",
+     "full_name": "National Vulnerability Database",
+     "description": "A U.S. government repository maintained by NIST that enriches CVE records with vulnerability analysis, severity scores, and metadata to support standards-based vulnerability management for publicly disclosed software and hardware vulnerabilities."
     },
     {
      "acronym": "OWASP",
@@ -910,6 +1010,11 @@ window.MEZ_DECKS = {
      "acronym": "SAD",
      "full_name": "Sensitive Authentication Data",
      "description": "Security-related payment card information used to authenticate cardholders or authorize transactions—including card verification codes, PINs, PIN blocks, and full track data—that generally must not be stored after authorization under PCI DSS, even if encrypted."
+    },
+    {
+     "acronym": "SEWP",
+     "full_name": "Solutions for Enterprise-Wide Procurement",
+     "description": "A GWAC program administered by NASA that streamlines federal agencies’ procurement of IT products, software, cloud services, cybersecurity solutions, and related services from pre-approved vendors."
     },
     {
      "acronym": "SOC 2",
@@ -1007,6 +1112,11 @@ window.MEZ_DECKS = {
      "description": "Detects the unauthorized transmission or disclosure of sensitive data and prevents its occurrence."
     },
     {
+     "acronym": "DMARC",
+     "full_name": "Domain-based Message Authentication, Reporting, and Conformance",
+     "description": "An email authentication protocol that uses SPF and DKIM alignment with the visible From domain to evaluate messages, lets domain owners publish handling policies in DNS, and supports reports on domain use and authentication results."
+    },
+    {
      "acronym": "DNS",
      "full_name": "Domain Name System",
      "description": ""
@@ -1087,6 +1197,11 @@ window.MEZ_DECKS = {
      "description": "A framework of policies and technologies to ensure that the right users have the appropriate access to technology resources."
     },
     {
+     "acronym": "ICMP",
+     "full_name": "Internet Control Messaging Protocol",
+     "description": "A network-layer protocol used to report errors, communicate operational information, and support diagnostics in IP networks."
+    },
+    {
      "acronym": "IdP",
      "full_name": "Identity Provider",
      "description": "A service that stores and manages user identities."
@@ -1135,6 +1250,11 @@ window.MEZ_DECKS = {
      "acronym": "MFA",
      "full_name": "Multi-Factor Authentication",
      "description": "A security method that requires users to verify their identity with at least two distinct factors—something they know, have, or are—before granting access."
+    },
+    {
+     "acronym": "MIME",
+     "full_name": "Multipurpose Internet Mail Extensions",
+     "description": "An internet standard that extends email formats to support non-ASCII text, file attachments, multiple content types, and multipart messages."
     },
     {
      "acronym": "NAC",
@@ -1194,7 +1314,7 @@ window.MEZ_DECKS = {
     {
      "acronym": "PKI",
      "full_name": "Public Key Infrastructure",
-     "description": ""
+     "description": "A framework of policies, processes, hardware, software, and personnel that manages digital certificates and public-private key pairs throughout their lifecycle, including creation, distribution, storage, validation, and revocation."
     },
     {
      "acronym": "PoP",
@@ -1284,7 +1404,7 @@ window.MEZ_DECKS = {
     {
      "acronym": "SPF",
      "full_name": "Sender Policy Framework",
-     "description": ""
+     "description": "An email authentication protocol that lets domain owners publish authorized sending servers in DNS so receiving systems can check whether messages come from permitted sources, helping combat spoofing and supporting DKIM and DMARC as part of email authentication."
     },
     {
      "acronym": "SSH",
@@ -1320,6 +1440,11 @@ window.MEZ_DECKS = {
      "acronym": "Telnet",
      "full_name": "TELetype over a NETwork",
      "description": ""
+    },
+    {
+     "acronym": "UEFI",
+     "full_name": "Unified Extensible Firmware Interface",
+     "description": "A modern firmware standard that replaces legacy BIOS, initializes hardware during startup, and hands control to the operating system’s boot loader."
     },
     {
      "acronym": "UEM",
@@ -1417,6 +1542,11 @@ window.MEZ_DECKS = {
      "description": "The process of identifying critical business functions, assessing the effects of their disruption, and defining recovery priorities and requirements."
     },
     {
+     "acronym": "DLP",
+     "full_name": "Data Loss Prevention",
+     "description": "Detects the unauthorized transmission or disclosure of sensitive data and prevents its occurrence."
+    },
+    {
      "acronym": "EF",
      "full_name": "Exposure Factor",
      "description": "The subjective potential percentage of loss to a specific asset if a specific threat is realized."
@@ -1457,9 +1587,29 @@ window.MEZ_DECKS = {
      "description": "Measures the average time it takes an organization to respond to and recover from a security incident after detection."
     },
     {
+     "acronym": "PoV",
+     "full_name": "Proof of Value",
+     "description": "A structured evaluation that measures a product, service, or solution’s business, operational, and technical value in a real-world environment, validating expected outcomes, ROI, and business impact before a purchasing decision."
+    },
+    {
+     "acronym": "RFI",
+     "full_name": "Request For Information",
+     "description": "A formal document used to gather information about vendors’ products, services, capabilities, and solutions to evaluate available options and refine requirements before making purchasing or project decisions or issuing an RFP or RFQ."
+    },
+    {
+     "acronym": "RFP",
+     "full_name": "Request For Proposal",
+     "description": "A formal document that requests detailed vendor proposals and specifies business requirements, technical specifications, evaluation criteria, timelines, and contractual expectations so organizations can compare solutions and select the best fit."
+    },
+    {
+     "acronym": "RFQ",
+     "full_name": "Request For Quotation",
+     "description": "A formal document that requests pricing, licensing, and commercial terms for a clearly defined product or service, enabling vendor comparison primarily on cost, delivery, and contractual terms."
+    },
+    {
      "acronym": "ROI",
      "full_name": "Return on Investment",
-     "description": ""
+     "description": "A financial performance metric that compares an investment’s return with its cost to assess whether the value gained justifies the resources invested."
     },
     {
      "acronym": "SOC",
